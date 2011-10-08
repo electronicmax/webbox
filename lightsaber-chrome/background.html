@@ -1,0 +1,18 @@
+/// 
+<html>
+  <script type="text/javascript" src="lib/jquery.min.js"></script>
+  <script type="text/javascript" src="lib/underscore-min.js"></script>
+  <script type="text/javascript" src="lib/backbone.js"></script>  
+  <script type="text/javascript" src="js/fakedata.js"></script>
+  <script type="text/javascript" src="js/util.js"></script>    
+  <script type="text/javascript" src="js/wais.js"></script>
+  <script type="text/javascript" src="js/background.js"></script>
+
+  <script type="text/javascript">
+    jQuery(document).ready(function() {
+        _(window).extend(_wais());
+        _(window).extend(_background());
+        background.init();
+    });
+  </script>
+</html>
