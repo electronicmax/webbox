@@ -7,8 +7,9 @@ function _background() {
                 this.bind("change", function() { this_.change.apply(this_, arguments); });
                 chrome.windows.onCreated.addListener(
                     function(window) {
-                        console.log("window >> ", window.id);
-                        chrome.tabs.getSelected(window.id, function(tab) {   this_.trigger("changed", tab.url);      });
+                        chrome.tabs.getSelected(window.id, function(tab) {
+                                                    this_.trigger("changed", tab.url);
+                                                });
                     });
                 chrome.windows.onFocusChanged.addListener(
                      function(window) {
@@ -22,7 +23,6 @@ function _background() {
                     });
                 chrome.tabs.onUpdated.addListener(
                     function(tabid, changeinfo, t) {
-                        //                        console.log("CHANGEINFO STATUS ", changeinfo.status); //  { /* skip */ return; }
                         if (changeinfo.status == 'loading') { return; }
                         this_.trigger("changed", t.url);
                     });
@@ -34,8 +34,7 @@ function _background() {
                     });
 
             },
-            change:function(url) {
-            }
+            change:function(url) { }
         }
     );
     return {
