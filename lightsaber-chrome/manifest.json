@@ -12,7 +12,7 @@
   ],
   "content_scripts": [
     {
-      "matches": ["http://web.mit.edu/*"],
+      "matches": ["http://*.com/*","http://*.edu/*"],
       "js": ["/lib/jquery.min.js", "/js/lightcontent.js"]
     }
   ]

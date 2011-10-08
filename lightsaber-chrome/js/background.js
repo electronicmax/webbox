@@ -7,7 +7,9 @@ function _background() {
                 this.bind("change", function() { this_.change.apply(this_, arguments); });
                 chrome.windows.onCreated.addListener(
                     function(window) {
-                        chrome.tabs.getSelected(window.id, function(tab) {
+                        chrome.tabs.getSelected(window.id,
+                                                function(tab) {
+                                                    // this_.injectContentScripts(tab);
                                                     this_.trigger("changed", tab.url);
                                                 });
                     });
@@ -24,6 +26,7 @@ function _background() {
                 chrome.tabs.onUpdated.addListener(
                     function(tabid, changeinfo, t) {
                         if (changeinfo.status == 'loading') { return; }
+                        // this_.injectContentScripts(t);                        
                         this_.trigger("changed", t.url);
                     });
                 chrome.tabs.onSelectionChanged.addListener(
