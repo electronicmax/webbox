@@ -13,7 +13,7 @@ function _background() {
                     });
                 chrome.windows.onFocusChanged.addListener(
                      function(window) {
-                         chrome.tabs.getSelected(window, function(tab) {
+                         chrome.tabs.getSelected(window.id, function(tab) {
                                                      this_.trigger("changed", tab !== undefined ? tab.url : undefined);
                                                  });                         
                      });                
