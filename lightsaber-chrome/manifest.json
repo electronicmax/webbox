@@ -12,7 +12,7 @@
   ],
   "content_scripts": [
     {
-      "matches": ["http://*.com/*","http://*.edu/*","http://*.net/*"],
+      "matches": ["http://*.com/*","http://*.edu/*","http://*.net/*","http://*.org/*"],
       "js": ["/lib/jquery.min.js", "/js/lightcontent.js"]
     }
   ]
