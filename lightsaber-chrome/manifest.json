@@ -9,5 +9,11 @@
   "background_page": "background.html",
   "permissions": [
     "tabs"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["http://web.mit.edu/*"],
+      "js": ["/lib/jquery.min.js", "/js/lightcontent.js"]
+    }
   ]
 }
