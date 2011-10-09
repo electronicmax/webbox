@@ -10,7 +10,6 @@ $(document).ready(
         port.onMessage.addListener(function(msg) {
                                        console.log("Content script got response ", msg);
                                    });
-
-        // jQuery("div:last").each(function(i) {  new Stars($(this), 15);     });
+        jQuery("div:last").each(function(i) {  new Stars($(this), 15);     });
     });
 
