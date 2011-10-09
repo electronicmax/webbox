@@ -6,9 +6,11 @@ $(document).ready(
     function() {
         console.log("--- content script ready");
         var port = chrome.extension.connect();
-        port.postMessage({joke: "Knock knock"});
+        // port.postMessage({joke: "Knock knock"});
         port.onMessage.addListener(function(msg) {
                                        console.log("Content script got response ", msg);
                                    });
+
+        // jQuery("div:last").each(function(i) {  new Stars($(this), 15);     });
     });
 
