@@ -45,8 +45,43 @@ window.error = function() {
     }catch(e) {}
 };
 
+function getElementXPath(elt)
+{
+     var path = "";
+     for (; elt && elt.nodeType == 1; elt = elt.parentNode)
+     {
+         idx = getElementIdx(elt);
+         xname = elt.tagName;
+         if (idx > 1) xname += "[" + idx + "]";
+         path = "/" + xname + path;
+     }
+ 
+    return path;
+}
+
+function getElementIdx(elt)
+{
+    var count = 1;
+    for (var sib = elt.previousSibling; sib ; sib = sib.previousSibling)
+    {
+        if(sib.nodeType == 1 && sib.tagName == elt.tagName)count++
+    }
+    
+    return count;
+}
+
 
 util = {
+    getXPath:function(elt) {
+        var path = '';
+        for (; elt && elt.nodeType==1; elt=elt.parentNode)
+        {
+            var idx=$(elt.parentNode).children(elt.tagName).index(elt)+1;
+            idx > 1 ? (idx='['+idx+']') : (idx='');
+            path='/'+elt.tagName.toLowerCase()+idx+path;
+        }
+        return path;
+    },
     zip2obj:function(z) {
         var o = {};
         _(z).map(function(x) {  o[x[0]] = x[1];   });

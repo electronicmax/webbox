@@ -4,15 +4,17 @@
   <script type="text/javascript" src="lib/underscore-min.js"></script>
   <script type="text/javascript" src="lib/backbone.js"></script>  
   <script type="text/javascript" src="js/util.js"></script>    
-  <script type="text/javascript" src="js/background.js"></script>
-  <script type="text/javascript" src="js/lightsaber.js"></script>
-
+  <script type="text/javascript" src="js/window_watcher.js"></script>  
+  <script type="text/javascript" src="js/lightsaber_backend.js"></script>
+  <script type="text/javascript" src="js/annotate_controller.js"></script>
+  <script type="text/javascript" src="lib/jquery.rdfquery.core.min-1.0.js"></script>
+  <script type="text/javascript" src="lib/jquery.rdfquery.rdfa.min-1.0.js"></script>
+  <script type="text/javascript" src="lib/jquery.rdfquery.rules.min-1.0.js"></script>  
   <script type="text/javascript">
     jQuery(document).ready(function() {
-        _(window).extend(_background());
-        _(window).extend(_lightsaber());    
-        background.init();    
-        window.lightsaber = new window.Lightsaber(background.watcher);
+       var watcher = new WindowWatcher();
+       window.lightsaber = new LightSaber.Lightsaber(watcher);
     });
   </script>
+  
 </html>
