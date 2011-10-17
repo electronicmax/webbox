@@ -1,4 +1,13 @@
 window.LightSaber = (function () {
+    var base = "http://hip.cat/test#";
+    var prefixes = {
+        'rdf':'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+        'rdfs':'http://www.w3.org/2000/01/rdf-schema#',
+        'scovo':"http://purl.org/NET/scovo#",
+        'ls':'http://hip.cat/lightsaber#',
+        'plum':'http://projects.csail.mit.edu/connectingme/plum#',
+        'rww': 'http://www.w3.org/2011/10/12-rww#'
+    };                    
     var Lightsaber = Backbone.Model.extend(
         {
             initialize:function(watcher) {
@@ -23,23 +32,44 @@ window.LightSaber = (function () {
                 var this_ = this;
                 $.ajax({
                            // replace this with path to our server ----
-                           url: "http://users.ecs.soton.ac.uk/mvk/foaf.rdf",
+                           url: "http://localhost/~electronic/annot.rdf",  //"http://users.ecs.soton.ac.uk/mvk/foaf.rdf",
                            type:"GET"
                        }).success(function(doc) {
-                                      console.log("got doc ", doc);
-                                      this_.db = $.rdf().load(doc, {});
-                                      console.log("loaded ",this_.db);
-                                  });
+                                      this_.db = this_._add_prefixes($.rdf().load(doc, {}));
+                                      console.log("loaded ", this_.db.databank.tripleStore.length);
+                                  });                
+            },
+            _add_prefixes:function(kb) {
+                // add prefixes
+                _(prefixes).keys().map(function(k) { kb = kb.prefix(k,prefixes[k]); });
+                return kb;
             },
             dispatch:function(port,msg) {
                 var this_ = this;
                 switch(msg.cmd) {
                     case 'load_annotations':
-                    port.postMessage({ cmd: "annotations_loaded", annotations: this_._match_annotations_for_text(msg.text) } );
+                    port.postMessage({ cmd: "annotations_loaded", annotations: this_._match_annotations_for_page(msg.url,msg.text) } );
                     break;                    
                 };
             },
-            _match_annotations_for_text:function(text) {
+            _match_annotations_for_page:function(page,text) {
+
+                // first find textual annotations anchored to this page
+                var text_annots = this.db.
+                    where("?x a ls:TextualPageAnnotation").
+                    where("?x ls:source_url <"+page+">").dump();
+;
+                var refs = {};                    
+                var entity_annots = this.db.
+                    where("?x a ls:EntityReferenceAnnotation").
+                    where("?x ls:src_references ?ref").each(
+                        function() {
+                            refs[this.ref] = this.src();
+                        });
+
+
+                // then find references that occur in this page
+                
                 var anns = [
                     { id: 2123, key: "foo", text : "foodkfjdfkjdfk" },
                     { id: 12389, key: "library", text: "library0293" }

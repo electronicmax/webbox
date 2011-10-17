@@ -9,7 +9,8 @@
   "background_page": "background.html",
   "permissions": [
       "tabs", "contextMenus",
-      "http://users.ecs.soton.ac.uk/"
+      "http://users.ecs.soton.ac.uk/",
+      "http://localhost/"
   ],
   "icons" : {
       "48" : "img/light-saber-48.jpg",

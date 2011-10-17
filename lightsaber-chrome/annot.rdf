@@ -1,0 +1,62 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:rww="http://www.w3.org/2011/10/12-rww#"
+    xmlns:ls="http://hip.cat/lightsaber#"
+    xmlns:myfoaf="http://hip.cat/emax/foaf.rdf#"    
+>
+  <!-- example of an annotation that is anchored textually to a _page_ -->
+  <rdf:Description rdf:about="http://hip.cat/lightsaber#emax-239892891239823982932-232">
+    <rdf:type rdf:resource="http://hip.cat/lightsaber#TextualPageAnnotation"/>
+    <ls:source_url>http://web.mit.edu</ls:source_url>
+    <ls:anchorxpath>/html/body/h2</ls:anchorxpath>        
+    <ls:contents>
+            <rdf:Seq>
+              <!-- I propose that an annotation could consist of a list of stuff both structured and unstructured --> 
+              <rdf:li>
+                <rdf:Description rdf:about="http://hip.cat/lightsaber#emax-239892891239823982932-232-tc">
+                  <rdf:type rdf:resource="http://hip.cat/lightsaber#TextualContent"/>
+                  <ls:content>I love RDF.</ls:content>
+                </rdf:Description>
+              </rdf:li>
+            </rdf:Seq>
+    </ls:contents>
+    <dc:author rdf:resource="http://hip.cat/emax/foaf.rdf#emax"/>
+    <dc:creation_time rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2007-05-28T23:09:33.426Z</dc:creation_time>
+    <dc:last_modified_time rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2007-05-28T23:09:33.426Z</dc:last_modified_time>
+    <!--
+        oshani : what should be the "to" bit ? like
+        <ls:sharePolicy>
+            <ls:shareRule>
+               <ls:withWhom rdf:resource="http://hip.cat/emax/foaf.rdf#RDFnerdz"/>
+               <ls:access rdf:resource="http://www.w3.org/2011/10/12-rww#readwrite"/>
+            </ls:shareRule>
+            <ls:shareRule>
+               <ls:withWhom rdf:resource="http://hip.cat/emax/foaf.rdf#friends"/>
+               <ls:access rdf:resource="http://www.w3.org/2011/10/12-rww#readOnly"/>
+            </ls:shareRule>
+       </ls:sharePolicy>
+    --> 
+  </rdf:Description>
+
+  <!-- example of an annotation that anchored to an _entity reference_ that might occur on _any_ page -->
+  <rdf:Description rdf:about="http://hip.cat/lightsaber#emax-239892891239823982932-233">
+    <rdf:type rdf:resource="http://hip.cat/lightsaber#EntityReferenceAnnotation"/>
+    <ls:src_url>http://web.mit.edu</ls:src_url>    
+    <ls:src_reference>Massachusetts Institute of Technology</ls:src_reference>
+    <ls:referrent rdf:resource="http://web.mit.edu/about#"/>
+    <ls:contents>
+            <rdf:Seq>
+              <rdf:li>
+                <rdf:Description rdf:about="http://hip.cat/lightsaber#emax-239892891239823982932-233-tc">
+                  <rdf:type rdf:resource="http://hip.cat/lightsaber#TextualContent"/>
+                  <ls:content>IHTFP!!!</ls:content>
+                </rdf:Description>
+              </rdf:li>
+            </rdf:Seq>
+    </ls:contents>
+    <dc:author rdf:resource="http://hip.cat/emax/foaf.rdf#emax"/>
+    <dc:creation_time rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2007-05-28T23:09:33.426Z</dc:creation_time>
+    <dc:last_modified_time rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2007-05-28T23:09:33.426Z</dc:last_modified_time>    
+  </rdf:Description>  
+</rdf:RDF>
