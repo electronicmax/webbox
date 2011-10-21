@@ -1,42 +1,135 @@
 // lightcontent.js - content script for running in DOMspace
 // in this environment, window = the window of the page 
 // var background = chrome.extension.connect();
-
-var Annotation = Backbone.View.extend(
+var AnnotationView = Backbone.View.extend(
     {
-        template:'<div class="annotation"><button value="close"></button><textarea></textarea></div>',
+        template:'<div class="annotation"><button value="close" class="close">X</button><textarea><%= contents %></textarea></div>',
         initialize:function() {
-            
-        }
+            this.dom = this.render();
+        },
+        render:function() {
+            var d = $( _.template(this.template)(this.options.model.attributes) );
+            d.data("view", this);
+            d.css("left", this.options.model.get("location").left);
+            d.css("top", this.options.model.get("location").top);
+            d.css("width", this.options.model.get("width"));
+            d.css("height", this.options.model.get("height"));
+            //$(d).draggable();
+            //$(d).resizable();
+            return d;            
+        }        
     }
 );
 
+var PageAnnotations = function(lightsaber) {
+    var this_ = this;
+    this.annotations = new AnnotationCollection();
+    console.log("ANNOTATIONS ", this.annotations);
+    this.ls = lightsaber;
+    _(this.message_handlers).keys().map(
+        function(h) {
+            lightsaber.setMessageHandler(h, function() { this_.message_handlers[h].apply(this_,arguments); });
+        });
+    this.set_up_mouse_listener();
+};
+
+PageAnnotations.prototype = {
+    message_handlers: {
+        "add_annotation":function(data) {
+            console.log("add annotation event received ", data);
+            if (this.isRelevantToPage(data)) {
+                console.log("showing annotation ", data);
+                this.showAnnotation(data);
+            }
+        },
+        "annotation_changed":function(data) {
+          if (this.isRelevantToPage(data)) { this.updateAnnotation(data); }  
+        },
+        "annotations_loaded":function(annmodels) {
+            var this_ = this;
+            annmodels.map(function(x) { return this_.isRelevantToPage(data) ? this_.showAnnotation(x) : 0; });                                        
+        }
+    },
+    set_up_mouse_listener:function() {
+        // we want to keep track of last clicks so that we can figure out where
+        // to initially place our annotation
+        var this_ = this;
+        $('body').mouseup(
+            function(evt) {
+                console.log("event click ", evt.pageX, " ", evt.pageY);
+                this_.last_click = { x : evt.pageX, y: evt.pageY };
+            });
+    },
+    showAnnotation:function(annotation_model) {
+        var m = new AnnotationModel(annotation_model);
+        var dirty = false;
+        if (!m.get("location")) {
+            m.set({location:{ top: this.last_click.y, left: this.last_click.x }});
+            dirty=true;
+        }
+        if (!m.get("width")) { m.set({width:200}); dirty = true; }
+        if (!m.get("height")) { m.set({height:150}); dirty = true; }        
+        if (dirty) { m.save(); }
+        var aui = new AnnotationView({model:m});
+        this.annotations.add(aui);
+        $("body").append(aui.dom);
+    },
+    updateAnnotation: function(annotation_model) {
+        var v = this.annotations.filter(function(x) { return x.options.model.id == annotation_model.id; });
+        if (!v.length) {  return;    }
+        v[0].update_model(new AnnotationModel(annotation_model));   
+    },
+    isRelevantToPage:function(data) {
+        return (data.url == window.location.href) || (this.ls.getEntitiesinPage().indexOf(data.referred) >= 0);
+    },    
+    setup:function() {
+       backgroundCommand({cmd:"load_annotations", url: location.href,  text: $('body').text()},
+                         function(c) {
+                             console.log("got back ", c);
+                         });
+    }
+};    
+
 function LightsaberUI() {
     var this_ = this;
-    this.port = chrome.extension.connect();
-    this.port.onMessage.addListener(function(msg) {  this_.dispatchMessage(msg);   });
+    // communication w/ the backend
+    this.message_handlers = {};
+    chrome.extension.onRequest.addListener(function(msg, sender, sendResponse)  {   sendResponse({data:this_.dispatchMessage(msg)});   });
+    // instantiate controller
+    this.ahandler = new PageAnnotations(this);
 };
 
 LightsaberUI.prototype = {
+    getEntitiesinPage:function() {
+        // TODO 
+        return [];
+    },
     setup:function() {
-        // load annotations from triple store
-        this.port.postMessage({ cmd:'load_annotations', url: location.href, text: $('body').text() });                               
+        // TODO ---         
     },
     dispatchMessage:function(msg) {
-        switch (msg.cmd) {
-            case 'annotations_loaded':
-            console.log("Got annotations ", msg);
-            break;            
+        if( this.message_handlers[msg.cmd] ) {
+            return this.message_handlers[msg.cmd](msg);
+        } else {
+            console.log("Did not know how to handle ", msg);
         }
+        return undefined;
+    },
+    setMessageHandler:function(msg_cmd, listener) {
+        this.message_handlers[msg_cmd] = listener;
     }
+};
+
+window.backgroundCommand = function(data) {
+    var d = new $.Deferred();
+    chrome.extension.sendRequest(data,function(x) { d.resolve(x); });
+    return d.promise();
 };
 
 $(document).ready(
     function() {
-        window.lsui = new LightsaberUI();
+        var lsui = new LightsaberUI();
+        window.lsui = lsui;
         lsui.setup();
-        // console.log("--- content script ready");
-        // console.log($("body").rdf().databank.tripleStore);
-        // jQuery("div:last").each(function(i) {  new Stars($(this), 15);     });
     });
 

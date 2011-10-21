@@ -3,17 +3,27 @@
   <script type="text/javascript" src="lib/jquery.min.js"></script>
   <script type="text/javascript" src="lib/underscore-min.js"></script>
   <script type="text/javascript" src="lib/backbone.js"></script>  
-  <script type="text/javascript" src="js/util.js"></script>    
+  <script type="text/javascript" src="js/util.js"></script>
+  <script type="text/javascript" src="js/models.js"></script>      
   <script type="text/javascript" src="js/window_watcher.js"></script>  
-  <script type="text/javascript" src="js/lightsaber_backend.js"></script>
-  <script type="text/javascript" src="js/annotate_controller.js"></script>
+  <script type="text/javascript" src="js/lightback.js"></script>
   <script type="text/javascript" src="lib/jquery.rdfquery.core.min-1.0.js"></script>
   <script type="text/javascript" src="lib/jquery.rdfquery.rdfa.min-1.0.js"></script>
   <script type="text/javascript" src="lib/jquery.rdfquery.rules.min-1.0.js"></script>  
   <script type="text/javascript">
     jQuery(document).ready(function() {
        var watcher = new WindowWatcher();
-       window.ls = new LightSaber.Lightsaber(watcher);
+       var ls = new LightSaber.Lightsaber(watcher);
+       window.ls = ls;// debug
+
+       // mechanism with which models may issue requeests
+       // but since we're alreayd the bk page, we just execute them.
+       window.backgroundCommand = function(cmd) {
+          var d = new $.Deferred();
+          var ret = ls.dispatch(cmd, undefined); // party.
+          d.resolve(ret);
+          return d;
+       };
     });
   </script>
   
