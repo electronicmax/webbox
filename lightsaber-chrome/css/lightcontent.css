@@ -1,0 +1,21 @@
+
+.annotation {
+    position:absolute;
+    width:150px;
+    height:100px;
+    background:white;
+    color:black;
+    border:1px solid black;    
+}
+
+.annotation .close {
+  right:10px;
+  top:10px;  
+  position:absolute;
+}
+
+.annotation textarea {
+    width:100%;
+    height:100%;
+}
+
