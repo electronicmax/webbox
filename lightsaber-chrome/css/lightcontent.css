@@ -2,23 +2,23 @@
   outline:none !important;
 }
 .focused {
-    border:1px solid blue !important;
-}
-body {
-    position:relative;
-}
-.annotation * {
-   font-family:helvetica neue, helvetica, sans-serif;    
+   background:rgba(255,255,255,0.9);
+   border:1px solid blue !important;
 }
 .annotation {
+   margin:0px;
+   padding:14px 0px 2px 0px;    
+   background:rgba(255,255,255,0.4);    
    z-index:10000;
    position:absolute;
    background:white;
    color:black;
    border:1px solid rgb(200,200,200);
-   text-align:middle;
-   padding:20px 2px 2px 3px;
    overflow:none;
+}
+.annotation * {
+   background:rgba(255,255,255,0.4);        
+   font-family:helvetica neue, helvetica, sans serif;    
 }
 .annotation .close {
   right:5px;
@@ -28,10 +28,13 @@ body {
   font-weight:bold;  
 }
 .annotation textarea {
+   margin:0px;
+   padding:0px 5px 3px 5px;
    font-size:8pt;    
    border:none;
-   width:97%;
-   height:95%;
+   width:99%;
+   height:99%;
    resize:none;
+   z-index:-100;
 }
 
