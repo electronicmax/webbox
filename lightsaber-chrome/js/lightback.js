@@ -39,7 +39,8 @@ window.LightSaber = (function () {
                                                                                      contents: o.selectionText,
                                                                                      tab_id: tab.id,
                                                                                      url:tab.url,
-                                                                                     created:new Date().valueOf()
+                                                                                     created:new Date().valueOf(),
+                                                                                     annotation_type:"sticky"
                                                                                  });
                                                             });
                                 });                            

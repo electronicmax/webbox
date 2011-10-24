@@ -1,11 +1,26 @@
 // lightcontent.js - content script for running in DOMspace
 // in this environment, window = the window of the page 
 // var background = chrome.extension.connect();
-var AnnotationView = Backbone.View.extend(
+var StickyAnnotationView = Backbone.View.extend(
     {
         template:'<div class="annotation"><div class="close">X</div><textarea><%= contents %></textarea></div>',
         initialize:function() {
-            this.dom = this.render();            
+            console.log("Sticky initialize", this.options.model);
+
+            var m = this.options.model;
+            // make sure it has required bits
+            var dirty = false;
+            console.log(" m get location ", m.get("location"));
+            if (m.get("location") == undefined) {
+                m.set({location:{ top: this.options.location ? this.options.location.y : 100, left: this.options.location ? this.options.location.x : 100 }});
+                dirty=true;
+            }
+            if (!m.get("width")) { m.set({width:200}); dirty = true; }
+            if (!m.get("height")) { m.set({height:150}); dirty = true; }        
+            if (dirty) { console.log("Saving model ", m); m.save(); }
+
+            this.dom = this.render();
+            
         },
         render:function() {
             var this_ = this;
@@ -42,11 +57,13 @@ var PageAnnotations = function(lightsaber) {
 };
 
 PageAnnotations.prototype = {
+    annotation_type_views : {
+        sticky : StickyAnnotationView
+    },    
     message_handlers: {
         "add_annotation":function(data) {
             console.log("add annotation event received ", data);
             if (this.isRelevantToPage(data)) {
-                console.log("showing annotation ", data);
                 this.showAnnotation(data);
             }
         },
@@ -64,22 +81,21 @@ PageAnnotations.prototype = {
         var this_ = this;
         $('body').mouseup(
             function(evt) {
-                console.log("event click ", evt.pageX, " ", evt.pageY);
+                // console.log("event click ", evt.pageX, " ", evt.pageY);
                 this_.last_click = { x : evt.pageX, y: evt.pageY };
             });
-    },
+    },    
     showAnnotation:function(annotation_model) {
         var m = new AnnotationModel(annotation_model);
-        var dirty = false;
-        if (!m.get("location")) {
-            
-            m.set({location:{ top: this.last_click ? this.last_click.y : 100, left: this.last_click ? this.last_click.x : 100 }});
-            dirty=true;
+        var aui;
+        // generalize to multiple annotation types        
+        if (m.get("annotation_type")  &&  this.annotation_type_views[m.get('annotation_type')]) {
+            aui = new (this.annotation_type_views[m.get("annotation_type")])({
+                                                                                 model:m,
+                                                                                 location:this.last_click
+                                                                             });
         }
-        if (!m.get("width")) { m.set({width:200}); dirty = true; }
-        if (!m.get("height")) { m.set({height:150}); dirty = true; }        
-        if (dirty) { m.save(); }
-        var aui = new AnnotationView({model:m});
+        if (!aui) { return; }
         this.annotations.add(aui);
         $("body").append(aui.dom);
     },
@@ -120,7 +136,7 @@ LightsaberUI.prototype = {
         if( this.message_handlers[msg.cmd] ) {
             return this.message_handlers[msg.cmd](msg);
         } else {
-            console.log("Did not know how to handle ", msg);
+            // console.log("Did not know how to handle ", msg);
         }
         return undefined;
     },
