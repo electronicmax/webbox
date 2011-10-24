@@ -1,49 +1,6 @@
 // lightcontent.js - content script for running in DOMspace
 // in this environment, window = the window of the page 
 // var background = chrome.extension.connect();
-var StickyAnnotationView = Backbone.View.extend(
-    {
-        template:'<div class="annotation"><div class="close">X</div><textarea><%= contents %></textarea></div>',
-        initialize:function() {
-            console.log("Sticky initialize", this.options.model);
-
-            var m = this.options.model;
-            // make sure it has required bits
-            var dirty = false;
-            console.log(" m get location ", m.get("location"));
-            if (m.get("location") == undefined) {
-                m.set({location:{ top: this.options.location ? this.options.location.y : 100, left: this.options.location ? this.options.location.x : 100 }});
-                dirty=true;
-            }
-            if (!m.get("width")) { m.set({width:200}); dirty = true; }
-            if (!m.get("height")) { m.set({height:150}); dirty = true; }        
-            if (dirty) { console.log("Saving model ", m); m.save(); }
-
-            this.dom = this.render();
-            
-        },
-        render:function() {
-            var this_ = this;
-            var d = $( _.template(this.template)(this.options.model.attributes) );
-            d.data("view", this);
-            d.css("left", this.options.model.get("location").left);
-            d.css("top", this.options.model.get("location").top);
-            d.css("width", this.options.model.get("width"));
-            d.css("height", this.options.model.get("height"));
-            $(d).draggable();
-            $(d).resizable();
-            $(d).css("position","absolute");
-            $(d).find(".close").click(function() { this_.hide(); });
-            $(d).find("textarea").focus(function() { this_.focused(); });
-            $(d).find("textarea").blur(function() { this_.blurred(); });
-            return d;            
-        },
-        focused:function() { console.log("focused"); $(this.dom).addClass("focused"); },
-        blurred:function() { console.log("blurred"); $(this.dom).removeClass("focused"); },
-        hide:function() { $(this.dom).slideUp();  },
-        show:function() { $(this.dom).slideDown(); }
-    }
-);
 
 var PageAnnotations = function(lightsaber) {
     var this_ = this;

@@ -40,6 +40,7 @@ window.LightSaber = (function () {
                                                                                      tab_id: tab.id,
                                                                                      url:tab.url,
                                                                                      created:new Date().valueOf(),
+                                                                                     anchor_text:o.selectionText,
                                                                                      annotation_type:"sticky"
                                                                                  });
                                                             });
