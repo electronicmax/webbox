@@ -1,21 +1,37 @@
-
+.annotation textarea:focus, .annotation input:focus{
+  outline:none !important;
+}
+.focused {
+    border:1px solid blue !important;
+}
+body {
+    position:relative;
+}
+.annotation * {
+   font-family:helvetica neue, helvetica, sans-serif;    
+}
 .annotation {
-    position:absolute;
-    width:150px;
-    height:100px;
-    background:white;
-    color:black;
-    border:1px solid black;    
+   z-index:10000;
+   position:absolute;
+   background:white;
+   color:black;
+   border:1px solid rgb(200,200,200);
+   text-align:middle;
+   padding:20px 2px 2px 3px;
+   overflow:none;
 }
-
 .annotation .close {
-  right:10px;
-  top:10px;  
+  right:5px;
+  top:5px;  
   position:absolute;
+  font-size:9pt;
+  font-weight:bold;  
 }
-
 .annotation textarea {
-    width:100%;
-    height:100%;
+   font-size:8pt;    
+   border:none;
+   width:97%;
+   height:95%;
+   resize:none;
 }
 

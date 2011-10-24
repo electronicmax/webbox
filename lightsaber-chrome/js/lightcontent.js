@@ -3,28 +3,36 @@
 // var background = chrome.extension.connect();
 var AnnotationView = Backbone.View.extend(
     {
-        template:'<div class="annotation"><button value="close" class="close">X</button><textarea><%= contents %></textarea></div>',
+        template:'<div class="annotation"><div class="close">X</div><textarea><%= contents %></textarea></div>',
         initialize:function() {
-            this.dom = this.render();
+            this.dom = this.render();            
         },
         render:function() {
+            var this_ = this;
             var d = $( _.template(this.template)(this.options.model.attributes) );
             d.data("view", this);
             d.css("left", this.options.model.get("location").left);
             d.css("top", this.options.model.get("location").top);
             d.css("width", this.options.model.get("width"));
             d.css("height", this.options.model.get("height"));
-            //$(d).draggable();
-            //$(d).resizable();
+            $(d).draggable();
+            $(d).resizable();
+            $(d).css("position","absolute");
+            $(d).find(".close").click(function() { this_.hide(); });
+            $(d).find("textarea").focus(function() { this_.focused(); });
+            $(d).find("textarea").blur(function() { this_.blurred(); });
             return d;            
-        }        
+        },
+        focused:function() { console.log("focused"); $(this.dom).addClass("focused"); },
+        blurred:function() { console.log("blurred"); $(this.dom).removeClass("focused"); },
+        hide:function() { $(this.dom).slideUp();  },
+        show:function() { $(this.dom).slideDown(); }
     }
 );
 
 var PageAnnotations = function(lightsaber) {
     var this_ = this;
     this.annotations = new AnnotationCollection();
-    console.log("ANNOTATIONS ", this.annotations);
     this.ls = lightsaber;
     _(this.message_handlers).keys().map(
         function(h) {
@@ -64,7 +72,8 @@ PageAnnotations.prototype = {
         var m = new AnnotationModel(annotation_model);
         var dirty = false;
         if (!m.get("location")) {
-            m.set({location:{ top: this.last_click.y, left: this.last_click.x }});
+            
+            m.set({location:{ top: this.last_click ? this.last_click.y : 100, left: this.last_click ? this.last_click.x : 100 }});
             dirty=true;
         }
         if (!m.get("width")) { m.set({width:200}); dirty = true; }
