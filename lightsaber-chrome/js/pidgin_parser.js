@@ -1,5 +1,4 @@
-
-function pidgin_parse(s) {
+var pidgin_parse = function(s) {
     var subjects = {};
     var cur_subject;
     s.split('\n').map(
@@ -33,4 +32,4 @@ function pidgin_parse(s) {
             }
         });
     return subjects;
-}
+};

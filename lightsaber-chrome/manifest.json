@@ -34,7 +34,8 @@
           "/js/stars.js",
           "/js/util.js",
           "/js/models.js",
-          "/js/annotation_views_sticky.js",          
+          "/js/pidgin_parser.js",                    
+          "/js/annotation_views_sticky.js",
           "/js/lightcontent.js"
       ]
     }]

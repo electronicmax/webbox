@@ -27,6 +27,13 @@
   font-size:9pt;
   font-weight:bold;  
 }
+.annotation .vis {
+  left:5px;
+  bottom:5px;  
+  position:absolute;
+  font-size:8pt;
+  font-weight:bold;  
+}
 .annotation textarea {
    margin:0px;
    padding:0px 5px 3px 5px;
@@ -40,5 +47,20 @@
 .annotation_anchor {
     border:1px solid pink;
     padding:3px;
+}
+.visoverlay {
+    color:black;
+    font-family: monospace;    
+    background:white;
+    display:none;
+    width:100%;
+    height:40%;
+    border-top:1px solid orange;
+}
+.visoverlay tr { vertical-align:top; }
+.visoverlay td {
+    font-size:8pt;
+    border-right:1px solid orange;
+    padding:0px 5px 0px 5px;
 }
 

@@ -1,6 +1,6 @@
 window.StickyAnnotationView = Backbone.View.extend(
     {
-        template:'<div class="annotation"><div class="close">X</div><textarea><%= contents %></textarea></div>',
+        template:'<div class="annotation"><div class="close">X</div><textarea><%= contents %></textarea><div class="vis">o</div><div class="visoverlay"></div></div>',
         initialize:function() {
             console.log("Sticky initialize", this.options.model);
             var m = this.options.model;
@@ -46,6 +46,9 @@ window.StickyAnnotationView = Backbone.View.extend(
             $(d).resizable();
             $(d).css("position","absolute");
             $(d).find(".close").click(function() { this_.hide(); });
+            $(d).find(".vis").click(function() { this_.show_vis(); });
+            $(d).find(".visoverlay").click(function() { this_.hide_vis(); });
+            $(d).find("textarea").keyup(function() { this_.parse_pidgin(); });
             $(d).find("textarea").focus(function() { this_.focused(); });
             $(d).find("textarea").blur(function() { this_.blurred(); });
             return d;            
@@ -87,6 +90,30 @@ window.StickyAnnotationView = Backbone.View.extend(
         focused:function() { console.log("focused"); $(this.dom).addClass("focused"); },
         blurred:function() { console.log("blurred"); $(this.dom).removeClass("focused"); },
         hide:function() { $(this.dom).slideUp();  },
-        show:function() { $(this.dom).slideDown(); }
+        show:function() { $(this.dom).slideDown(); },
+        parse_pidgin:function() {
+            var t = $(this.dom).find('textarea').val();
+            var objects = pidgin_parse(t);
+            console.log("pidgin() parsed ", objects, _(objects).keys(), _(objects).values());
+            var table = $("<table></table>");
+            var rowtempl = _.template("<tr><td><%= s %></td><td><%= p %></td><td><%= o %></td></tr>");
+            _(objects).keys().map(
+                function(subject) {
+                    var first = true;
+                    _(objects[subject]).keys().map(function(k) {
+                                                       table.append(rowtempl({s:first ? subject : '',p:k,o:objects[subject][k].toString()}));
+                                                       first = false;
+                                                   });
+                });
+            $(this.dom).find('.visoverlay').html(table);            
+        },
+        show_vis:function() {
+            $(this.dom).find('textarea').animate({ height: '50%' });
+            $(this.dom).find(".visoverlay").slideDown();
+        },
+        hide_vis:function() {
+            $(this.dom).find('textarea').animate({ height: '98%' });
+            $(this.dom).find(".visoverlay").slideUp();
+        }
     }
 );
