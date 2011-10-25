@@ -107,12 +107,47 @@ util = {
 	return r[m][n];
     },
     getXPath:function(elt) {
-        var path = '';
-        for (; elt && elt.nodeType==1; elt=elt.parentNode)
+        var path = '';  //  && elt.nodeType==1
+        for (; elt && elt.nodeType == 1; elt=elt.parentNode)
         {
             var idx=$(elt.parentNode).children(elt.tagName).index(elt)+1;
             idx > 1 ? (idx='['+idx+']') : (idx='');
             path='/'+elt.tagName.toLowerCase()+idx+path;
+        }
+        return path;
+    },
+    getXPath2:function(node,path) {
+        return '/' + this.getXPath2Helper(node,path).join('/');
+    },
+    getXPath2Helper:function(node, path) {
+        path = path || [];
+        if(node.parentNode) {
+          path = arguments.callee(node.parentNode, path);
+        }
+
+        if(node.previousSibling) {
+          var count = 1;
+          var sibling = node.previousSibling;
+          do {
+            if(sibling.nodeType == 1 && sibling.nodeName == node.nodeName) {count++;}
+            sibling = sibling.previousSibling;
+          } while(sibling);
+          if(count == 1) {count = null;}
+        } else if(node.nextSibling) {
+          var sibling = node.nextSibling;
+          do {
+            if(sibling.nodeType == 1 && sibling.nodeName == node.nodeName) {
+              var count = 1;
+              sibling = null;
+            } else {
+              var count = null;
+              sibling = sibling.previousSibling;
+            }
+          } while(sibling);
+        }
+
+        if(node.nodeType == 1) {
+          path.push(node.nodeName.toLowerCase() + (node.id ? "[@id='"+node.id+"']" : count > 0 ? "["+count+"]" : ''));
         }
         return path;
     },

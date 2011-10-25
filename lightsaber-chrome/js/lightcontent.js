@@ -36,10 +36,12 @@ PageAnnotations.prototype = {
         // we want to keep track of last clicks so that we can figure out where
         // to initially place our annotation
         var this_ = this;
-        $('body').mouseup(
+        $('body').mousedown(
             function(evt) {
                 // console.log("event click ", evt.pageX, " ", evt.pageY);
+                console.log(" current target ", evt.currentTarget, " -- ", evt.target, evt);
                 this_.last_click = { x : evt.pageX, y: evt.pageY };
+                this_.last_target = evt.target;
             });
     },    
     showAnnotation:function(annotation_model) {
@@ -49,7 +51,8 @@ PageAnnotations.prototype = {
         if (m.get("annotation_type")  &&  this.annotation_type_views[m.get('annotation_type')]) {
             aui = new (this.annotation_type_views[m.get("annotation_type")])({
                                                                                  model:m,
-                                                                                 location:this.last_click
+                                                                                 location:this.last_click,
+                                                                                 component:this.last_target
                                                                              });
         }
         if (!aui) { return; }
