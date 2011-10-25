@@ -39,7 +39,7 @@ PageAnnotations.prototype = {
         $('body').mousedown(
             function(evt) {
                 // console.log("event click ", evt.pageX, " ", evt.pageY);
-                console.log(" current target ", evt.currentTarget, " -- ", evt.target, evt);
+                // console.log(" current target ", evt.currentTarget, " -- ", evt.target, evt);
                 this_.last_click = { x : evt.pageX, y: evt.pageY };
                 this_.last_target = evt.target;
             });
