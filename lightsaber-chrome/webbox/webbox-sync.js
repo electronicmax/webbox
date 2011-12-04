@@ -111,11 +111,9 @@ define(
 		// may return multiple models as a result, we want to serialize each one
 		var serialized = {};
 		serialize(model,true,serialized);
-		console.log("SERIALIZED>> ", serialized);
 		var ds = []; // deferreds
 		_(serialized).keys().map(
 		    function(uri) {
-			console.log(" putting ", uri);
 			ds.push(put_update(uri,serialized[uri]));
 		    });
 		return $.when.apply($,ds);
