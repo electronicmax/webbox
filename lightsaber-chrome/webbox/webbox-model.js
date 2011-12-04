@@ -3,22 +3,21 @@ define(
     function(ns) {
 	var Model = Backbone.Model.extend(
 	    {
-		initialize:function() {
-		    console.log("initialize ", this.attributes, ns.base, !('urlRoot' in this.attributes));
-		    if (!('urlRoot' in this.attributes)) {
-			this.set({"urlRoot": ns.base});
-		    }
-		    this.url();		    
+		initialize:function(attrs, uri) {
+		    this.__make_uri(uri);		    
 		},
-		_test:function() {
-		    this.set({"firstname":"fred", "lastname" : "flinstone", gender: "male", alive: false});
+		__make_uri:function(attrs) {
+		    if (!this.uri) {
+			if (attrs && attrs.uri) {
+			    this.uri = attrs.uri;
+			} else {
+			    this.uri = ns.base + this.cid;
+			}
+		    } 
 		},
-		url:function() {
-		    if (!('__uri__' in this.attributes)) {
-			this.set({"__uri__" : this.get("urlRoot") + this.cid});
-		    }
-		    return this.get("__uri__");
-		}
+		_test:function() {   this.set({"firstname":"fred", "lastname" : "flinstone", gender: "male", alive: false});	},
+		// this is a compatibility function used by sync
+		url:function() { return this.uri; }
 	    }
 	);
 	return {

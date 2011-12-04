@@ -14,8 +14,6 @@ define(
 	    console.assert(ns[pre] !== undefined, "Could not find prefix " + pre);
 	    return ns[pre] + pos;
 	};
-
-
 	var to_property = function(key) {
 	    if (key.indexOf('http') == 0) { return $.rdf.resource(key); }
 	    if (key.indexOf(':') >= 0)  {
@@ -25,7 +23,6 @@ define(
 	    console.log(" no prefix, ", "<"+ns.base + key+">");
 	    return $.rdf.resource("<"+ns.base + key+">");
 	};
-
 	var to_literal_or_resource = function(v) {
 	    if ( typeof(v) == 'number' ) { return $.rdf.literal(v); }
 	    if ( typeof(v) == 'string' ) { /* todo: check ? */ return $.rdf.literal(v,{datatype:'xsd:string'}); } 
@@ -44,6 +41,7 @@ define(
 	    var uri = model.url();
 	    var uri_r = $.rdf.resource("<"+uri+">");
 	    var data = model.toJSON();
+	    console.log("data to serialize >> ", data);
 	    var triples = [];
 	    _(data).keys().map(
 		function(k) {
@@ -51,7 +49,7 @@ define(
 		    var k_r = to_property(k);
 		    var v_r = to_literal_or_resource(v);
 		    var triple = $.rdf.triple(uri_r,k_r,v_r);
-		    console.log(triple);
+		    console.log(" -> ", triple.toString());
 		    kb.add(triple);
 		});
 	    var serialized = kb.dump({format:'application/rdf+xml', serialize: true});
