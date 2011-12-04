@@ -1,0 +1,4 @@
+<rdf:RDF xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:scovo="http://purl.org/NET/scovo#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:doap="http://usefulinc.com/ns/doap#" xmlns:ls="http://hip.cat/lightsaber#" xmlns:plum="http://projects.csail.mit.edu/connectingme/plum#" xmlns:rww="http://www.w3.org/2011/10/12-rww#" xmlns:emax="http://hip.cat/emax#">
+<rdf:Description rdf:about="http://hip.cat/test#c2">
+  <undefined:urlRoot xmlns:undefined="http://hip.cat/test#" rdf:datatype="xsd:string">http://hip.cat/test#</undefined:urlRoot>
+<undefined:__uri__ xmlns:undefined="http://hip.cat/test#" rdf:datatype="xsd:string">http://hip.cat/test#c2</undefined:__uri__></rdf:Description></rdf:RDF>

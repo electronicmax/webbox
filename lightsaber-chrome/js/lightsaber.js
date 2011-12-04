@@ -1,14 +1,13 @@
-define(["models","../webbox/webbox-core", "../webbox/webbox-ns"],
-    function(models, webbox, wns) {
-	console.log("lightback ", models, webbox, wns);
+define(
+    ["/js/models.js", "/webbox/webbox-core.js", "/webbox/webbox-ns.js"],
+    function(models, webbox, ns) {
+	// ns = prefix - ns mappings
 	var Lightsaber = Backbone.Model.extend(
 	    {
 		initialize:function(watcher) {
 		    var this_ = this;
-		    
 		    // communication w/ contentscripts
 		    chrome.extension.onRequest.addListener(function(msg,sender,sendResponse) {  sendResponse(this_.dispatchMessage(msg));  });
-		    
 		    // watch for page changes
 		    watcher.bind("changed",
 				 function(u) {
@@ -55,7 +54,7 @@ define(["models","../webbox/webbox-core", "../webbox/webbox-ns"],
 		},
 		_add_prefixes:function(kb) {
 		    // add prefixes
-		    _(prefixes).keys().map(function(k) { kb = kb.prefix(k,prefixes[k]); });
+		    _(ns).keys().map(function(k) { kb = kb.prefix(k,ns[k]); });
 		    return kb;
 		},
 		_fireEvent:function(data) {
