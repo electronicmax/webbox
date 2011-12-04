@@ -23,10 +23,13 @@ define(
 	    console.log(" no prefix, ", "<"+ns.base + key+">");
 	    return $.rdf.resource("<"+ns.base + key+">");
 	};
+	var is_resource = function(v) {
+	    return typeof(v) == 'object' && v instanceof models.Model;
+	};
 	var to_literal_or_resource = function(v) {
 	    if ( typeof(v) == 'number' ) { return $.rdf.literal(v); }
 	    if ( typeof(v) == 'string' ) { /* todo: check ? */ return $.rdf.literal(v,{datatype:'xsd:string'}); } 
-	    if ( typeof(v) == 'object' && v instanceof models.Model ) { return $.rdf.resource("<"+v.uri+">"); }
+	    if ( is_resource(v) ) { return $.rdf.resource("<"+v.uri+">"); }
 	    return $.rdf.literal(v);
 	};
 
@@ -34,26 +37,41 @@ define(
 	    return $.rdf.databank([], {base: ns.base, namespaces:ns.ns });
 	};
 
-	var serialize = function(model) {
-	    // CREATE, UPDATE, DELETE
+	var serialize = function(model, deep, serialized_models) {
+	    // serializes a single model; however, deep is true and v is a model,
+	    // will serialize that too and return an object:
+	    //   { u1 : --model_1_serialized--, u2 : ...  }
 	    var base = model.base || model.get("_base") || ns.base;
-	    var kb = make_kb();
 	    var uri = model.url();
 	    var uri_r = $.rdf.resource("<"+uri+">");
 	    var data = model.toJSON();
-	    console.log("data to serialize >> ", data);
+	    var self = arguments.callee;
 	    var triples = [];
+	    var this_kb = make_kb();
+	    
+	    // make a place for us to store the models as they get serialized
+	    serialized_models = (serialized_models !== undefined) ? serialized_models : {};
+	    
 	    _(data).keys().map(
 		function(k) {
 		    var v = data[k];
 		    var k_r = to_property(k);
-		    var v_r = to_literal_or_resource(v);
-		    var triple = $.rdf.triple(uri_r,k_r,v_r);
-		    console.log(" -> ", triple.toString());
-		    kb.add(triple);
+		    if ($.isArray(v)) {
+			throw new Exception("Yo no arrays yet please");
+		    } else {
+			var v_r = to_literal_or_resource(v);
+			var triple = $.rdf.triple(uri_r,k_r,v_r);
+			this_kb.add(triple);
+			if (deep && is_resource(v) && !(v.uri in serialized_models)) {
+			    // then extend the set of serialized dudes to this model
+			    _(serialized_models).extend(self(v, true, serialized_models));
+			    log("serialized models is ", serialized_models);
+			}
+		    }
 		});
-	    var serialized = kb.dump({format:'application/rdf+xml', serialize: true});
-	    return serialized;	    
+	    console.log("setting serialized models ", uri);
+	    serialized_models[uri] = this_kb.dump({format:'application/rdf+xml', serialize: true});
+	    return deep ? serialized_models : serialized_models[uri];
 	};	
 
 	var put_update = function(uri, serialized_body) {
@@ -90,7 +108,17 @@ define(
 	    log("method - ", method, " model ", model, model.url(), " - options: " , options);
 	    var uri = model.url();
 	    if (['create', 'update'].indexOf(method) >= 0) {
-		return put_update(uri, serialize(model));
+		// may return multiple models as a result, we want to serialize each one
+		var serialized = {};
+		serialize(model,true,serialized);
+		console.log("SERIALIZED>> ", serialized);
+		var ds = []; // deferreds
+		_(serialized).keys().map(
+		    function(uri) {
+			console.log(" putting ", uri);
+			ds.push(put_update(uri,serialized[uri]));
+		    });
+		return $.when.apply($,ds);
 	    } else if (method == 'read') {
 		return get_update(uri, model);
 	    }
