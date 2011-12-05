@@ -7,7 +7,7 @@
 
 define([],
     function() {
-	var base = "http://hip.cat/webbox/";
+	var base = "http://hip.cat/webbox#";
 	var prefix_to_ns = {
 	    'xsd':'http://www.w3.org/2001/XMLSchema',
 	    'rdf':'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
