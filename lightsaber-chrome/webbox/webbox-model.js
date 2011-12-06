@@ -6,13 +6,9 @@ define(
 		initialize:function(attrs, uri) {
 		    this.__make_uri(uri);		    
 		},
-		__make_uri:function(attrs) {
+		__make_uri:function(uri) {
 		    if (!this.uri) {
-			if (attrs && attrs.uri) {
-			    this.uri = attrs.uri;
-			} else {
-			    this.uri = ns.base + this.cid;
-			}
+			this.uri = uri ? uri : ns.base + this.cid;
 		    } 
 		},
 		_test:function() {   this.set({"firstname":"fred", "lastname" : "flinstone", gender: "male", alive: false});	},
