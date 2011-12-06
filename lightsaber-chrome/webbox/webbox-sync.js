@@ -117,14 +117,16 @@ define(
 	    var get = $.ajax({ type:"GET", url:endpoint+"/sparql/", data:{query:query}});
 	    var kb = make_kb();
 	    var _d = new $.Deferred();
-	    var dfds = [_d];
 	    var fetch_model = arguments.callee;
 	    get.then(function(doc){
+			 console.log("finished getting, now populating");
 			 kb.load(doc, {});
 			 var obj = {};
+			 var recursive_fetch_dfds = [];
 			 $.rdf({databank:kb}).where('<'+uri+'> ?p ?o').each(
 			     function() {
 				 var prop = this.p.value.toString();
+				 console.log(" got prop ", prop);
 				 if (prop.indexOf(ns.base) == 0) {
 				     prop = prop.slice(ns.base.length);
 				 }
@@ -134,13 +136,15 @@ define(
 				 } else {
 				     var m = new models.Model({},val.toString());
 				     obj[prop] = m;
-				     dfds.push(fetch_model(m));
-				 }
-				 _d.resolve(model);
+				     recursive_fetch_dfds.push(fetch_model(m));
+				 }				 
 			     });
 			 model.set(obj);
+			 $.when.apply($,recursive_fetch_dfds).then(function() {
+								       _d.resolve(model);
+								   });
 		     }).error(_d.fail);
-	    return $.when.apply($,dfds).promise();
+	    return _d;
 	};
 	Backbone.sync = function(method, model, options){
 	    try { console.group('sync ' +  model.url());  } catch (x) {    }
@@ -155,12 +159,11 @@ define(
 		    function(uri) {
 			ds.push(put_update(uri,serialized[uri]));
 		    });
+		console.log("Sync Save deferreds ", ds.length);
 		return $.when.apply($,ds);
 	    } else if (method == 'read') {
 		return get_update(model);
 	    }
-	    try { console.endGroup(); } catch (x) {   }
-	};
-
-	
+	    // try { console.endGroup(); } catch (x) {   }
+	};	
     });

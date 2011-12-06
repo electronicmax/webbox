@@ -169,6 +169,9 @@ define([],
 		    return newText;
 		},
 		intRange: function(low,high,skip)  {
+		    if (arguments.length == 1) {
+			high = low; low = 0; 
+		    }
 		    var result = [];
 		    if (skip === undefined) { skip = 1; }
 		    for (var i = low; i < high; i += skip) {
