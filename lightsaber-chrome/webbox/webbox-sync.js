@@ -115,22 +115,21 @@ define(
 	    var get = $.ajax({ type:"GET", url:endpoint+"/sparql/", data:{query:query}});
 	    var d = new $.Deferred();
 	    var kb = make_kb();
-	    get.success(function(doc){
-			    kb.load(doc, {});
-			    var obj = {};
-			    $.rdf({databank:kb}).where('<'+uri+'> ?p ?o').each(
-				function() {
-				    var prop = this.p.value.toString();
-
-				    if (prop.indexOf(ns.base) == 0) {
-					prop = prop.slice(ns.base.length);
-				    }
-				    var val = this.o.value;
-				    console.log("prop ", prop, " val ", val);
-				    obj[prop] = val;
-				});
-			    model.set(obj);
-			}).error(function(x) { });	    
+	    get.then(function(doc){
+			 kb.load(doc, {});
+			 var obj = {};
+			 $.rdf({databank:kb}).where('<'+uri+'> ?p ?o').each(
+			     function() {
+				 var prop = this.p.value.toString();
+				 if (prop.indexOf(ns.base) == 0) {
+				     prop = prop.slice(ns.base.length);
+				 }
+				 var val = this.o.value;
+				 console.log("prop ", prop, " val ", val);
+				 obj[prop] = val;
+			     });
+			 model.set(obj);
+		     }).error(function(x) { });	    
 	    
 	};
 	

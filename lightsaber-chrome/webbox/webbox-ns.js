@@ -7,7 +7,7 @@
 
 define([],
     function() {
-	var base = "http://hip.cat/webbox#";
+	var base = "http://hip.cat/webbox/";
 	var prefix_to_ns = {
 	    'xsd':'http://www.w3.org/2001/XMLSchema',
 	    'rdf':'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
@@ -20,7 +20,7 @@ define([],
 	    'plum':'http://projects.csail.mit.edu/connectingme/plum#',
 	    'rww': 'http://www.w3.org/2011/10/12-rww#',
 	    'emax':'http://hip.cat/emax#',
-	    'webbox':'http://hip.cat/webbox#'
+	    'webbox':'http://hip.cat/webbox/'
 	};
 	return _({
 		     add_ns:function(prefix,ns) { this[prefix] = ns; prefix_to_ns[prefix] = ns; return ns; },
