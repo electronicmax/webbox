@@ -1,0 +1,22 @@
+<!DOCTYPE html> 
+<html>
+	<head>
+	  <link rel="stylesheet" type="text/css" href="/ui/css/popup.css"/>                
+	  <script type="text/javascript" src="lib/jquery.min.js"></script>
+          <script type="text/javascript" src="lib/underscore-min.js"></script>
+          <script type="text/javascript" src="lib/backbone-min.js"></script>
+	  <script type="text/javascript" src="lib/require.js" data-main="/ui/popup/popup.js"></script>
+	</head>
+	<body>
+          <div id="main">
+	    <div id="buttons">
+	    <button name="id">profile</button>
+	    <button name="id">friends and groups</button>
+	    </div>
+	    <div>
+	      <h1>inbox:</h1>
+	      <div class="inbox_feed"></div>
+	    </div>
+	  </div>	  
+	</body>
+</html>

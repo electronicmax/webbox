@@ -4,7 +4,7 @@
   "description": "",
   "browser_action": {
     "default_icon": "img/box-icon-48px.png",
-    "popup":"popup.html"
+    "popup":"ui/popup.html"
   },
   "background_page": "background.html",
   "permissions": [

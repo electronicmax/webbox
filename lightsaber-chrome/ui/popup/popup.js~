@@ -1,0 +1,25 @@
+define(
+    ['/webbox/util.js'],
+    function(util) {
+	var PopupView = Backbone.Views.extend(
+	    {
+		events: {
+		    'click .profile': "open_profile",
+		    'click .settings': "open_settings"
+		},
+		initialize:function() {
+		    
+		},
+		open_profile:function() {
+		    chrome.windows.create({'url': '/ui/profile/profile.html', 'type': 'normal'}, function(window) {});
+		},
+		open_settings:function() {
+		    chrome.windows.create({'url': '/ui/settings/settings.html', 'type': 'normal'}, function(window) {});
+		}
+	    }
+	);
+	console.log("POPUP");
+	window.alert('hi');
+	window.view = new PopupView({el:$("#main")[0]}) ;
+	return { view : window.view };
+    });
