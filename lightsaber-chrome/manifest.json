@@ -1,9 +1,9 @@
 {
-  "name": "Lightsaber",
+  "name": "WebBox",
   "version": "1.0",
   "description": "",
   "browser_action": {
-    "default_icon": "img/icon-pulse.gif",
+    "default_icon": "img/box-icon-48px.png",
     "popup":"popup.html"
   },
   "background_page": "background.html",
@@ -14,8 +14,8 @@
       "http://*.hip.cat/"
   ],
   "icons" : {
-      "48" : "img/light-saber-48.jpg",
-      "128" : "img/light-saber-128.jpg"
+      "48" : "img/box-icon-48px.png",
+      "128" : "img/box-icon-128px.png"
   }
   /*,
   "content_scripts": [
