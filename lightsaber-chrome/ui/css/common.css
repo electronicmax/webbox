@@ -1,6 +1,8 @@
 /* webbox admin common css */
+@import url(http://fonts.googleapis.com/css?family=Quicksand|Orbitron|Carme);
 body {
-  font-family:"Helvetica Neue UltraLight", "helvetica neue", "helvetica", sans-serif;
+  /* font-family:"Helvetica Neue UltraLight", "helvetica neue", "helvetica", sans-serif; */
+  font-family: "Quicksand" sans-serif;
   font-weight:300;
   font-size:11px;
 }

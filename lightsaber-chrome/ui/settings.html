@@ -1,7 +1,6 @@
 <!DOCTYPE html> 
 <html>
 	<head>
-
 	  <link rel="stylesheet" type="text/css" href="/ui/css/common.css"/>
 	  <link rel="stylesheet" type="text/css" href="/ui/css/settings.css"/>                
 	  <script type="text/javascript" src="/lib/jquery.min.js"></script>
@@ -16,7 +15,8 @@
 	<body>
 
 	  <div id="main">
-	    <h1>settings :: identity and connectivity ::</h1>
+	    <h1>webbox settings</h1>
+	    <h2>identity and connectivity</h2>
 	  <div class="title">webbox</div>
 	  <div class="settings">
 	    <div class="setting">
@@ -25,22 +25,21 @@
 	      </div>	      
 	    </div>
 	    <div class="setting">
-	      <div class="key">webbox url</div><div class="val"><input id="webbox_url" type="text" placeholder="http://your.domain.com:8000/"></input></div>
+	      <div class="key">your webbox</div><div class="val"><input id="webbox_url" type="text" placeholder="http://your.domain.com:8000/"></input></div>
 	    </div>
 	    <div class="setting">
-	      <div class="key">webbox password</div><div class="val"><input id="webbox_password" type="password"></input></div>
+	      <div class="key">your password</div><div class="val"><input id="webbox_password" type="password"></input></div>
 	    </div>	    	    
 	  </div>
 
 	  <div class="buttons">
-	    <button class="save">Save settings</button>
+	    <button class="save">save settings</button>
 	  </div>
 	  <div class="status">
 	    <div class="saving"><div class="loader"></div> Saving settings ... </div>
 	    <div id="fetching" style="display:none"><div class="loader"></div> Fetching FOAF file ... </div>
 	    <div id="error" style="display:none"></div>
-	  </div>
-	  
+	  </div>	  
 	  </div>
 	  <script type="text/template"></script>
 	</body>

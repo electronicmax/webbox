@@ -3,11 +3,12 @@
  min-height:500px;   
 }
 .title {
-    color:rgba(0,150,200,0.2);
+    font-family: 'Orbitron', sans-serif;
+    color:rgba(0,150,200,0.1);
     position:absolute;
-    bottom:-20px;
-    right:10px;
-    font-size:100px;
+    bottom:-50px;
+    right:-10px;
+    font-size:180px;
     z-index:-1000;
     font-weight:10;
 }
