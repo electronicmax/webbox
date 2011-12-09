@@ -1,11 +1,16 @@
 <!DOCTYPE html> 
 <html>
 	<head>
+
 	  <link rel="stylesheet" type="text/css" href="/ui/css/common.css"/>
 	  <link rel="stylesheet" type="text/css" href="/ui/css/settings.css"/>                
 	  <script type="text/javascript" src="/lib/jquery.min.js"></script>
           <script type="text/javascript" src="/lib/underscore-min.js"></script>
           <script type="text/javascript" src="/lib/backbone-min.js"></script>
+	  <script type="text/javascript" src="/lib/less.js"></script>
+	  <script type="text/javascript" src="/lib/jquery.rdfquery.core.min-1.0.js"></script>
+	  <script type="text/javascript" src="/lib/jquery.rdfquery.rdfa.min-1.0.js"></script>
+	  <script type="text/javascript" src="/lib/jquery.rdfquery.rules.min-1.0.js"></script>	  	  
 	  <script type="text/javascript" src="/lib/require.js" data-main="/ui/settings/settings.js"></script>
 	</head>
 	<body>
@@ -32,7 +37,8 @@
 	  </div>
 	  <div class="status">
 	    <div class="saving"><div class="loader"></div> Saving settings ... </div>
-	    <div class="error"></div>
+	    <div id="fetching" style="display:none"><div class="loader"></div> Fetching FOAF file ... </div>
+	    <div id="error" style="display:none"></div>
 	  </div>
 	  
 	  </div>

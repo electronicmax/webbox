@@ -1,8 +1,7 @@
 // assumes require, $, $.rdf are defined
 define(
-    ['/webbox/webbox-ns.js', '/webbox/webbox-model.js', '/webbox/util.js', '/webbox/webbox-config.js'],    
-    function(ns, models, util, config) {
-
+    ['/webbox/webbox-ns.js', '/webbox/webbox-model.js', '/webbox/util.js', '/webbox/webbox-config.js', '/webbox/webbox-kb.js'],    
+    function(ns, models, util, config, wkb) {
 	// updates the sync() method so that by default serializes
 	// models to rdf
 	// backbone-patch
@@ -38,9 +37,6 @@ define(
 	    if ( is_model(v) ) { return $.rdf.resource("<"+v.uri+">"); }
 	    return $.rdf.literal(v);
 	};
-	var make_kb = function() {
-	    return $.rdf.databank([], {base: ns.base, namespaces:ns.ns });
-	};
 	var serialize = function(model, deep, serialized_models) {
 	    // serializes a single model; however, deep is true and v is a model,
 	    // will serialize that too and return an object:
@@ -51,7 +47,7 @@ define(
 	    var data = model.toJSON();
 	    var self = arguments.callee;
 	    var triples = [];
-	    var this_kb = make_kb();
+	    var this_kb = wkb.make_kb();
 	    
 	    // make a place for us to store the models as they get serialized
 	    serialized_models = (serialized_models !== undefined) ? serialized_models : {};
@@ -115,7 +111,7 @@ define(
 	    var uri = model.url();
 	    var query = _("CONSTRUCT { ?s ?p ?o } WHERE { GRAPH \<<%= uri %>\> { ?s ?p ?o. } } LIMIT 100000").template({uri:uri});
 	    var get = $.ajax({ type:"GET", url:endpoint+"/sparql/", data:{query:query}});
-	    var kb = make_kb();
+	    var kb = wkb.make_kb();
 	    var _d = new $.Deferred();
 	    var fetch_model = arguments.callee;
 	    get.then(function(doc){

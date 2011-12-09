@@ -3,11 +3,11 @@
  min-height:500px;   
 }
 .title {
-    color:rgba(0,0,0,0.2);
+    color:rgba(0,150,200,0.2);
     position:absolute;
-    bottom:0px;
-    right:0px;
-    font-size:140px;
+    bottom:-20px;
+    right:10px;
+    font-size:100px;
     z-index:-1000;
     font-weight:10;
 }
@@ -42,4 +42,7 @@ div,input {
 .buttons, .status {
     min-width:100px;
     display:inline-block;
+}
+#error {
+    color: red;
 }
