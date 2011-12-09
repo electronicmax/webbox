@@ -6,7 +6,6 @@ define(
 	// models to rdf
 	// backbone-patch
 	var oldSync = Backbone.sync;
-	var endpoint = config.ENDPOINT;
 	var contract_ns = function(prefixed) {
 	    var pref = prefixed.split(':');
 	    var pre = pref[0], pos = pref[1];
@@ -103,14 +102,14 @@ define(
 	};	
 
 	var put_update = function(uri, serialized_body) {
-	    console.log("Asserting into graph ", uri + " --- " + (endpoint+"/data/"+uri));
-	    return $.ajax({ type:"PUT", url: endpoint+"/data/"+uri, data:serialized_body, datatype:"text", headers:{ "Content-Type" : "application/rdf+xml" }});
+	    console.log("Asserting into graph ", uri + " --- " + (config.ENDPOINT+"/data/"+uri));
+	    return $.ajax({ type:"PUT", url: config.ENDPOINT+"/data/"+uri, data:serialized_body, datatype:"text", headers:{ "Content-Type" : "application/rdf+xml" }});
 	};
 
 	var get_update = function(model) {
 	    var uri = model.url();
 	    var query = _("CONSTRUCT { ?s ?p ?o } WHERE { GRAPH \<<%= uri %>\> { ?s ?p ?o. } } LIMIT 100000").template({uri:uri});
-	    var get = $.ajax({ type:"GET", url:endpoint+"/sparql/", data:{query:query}});
+	    var get = $.ajax({ type:"GET", url:config.ENDPOINT+"/sparql/", data:{query:query}});
 	    var kb = wkb.make_kb();
 	    var _d = new $.Deferred();
 	    var fetch_model = arguments.callee;

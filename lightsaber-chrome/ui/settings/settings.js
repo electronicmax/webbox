@@ -1,6 +1,5 @@
 define(['/webbox/util.js','/webbox/settings_storage.js','/webbox/webbox-kb.js'],
       function(utils,storage,wkb) {
-
 	  var Controller = Backbone.View.extend(
 	      {
 		  
@@ -28,7 +27,7 @@ define(['/webbox/util.js','/webbox/settings_storage.js','/webbox/webbox-kb.js'],
 			      function(doc) {
 				  kb.load(doc, {});
 				  $.rdf({databank:kb}).where('<'+url+'> foaf:primaryTopic ?me').
-				      where('?me webbox:webbox_endpoint ?webbox .').each(
+				      where('?me webbox:address ?webbox .').each(
 				      // where('?me ?p ?o .').each(
 				      function() {
 					  // var sub = this.s.value.toString();
@@ -37,9 +36,9 @@ define(['/webbox/util.js','/webbox/settings_storage.js','/webbox/webbox-kb.js'],
 					  // console.log(prop,obj);					  
 					  var wend = this.webbox.value.toString();
 					  $("#webbox_url").val(wend);
-					  this_.set_fetching_visible(false);
-					  this_.set_error("");
-				      });				  
+				      });
+				  this_.set_fetching_visible(false);
+				  this_.set_error("");
 			     }).
 			  error(
 			      function() {
@@ -85,8 +84,15 @@ define(['/webbox/util.js','/webbox/settings_storage.js','/webbox/webbox-kb.js'],
 		      setTimeout(function() { this_.set_saving_visible(false); }, 1000);
 		  }
 	  });
+
+	  var c = new Controller({ el : $('#main')[0] });
+	  
+	  var get_settings = function() {
+	      return c.load_values(storage.storage);
+	  };
 	  
 	  return {
-	      c : new Controller({ el : $('#main')[0] })
+	      c : c,
+	      get_settings:get_settings
 	  };
       });

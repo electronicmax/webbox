@@ -20,7 +20,7 @@ define([],
 	    'plum':'http://projects.csail.mit.edu/connectingme/plum#',
 	    'rww': 'http://www.w3.org/2011/10/12-rww#',
 	    'emax':'http://hip.cat/emax#',
-	    'webbox':'http://hip.cat/webbox/'
+	    'webbox':'http://webbox.ecs.soton.ac.uk/webbox/'
 	};
 	return _({
 		     add_ns:function(prefix,ns) { this[prefix] = ns; prefix_to_ns[prefix] = ns; return ns; },
