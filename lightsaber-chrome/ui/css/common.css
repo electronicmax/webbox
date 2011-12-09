@@ -1,0 +1,42 @@
+/* webbox admin common css */
+body {
+  font-family:"Helvetica Neue UltraLight", "helvetica neue", "helvetica", sans-serif;
+  font-weight:300;
+  font-size:11px;
+}
+a {
+    text-decoration:none;
+}
+button {
+    background-color: whiteSmoke;
+    background-image: -webkit-linear-gradient(top,#f5f5f5,#f1f1f1);
+    color: #444;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    font-weight: bold;
+    text-align: center;
+    border-radius:2px;
+    cursor:default;
+    min-width:54px;
+    line-height: 27px;
+    padding: 0 8px;
+    -webkit-user-select:none;
+    margin-top:5px;
+}
+input {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 2px 5px 2px 5px;
+    margin:0px;
+    min-width:400px;
+}
+h1 { font-weight:100; font-size:24pt; }
+h2 { font-weight:100; font-size:16pt; }
+h3 { font-weight:100; font-size:12pt; }
+#main {
+    position:relative;
+    margin-left:auto;
+    margin-right:auto;
+    width:80%;
+}
+.loader { display:inline-block; background-image:url(/img/loader.gif); width:16px; height:16px; }
+
+

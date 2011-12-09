@@ -1,0 +1,45 @@
+/* settings specific css */
+#main {
+ min-height:500px;   
+}
+.title {
+    color:rgba(0,0,0,0.2);
+    position:absolute;
+    bottom:0px;
+    right:0px;
+    font-size:140px;
+    z-index:-1000;
+    font-weight:10;
+}
+div,input {
+    font-size:12pt;
+}
+.key,.val {
+    display:inline-block;
+}
+.key {
+    min-width:170px;
+    padding:5px 0 0 0;
+}
+.settings {
+    margin:20px 0 20px 0;
+}
+.setting {
+    margin: 10px 0;
+}
+.setting * {
+        vertical-align:top;
+
+}
+.undertext {
+   font-size:10px;
+   margin:0 0 5px 5px;
+   color:rgb(200,50,80);
+}
+.saving {
+    display:none;
+}
+.buttons, .status {
+    min-width:100px;
+    display:inline-block;
+}
