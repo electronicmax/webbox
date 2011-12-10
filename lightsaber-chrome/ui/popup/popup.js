@@ -5,7 +5,7 @@ define(
 	    {
 		events: {
 		    'click .profile': "open_profile",
-		    'click .friends': "open_friends",		    
+		    'click .explorer': "open_browser",		    
 		    'click .settings': "open_settings"
 		},
 		initialize:function() {
@@ -14,8 +14,8 @@ define(
 		open_profile:function() {
 		    chrome.windows.create({'url': '/ui/profile.html', 'type': 'normal'}, function(window) {});
 		},
-		open_friends:function() {
-		    chrome.windows.create({'url': '/ui/friends.html', 'type': 'normal'}, function(window) {});
+		open_browser:function() {
+		    chrome.windows.create({'url': '/ui/browser.html', 'type': 'normal'}, function(window) {});
 		},		
 		open_settings:function() {
 		    chrome.windows.create({'url': '/ui/settings.html', 'type': 'normal'}, function(window) {});

@@ -17,8 +17,7 @@ define(
 		return $.rdf.resource("<"+key+">");
 	    }
 	    if (key.indexOf(':') >= 0)  {
-		key = ns.expand_ns(key);
-		return $.rdf.resource("<"+key+">");
+		return $.rdf.resource(key, {namespaces:ns});
 	    }
 	    var r =  $.rdf.resource("<"+ns.base + key+">");
 	    console.log(r.toString());
@@ -31,8 +30,13 @@ define(
 	    return r && r instanceof $.uri || r instanceof $.rdf.resource;
 	};
 	var to_literal_or_resource = function(v) {
+	    if ( v instanceof $.rdf.resource ) { return v; }
+	    if ( v instanceof $.rdf.literal ) { return v; }
+	    if ( v instanceof $.rdf.blank ) { return v; }	    
 	    if ( typeof(v) == 'number' ) { return $.rdf.literal(v); }
-	    if ( typeof(v) == 'string' ) { /* todo: check ? */ return $.rdf.literal(v,{datatype:'xsd:string'}); } 
+	    if ( typeof(v) == 'string' ) { /* todo: check ? */
+		return $.rdf.literal(v, { datatype:ns.expand("xsd:string") });  // ns.ns.xsd+"string" });
+	    } 
 	    if ( is_model(v) ) { return $.rdf.resource("<"+v.uri+">"); }
 	    return $.rdf.literal(v);
 	};
@@ -60,7 +64,8 @@ define(
 		function(k) {
 		    var v = data[k];
 		    var k_r = to_property(k);
-		    if ($.isArray(v)) {
+		    console.log(" TO PROPERTY OF ", k, " is ", k_r, k_r.toString());
+		    if ($.isArray(v)) { 
 			// arrays turn into Seqs:
 			var seq_r = _res('webbox', "_seq_"+k);
 			this_kb.add($.rdf.triple(seq_r, _res('rdf', 'type'), _res('rdf', 'Seq')));
@@ -81,22 +86,35 @@ define(
 			this_kb.add(triple);
 		    } else {
 			// non array, simple type or model
-			var v_r = to_literal_or_resource(v);
-			var triple = $.rdf.triple(uri_r,k_r,v_r);
-			this_kb.add(triple);
+			try {
+			    var v_r = to_literal_or_resource(v);			    
+			    var triple = $.rdf.triple(uri_r,k_r,v_r);
+			    this_kb.add(triple);
+			    console.log("Adding nonarr triple ", triple.toString());
 
-			// if model, then we if deep then we want to serialize it too
-			if (deep && is_model(v) && !(v.uri in serialized_models)) {
-			    // then extend the set of serialized dudes to this model
-			    console.log("serializing model ", v.uri);
-			    _(serialized_models).extend(self(v, true, serialized_models));
-			    log("serialized models is ", serialized_models);
+			    // if model, then we if deep then we want to serialize it too
+			    if (deep && is_model(v) && !(v.uri in serialized_models)) {
+				// then extend the set of serialized dudes to this model
+				console.log("serializing model ", v.uri);
+				_(serialized_models).extend(self(v, true, serialized_models));
+				log("serialized models is ", serialized_models);
+			    }
+			} catch (x) {
+			    console.error(" :( ");
+			    console.error(x, x.stack);
+			    window.E = x;
 			}
+			    
 		    }
 		});
 	    console.log("setting serialized models ", uri);
-	    console.log(this_kb.dump({format:'application/rdf+xml', serialize: true}));
-	    console.log('done');
+	    try {
+		console.log("in json: ", this_kb.dump({serialize: true}));
+		console.log("in rdfxml: ", this_kb.dump({format:'application/rdf+xml', serialize: true}));
+	    } catch (x) {
+		console.error(x);
+		window.E = x;
+	    }
 	    serialized_models[uri] = this_kb.dump({format:'application/rdf+xml', serialize: true});
 	    return deep ? serialized_models : serialized_models[uri];
 	};	

@@ -13,7 +13,7 @@ define(
 		function() {
 		    var g = new m.Model({},"http://unit.tests.com/t1");
 		    g.fetch().then(function(x) {
-				       console.assert(g.get("name") == name, "name !== ", test1, g.get("name"));
+				       console.assert(g.get("name") == name, "name !== ", name, g.get("name"));
 				       console.assert(g.get("age") == age, "age !==  ", age, g.get("name"));
 				       console.assert(g.get("lover")  && g.get("lover").uri == "http://unit.tests.com/t2", " lover ", g.get("lover"));
 				       d.resolve();
