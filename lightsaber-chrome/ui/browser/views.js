@@ -18,7 +18,7 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js'],
 			  _(this.template).template(this.options)
 		      );
 		      this.items_dom = $(this.el).find('.items')[0];
-		      console.log('items dom ', this.items_dom);		      
+		      this.views.map(function(v) { $(this.items_dom).append(v.render()); });
 		      return this.el;
 		  }
 	      }

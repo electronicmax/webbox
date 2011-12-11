@@ -52,7 +52,7 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 		      return D.promise();
 		  },
 		  make_collection:function(t) {
-		      var c = new views.CollectionView({title:t});
+		      var c = new views.CollectionView({label:t});
 		      $(this.el).find('.collections').append(c.render());
 		      return c;
 		  },
@@ -60,22 +60,27 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 		      var this_ = this;
 		      var collections = this.collections;
 		      var model = v.options.model;
-		      var type = model.get(ns.expand("rdf:type")) &&
-			  model.get(ns.expand("rdf:type")).url ? model.get(ns.expand("rdf:type")).url() : undefined;
+		      var type = model.get(ns.expand("rdf:type")) && model.get(ns.expand("rdf:type")).url ?
+			  model.get(ns.expand("rdf:type")).url() : undefined;
 		      var d = new $.Deferred();
 		      if (!type) {
 			  if (!collections.unknown) {
-			      collections.unknown = this.make_collection("Unknown"); 
+			      collections.unknown = this.make_collection("Unknown Things"); 
 			  }
 			  return d.resolve(collections.unknown);
 		      }		      
 		      if (!collections[type]) {
 			  // need to find the name of the class/type!
+			  var c = this_.make_collection("");
+			  collections[type] = c;
 			  wkb.get_sp_object(type,"rdfs:label").then(
 			      function(labels) {
 				  if (labels.length > 0) {
-				      collections[type] = this_.make_collection(labels[0]);
-				      d.resolve(collections[type]);				      
+				      console.log("setting label ", labels[0], c);
+				      c.options.label = labels[0];
+				      console.log(" c options ", c.options.label);				      
+				      c.render();
+				      d.resolve(c);				      
 				  }
 			      });
 		      } else {
