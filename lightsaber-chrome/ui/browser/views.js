@@ -27,7 +27,6 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js'],
 	      {
 		  template:$('#item_template').text(),
 		  initialize:function() {
-		      console.log("item template >> ", this.template);
 		  },
 		  update:function(m) {
 		      this.options.model = m;
@@ -46,7 +45,6 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js'],
 			  }
 		      );
 		      n.uri = model.url();
-		      console.log(" passing ", n);
 		      return n;
 		  },
 		  render:function() {

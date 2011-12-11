@@ -20,7 +20,8 @@ define([],
 	    'rww': 'http://www.w3.org/2011/10/12-rww#',
 	    'emax':'http://hip.cat/emax#',
 	    'webbox':'http://webbox.ecs.soton.ac.uk/webbox/',
-	    'enakting':'http://enakting.org/data/'
+	    'enakting':'http://enakting.org/data/',
+	    'enakting_people':'http://enakting.org/people/'	    
 	};
 	var base = prefix_to_ns.webbox;	
 	return _({

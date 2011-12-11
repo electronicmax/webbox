@@ -23,18 +23,12 @@ define(
 	};
 	var tests = [t1]; // add unit tests here
 
-	var populate_random = function() {
-	    var types = [
-		ns.expand('webbox:Group'),
-		ns.expand('webbox:Person'),
-		ns.expand('webbox:Note'),
-		ns.expand('webbox:Tweet'),
-	    ];
+	var make_people = function() {
 	    var make_person = function() {
 		var first_name = util.randomlyPick(['Fred', 'Nigel', 'Wilma', 'Susan', 'monica', 'Daniel', 'Yang', 'Nick', 'Hugh', 'Ian', 'Tim', 'Wendy', 'Antonio']);
 		console.log("first_name", first_name);
 		var last_name = util.randomlyPick(['Shadbolt', 'Smith', 'Electron', 'Yang', 'Gibbins', 'Berners-Lee', 'Hall', 'Penta', 'schraefel']);
-		var uri = ns.expand('enakting:'+first_name+"_"+last_name);
+		var uri = ns.expand('enakting_people:'+first_name+"_"+last_name);
 		var options =
 		    {
 			first_name:first_name,
@@ -50,7 +44,7 @@ define(
 	    util.intRange(0,25).map(
 		function() {
 		    var u = make_person();
-		    console.log("PERSON >>> ", u.url(), u );		    
+		    console.log("PERSON >>> ", u.url(), u, u.toJSON() );		    
 		    objs[u.url()] = u;
 		    console.log(u.url(), u);
 		    u.save();
@@ -64,6 +58,25 @@ define(
 	    
 	    return objs;
 	};
+
+	var make_places = function() {
+	    var places = ["Building 32","Robot fortress", "Hartley Library", "The Stag\'s", "SUSU Cafe", "Student Union", "Arlott Bar (Staff Club)", "Staff Club", "Trago Lounge" ];
+	    var cs = places.map(function(place) {
+			   var uri = ns.expand("enakting:"+place.replace(/ /g,'_').toLowerCase());
+			   var options = {};
+			   options[ns.expand('rdfs:label')] = place;
+			   options[ns.expand('rdf:type')] = ns.expand('webbox:Place');
+			   var mn = new m.Model(options,uri);
+			   mn.save();
+			   return mn;
+		       });
+	    var place = new m.Model({},ns.expand('webbox:Place'));
+	    var options = {};
+	    options[ns.expand('rdfs:label')] = 'Places';
+	    place.set(options);
+	    place.save();
+	    return cs;
+	};
 	
 	return {
 	    run: function() {
@@ -76,6 +89,7 @@ define(
 		    });
 	    },
 	    get_graphs:wkb.get_graphs,
-	    populate:populate_random
+	    make_people:make_people,
+	    make_places:make_places
 	};	
     });
