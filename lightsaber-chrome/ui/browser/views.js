@@ -1,6 +1,5 @@
 define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js'],
       function(ns,model,utils) {
-	  
 	  var CollectionView = Backbone.View.extend(
 	      {
 		  template:$('#collection_template').text(),

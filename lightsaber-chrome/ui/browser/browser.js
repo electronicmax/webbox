@@ -76,9 +76,7 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 			  wkb.get_sp_object(type,"rdfs:label").then(
 			      function(labels) {
 				  if (labels.length > 0) {
-				      console.log("setting label ", labels[0], c);
 				      c.options.label = labels[0];
-				      console.log(" c options ", c.options.label);				      
 				      c.render();
 				      d.resolve(c);				      
 				  }
