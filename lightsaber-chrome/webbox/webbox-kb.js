@@ -25,8 +25,8 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js' ],
 	   
 	   var get_sp_object = function(subject, predicate, graph) {
 	       // subject should be a uri,
-	       subject = subject.toString();
-	       predicate = predicate.toString();
+	       subject = ns.expand(subject.toString());
+	       predicate = ns.expand(predicate.toString());
 	       var d = new $.Deferred();
 	       var query = graph ?
 		   _("SELECT ?o WHERE { GRAPH \<<%= g %>\> { \<<%=s%>\> \<<%=p%>\> ?o . }} LIMIT 100000").template({s:subject,p:predicate, g:graph}) :
@@ -54,6 +54,7 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js' ],
 	       var get = $.ajax({ type:"GET", url:config.ENDPOINT+"/sparql/", data:{query:query}});
 	       var kb = make_kb();
 	       var gs = [];
+	       var d = new $.Deferred();
 	       get.then(function(doc){
 			    kb.load(doc, {});
 			    $.rdf({databank:kb}).where('?s ?p ?o').each(
@@ -61,8 +62,9 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js' ],
 				    var graph = this.s.value.toString();
 				    gs.push(graph);
 				});
-			    if(cont) { cont(gs); }
+			    d.resolve(gs);
 			});
+	       return d.promise();
 	   };
 	   
 	   return {

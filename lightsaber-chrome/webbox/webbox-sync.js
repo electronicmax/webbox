@@ -153,15 +153,13 @@ define(
 				 }				 
 			     });
 			 model.set(obj);
-			 $.when.apply($,recursive_fetch_dfds).then(function() {
-								       _d.resolve(model);
-								   });
+			 $.when.apply($,recursive_fetch_dfds).then(function() { _d.resolve(model);  });
 		     }).error(_d.fail);
 	    return _d;
 	};
 	Backbone.sync = function(method, model, options){
-	    try { console.group('sync ' +  model.url());  } catch (x) {    }
-	    log("method - ", method, " model ", model, model.url(), " - options: " , options);
+	    // try { console.group('sync ' +  model.url());  } catch (x) {    }
+	    // log("method - ", method, " model ", model, model.url(), " - options: " , options);
 	    var uri = model.url();
 	    if (['create', 'update'].indexOf(method) >= 0) {
 		// may return multiple models as a result, we want to serialize each one
@@ -172,7 +170,7 @@ define(
 		    function(uri) {
 			ds.push(put_update(uri,serialized[uri]));
 		    });
-		console.log("Sync Save deferreds ", ds.length);
+		// console.log("Sync Save deferreds ", ds.length);
 		return $.when.apply($,ds);
 	    } else if (method == 'read') {
 		return get_update(model);

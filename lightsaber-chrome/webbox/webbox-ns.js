@@ -19,7 +19,8 @@ define([],
 	    'plum':'http://projects.csail.mit.edu/connectingme/plum#',
 	    'rww': 'http://www.w3.org/2011/10/12-rww#',
 	    'emax':'http://hip.cat/emax#',
-	    'webbox':'http://webbox.ecs.soton.ac.uk/webbox/'
+	    'webbox':'http://webbox.ecs.soton.ac.uk/webbox/',
+	    'enakting':'http://enakting.org/data/'
 	};
 	var base = prefix_to_ns.webbox;	
 	return _({
@@ -37,7 +38,7 @@ define([],
 			 if (prefix_to_ns[prefcombo[0]]) {
 			     return prefix_to_ns[prefcombo[0]] + prefcombo[1];
 			 }
-			 throw new Exception("Unknown ns ", prefcombo[0]);
+			 throw new Error("Unknown ns " + prefcombo[0]);
 		     }
 		 }).extend(prefix_to_ns);
     });
