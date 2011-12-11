@@ -65,7 +65,7 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 		      var d = new $.Deferred();
 		      if (!type) {
 			  if (!collections.unknown) {
-			      collections.unknown = this.make_collection("Unknown Things"); 
+			      collections.unknown = this.make_collection("Other Things"); 
 			  }
 			  return d.resolve(collections.unknown);
 		      }		      
