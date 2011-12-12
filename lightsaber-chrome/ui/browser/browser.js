@@ -6,26 +6,30 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 		  initialize:function() {
 		      this.items = {};
 		      this.collections = {};
-
 		      // set up count display etc
 		  },
 		  setup:function() {
 		      // run me after initialize to populate my graphs
-		      var gi_dfd = this._populate();
+		      this._populate().then(
+			  function() {
+			      console.log("applying roundabout-------------- ", $('div.collections'));
+			      $('div.collections').roundabout({	 childSelector:'div.collection' });
+
+			  });
 		  },
 		  refresh:function() {
 		  },
 		  _populate:function() {
 		      var this_ = this;
 		      var items = this.items;
-		      var all_dfds = [];
+		      var D = new $.Deferred();		      
 		      wkb.get_graphs().then(
 			  function(uris) {
 			      // update count
 			      var s = _("<%= c %> items").template({ c: uris.length });
 			      console.log(" updating count ", s, $("#count").length);
 			      $("#count").html(s);
-			      // 
+			      var all_dfds = [];
 			      uris.map(function(uri) {
 					   var m = new models.Model({},uri);
 					   var d = new $.Deferred();
@@ -42,13 +46,13 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 						   var c = this_._get_collection_for_item(itemview).then(
 						       function(c) {
 							   c.addItemIfNotPresent(itemview);						   
-							   d.resolve();	// 							   
+							   d.resolve();	//
+							   console.log("resolving " , c);
 						       });
 					       });
 				       });
+			      $.when.apply($,all_dfds).then(function() { console.log("DONE !"); D.resolve();  });
 			  });
-		      var D = new $.Deferred();
-		      $.when.apply($,all_dfds).then(D.resolve);
 		      return D.promise();
 		  },
 		  make_collection:function(t) {
@@ -78,9 +82,9 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 				  if (labels.length > 0) {
 				      c.options.label = labels[0];
 				      c.render();
-				      d.resolve(c);				      
 				  }
 			      });
+			  d.resolve(c);				      			  
 		      } else {
 			  d.resolve(collections[type]);
 		      }		      

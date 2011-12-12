@@ -25,9 +25,9 @@ define(
 
 	var make_people = function() {
 	    var make_person = function() {
-		var first_name = util.randomlyPick(['Fred', 'Nigel', 'Wilma', 'Susan', 'monica', 'Daniel', 'Yang', 'Nick', 'Hugh', 'Ian', 'Tim', 'Wendy', 'Antonio']);
+		var first_name = util.randomlyPick(['Cat', 'Nichola', 'Nigel', 'Jack', 'Peter','Susan', 'monica', 'Daniel', 'Yang', 'Nick', 'Hugh', 'Ian', 'Tim', 'Wendy', 'Antonio', 'Igor']);
 		console.log("first_name", first_name);
-		var last_name = util.randomlyPick(['Shadbolt', 'Smith', 'Electron', 'Yang', 'Gibbins', 'Berners-Lee', 'Hall', 'Penta', 'schraefel']);
+		var last_name = util.randomlyPick(['Shadbolt', 'Smith', 'Need', 'Electron', 'Yang', 'Gibbins', 'Berners-Lee', 'Hall', 'Penta', 'schraefel', 'West', 'Saunders', 'Popov']);
 		var uri = ns.expand('enakting_people:'+first_name+"_"+last_name);
 		var options =
 		    {
@@ -77,6 +77,52 @@ define(
 	    place.save();
 	    return cs;
 	};
+
+	var make_bookmarks = function() {
+	    
+	    var mk_bkmk = function(name,url) {
+		var bkmk = new m.Model({}, ns.expand(url.replace(/ /g,'_').toLowerCase()));
+		// omit type
+		bkmk.set2("rdfs:label", name);
+		bkmk.set2("webbox:href", url);
+		return bkmk;
+	    };
+
+	    var mk_bkmks = function(kv, typeuri, typelabel) {
+		var typeclass = new m.Model({}, ns.expand(typeuri));
+		typeclass.set2("rdfs:label", typelabel);
+		typeclass.save();
+		return _(kv).keys().map(
+		    function(k) {
+			var m = mk_bkmk(k,kv[k]);
+			m.set2("rdf:type", typeclass);
+			m.save();
+			return m;
+		    });
+	    };
+
+	    mk_bkmks({
+			 "Google Public Data": 'http://www.google.com/publicdata/home',
+			 "Data.gov.uk": "http://www.data.gov.uk",
+			 "OS OpenData": "http://www.ordnancesurvey.co.uk/oswebsite/opendata/",
+			 "London datastore": "http://data.london.gov.uk/",
+			 "Dbpedia": "http://dbpedia.org"
+		     },
+		     ns.expand("webbox:OpenDataBookmarks"),
+		     "Open Data Resources");	    
+
+	    mk_bkmks({
+			 'Backbone.js' : 'http://documentcloud.github.com/backbone/',
+			 'Underscore.js' : 'http://documentcloud.github.com/backbone/',
+			 'Less.js' : 'http://lesscss.org/',
+			 'Require.js' : 'http://requirejs.org/',
+			 'jQuery' : 'http://jquery.org/',
+			 'NodeJS' : 'http://nodejs.org/'
+		     },
+		     ns.expand("webbox:JavascriptBookmarks"),
+		     "Javascript Resources");	  	    
+
+	};	
 	
 	return {
 	    run: function() {
@@ -90,6 +136,7 @@ define(
 	    },
 	    get_graphs:wkb.get_graphs,
 	    make_people:make_people,
-	    make_places:make_places
+	    make_places:make_places,
+	    make_bookmarks:make_bookmarks    
 	};	
     });

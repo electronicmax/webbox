@@ -3,6 +3,7 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js'],
 	  var CollectionView = Backbone.View.extend(
 	      {
 		  template:$('#collection_template').text(),
+		  className:"collection",
 		  initialize:function() {
 		      this.views = [];
 		  },

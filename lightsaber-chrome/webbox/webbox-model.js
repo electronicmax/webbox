@@ -11,6 +11,12 @@ define(
 			this.uri = uri ? uri : ns.base + this.cid;
 		    } 
 		},
+		set2:function(k,v) {
+		    var options = {};
+		    options[ns.expand(k)] = v;
+		    this.set(options);
+		    return v;
+		},		
 		_test:function() {   this.set({"firstname":"fred", "lastname" : "flinstone", gender: "male", alive: false});	},
 		// this is a compatibility function used by sync
 		url:function() { return this.uri; }

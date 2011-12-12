@@ -64,7 +64,7 @@ define(
 		function(k) {
 		    var v = data[k];
 		    var k_r = to_property(k);
-		    console.log(" TO PROPERTY OF ", k, " is ", k_r, k_r.toString());
+		    // console.log(" TO PROPERTY OF ", k, " is ", k_r, k_r.toString());
 		    if ($.isArray(v)) { 
 			// arrays turn into Seqs:
 			var seq_r = _res('webbox', "_seq_"+k);
@@ -132,14 +132,14 @@ define(
 	    var _d = new $.Deferred();
 	    var fetch_model = arguments.callee;
 	    get.then(function(doc){
-			 console.log("finished getting, now populating");
+			 // console.log("finished getting, now populating");
 			 kb.load(doc, {});
 			 var obj = {};
 			 var recursive_fetch_dfds = [];
 			 $.rdf({databank:kb}).where('<'+uri+'> ?p ?o').each(
 			     function() {
 				 var prop = this.p.value.toString();
-				 console.log(" got prop ", prop);
+				 // console.log(" got prop ", prop);
 				 if (prop.indexOf(ns.base) == 0) {
 				     prop = prop.slice(ns.base.length);
 				 }
