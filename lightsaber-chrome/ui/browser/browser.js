@@ -4,9 +4,11 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 	  var Browser = Backbone.View.extend(
 	      {
 		  initialize:function() {
+		      var this_ = this;
 		      this.items = {};
 		      this.collections = {};
 		      // set up count display etc
+		      $(window).keyup(function(evt) { this_._key_rotate(evt); });
 		  },
 		  setup:function() {
 		      // run me after initialize to populate my graphs
@@ -17,8 +19,17 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 
 			  });
 		  },
-		  refresh:function() {
-		  },
+		  _key_rotate:function(evt) {
+		      console.log("key up");
+		     if (evt.keyCode == 37) { // left
+			 console.log("left!");
+			 $(this.el).find('.collections').roundabout_animateToPreviousChild(); 
+		     }
+		     if (evt.keyCode == 39) { // right
+			 console.log("right!");
+			 $(this.el).find('.collections').roundabout_animateToNextChild(); 
+		     }
+		  },		  
 		  _populate:function() {
 		      var this_ = this;
 		      var items = this.items;
