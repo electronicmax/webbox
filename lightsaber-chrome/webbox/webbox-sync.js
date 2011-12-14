@@ -23,11 +23,11 @@ define(
 	    console.log(r.toString());
 	    return r;
 	};
-	var is_model = function(v) {
-	    return typeof(v) == 'object' && v instanceof models.Model;
-	};
 	var is_resource = function(r) {
 	    return r && r instanceof $.uri || r instanceof $.rdf.resource;
+	};	
+	var is_model = function(v) {
+	    return typeof(v) == 'object' && v instanceof models.Model;
 	};
 	var to_literal_or_resource = function(v) {
 	    if ( v instanceof $.rdf.resource ) { return v; }

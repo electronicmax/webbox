@@ -14,7 +14,7 @@ define(['/webbox/util.js','/webbox/settings_storage.js','/webbox/webbox-kb.js'],
 		  initialize:function() {
 		      var this_ = this;
 		      var f_vals = this.load_values(storage.storage);
-		      this.fields.map(function(f) {  if (f_vals[f]) { $("#"+f).val(f_vals[f]); } });
+		      // this.fields.map(function(f) {  if (f_vals[f] !== undefined && f_vals !== 'undefined') { $("#"+f).val(f_vals[f]); } });
 		  },
 
 		  fetch_webid:function() {

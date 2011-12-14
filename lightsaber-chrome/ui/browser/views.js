@@ -1,5 +1,5 @@
-define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js'],
-      function(ns,model,utils) {
+define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js', '/ui/browser/editorview.js'],
+      function(ns,model,utils,editor) {
 	  var CollectionView = Backbone.View.extend(
 	      {
 		  template:$('#collection_template').text(),
@@ -27,10 +27,14 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js'],
 	  var ItemView = Backbone.View.extend(
 	      {
 		  template:$('#item_template').text(),
+		  events: {
+		      "click" : "_cb_toggle_visible"  
+		  },
 		  initialize:function() {
 		  },
 		  update:function(m) {
 		      this.options.model = m;
+		      if (this.editor) { this.editor.options.model = m; }
 		      this.render();
 		  },
 		  _convert_names:function(model) {
@@ -48,11 +52,29 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js'],
 		      n.uri = model.url();
 		      return n;
 		  },
+		  _cb_toggle_visible:function(evt) {
+		      return;
+		      // console.log("target ", evt.target, this.el);
+		      if (evt.target !== this.el) {
+			  return;
+		      }
+		      if ($(this.el).find('.properties').is(":visible")) {
+			  console.log("hiding propreties for ", this.options.model.url());
+			  $(this.el).find('.properties').slideUp(); 
+		      } else {
+			  console.log("showing propreties for ", this.options.model.url());
+			  $(this.el).find('.properties').slideDown();
+		      }
+		  },
 		  render:function() {
 		      $(this.el).data("view", this);
 		      $(this.el).html(
 			  _(this.template).template({ m : this._convert_names(this.options.model) })
 		      );
+		      
+		      this.editor = new editor.EditorView({ el:$(this.el).find('.properties')[0], model:this.options.model });
+		      console.log('editor attached to ', $(this.el).find('.properties')[0]);
+		      this.editor.render();
 		      return this.el;
 		  }
 	      }

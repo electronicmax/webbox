@@ -35,9 +35,25 @@
 	    <div class="itemview">
 	      <div class="label"><%= m.label || m.name %></div>
 	      <div class="uri"><%= m.uri %></div>
-	      <div class="properties"></div>
+	      <div class="properties" style="display:none"></div>
 	    </div>
 	  </script>
+
+	  <!-- editor related -->
+	  <script type="text/template" id="editor_template">
+	    <div class="rows"></div>
+	    <button class="add_row">new row</button>
+	    <button class="save">save</button>
+	  </script>
+	  <script type="text/template" id="editor_row_template">
+	    <div class="editor_row">
+	      <input type="text" class="key"><%= key %></input>
+	      <input type="text" class="val"><%= val %></input>
+	      <button class="del_row">-</button>
+	    </div>
+	  </script>
+	  
+	  
 	  
 	</body>
 </html>
