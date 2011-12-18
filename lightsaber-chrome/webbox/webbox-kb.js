@@ -1,11 +1,17 @@
 
-define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js' ],
-       function(ns, config) {
-	   
+define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js'],
+       function(ns, config) {	   
 	   var make_kb = function() {
 	       return $.rdf.databank([], {base: ns.base, namespaces:ns.ns});
 	   };
-	   
+	   var ping = function(url) {
+	       var query = "SELECT ?s ?p ?o WHERE { ?s ?p ?o . } LIMIT 1";
+	       var get = $.ajax({ type:"GET", url:(url || config.ENDPOINT)+"/sparql/", data:{query:query}});
+	       var D = new $.Deferred();
+	       get.success(D.resolve).error(D.reject);
+	       return D.promise();
+	   };
+	   // @Deprecated, should not be used	   
 	   var make_spo_query = function(query, cont) {
 		var get = $.ajax({ type:"GET", url:config.ENDPOINT+"/sparql/", data:{query:query}});
 		var kb = make_kb();
@@ -68,6 +74,7 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js' ],
 	   };
 	   
 	   return {
+	       ping:ping,
 	       make_kb:make_kb,
 	       get_graphs:get_graphs,
 	       get_sp_object:get_sp_object

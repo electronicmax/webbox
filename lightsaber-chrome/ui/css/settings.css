@@ -47,3 +47,20 @@ div,input {
 #error {
     color: red;
 }
+.red_dot {
+    display:inline-block;
+    background:red;
+    width:10px;
+    height:10px;
+    padding:0px;margin:0px;
+    border-radius:6px;
+    vertical-align:middle;
+}
+.green_dot {
+    display:inline-block;    
+    background:green;
+    width:10px;
+    height:10px;
+    border-radius:6px;
+    vertical-align:middle;    
+}

@@ -1,22 +1,38 @@
-define(['/webbox/util.js','/webbox/settings_storage.js','/webbox/webbox-kb.js'],
+define(['/webbox/util.js','/webbox/settings_storage.js','/webbox/webbox-kb.js', '/webbox/webbox-config.js'],
       function(utils,storage,wkb) {
+	  // todo - do a connection check to make sure it works 
 	  var Controller = Backbone.View.extend(
-	      {
-		  
+	      {		  
 		  events : {
 		      "click .save" : "save_settings",
-		      "blur #webid" : "fetch_webid"
+		      "keyup #webid" : "fetch_webid",
+		      "keyup #webbox_url" : "_fire_webbox_url_changed"
 		  },
-
 		  
 		  fields : ['webid','webbox_url','webbox_password'],
 		  
 		  initialize:function() {
 		      var this_ = this;
 		      var f_vals = this.load_values(storage.storage);
-		      // this.fields.map(function(f) {  if (f_vals[f] !== undefined && f_vals !== 'undefined') { $("#"+f).val(f_vals[f]); } });
+		      this.bind("_webbox_url_changed", function(val) { this_.test_webbox_connection(val); });
 		  },
-
+		  _fire_webbox_url_changed:function() {
+		      var this_ = this;
+		      this.trigger("_webbox_url_changed",$("#webbox_url").val());
+		  },
+		  test_webbox_connection:function(url) {
+		      console.log("attempting to test", url);
+		      var this_ = this;
+		      wkb.ping(url).done(function(x) {
+					     console.log("success callback", x);
+					     $('#webbox_dead').slideUp();
+					     $('#webbox_alive').slideDown();
+					 }).fail(function(y) {
+						     console.log("fail callback");
+						     $('#webbox_alive').slideUp();						  
+						     $('#webbox_dead').slideDown();
+						 });
+		  },
 		  fetch_webid:function() {
 		      var url = $('#webid').val();
 		      var this_ = this;
@@ -30,12 +46,9 @@ define(['/webbox/util.js','/webbox/settings_storage.js','/webbox/webbox-kb.js'],
 				      where('?me webbox:address ?webbox .').each(
 				      // where('?me ?p ?o .').each(
 				      function() {
-					  // var sub = this.s.value.toString();
-					  // var prop = this.p.value.toString();
-					  // var obj = this.o.value.toString();
-					  // console.log(prop,obj);					  
 					  var wend = this.webbox.value.toString();
 					  $("#webbox_url").val(wend);
+					  this_.trigger("_webbox_url_changed", wend);
 				      });
 				  this_.set_fetching_visible(false);
 				  this_.set_error("");
@@ -88,6 +101,8 @@ define(['/webbox/util.js','/webbox/settings_storage.js','/webbox/webbox-kb.js'],
 	  var c = new Controller({ el : $('#main')[0] });
 	  
 	  var get_settings = function() {
+	      // gets called by webbox-core to retrieve values and
+	      // smash default config values
 	      return c.load_values(storage.storage);
 	  };
 	  

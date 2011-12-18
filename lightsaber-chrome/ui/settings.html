@@ -25,7 +25,12 @@
 	      </div>	      
 	    </div>
 	    <div class="setting">
-	      <div class="key">your webbox</div><div class="val"><input id="webbox_url" type="text" placeholder="http://your.domain.com:8000/"></input></div>
+	      <div class="key">your webbox</div>
+	      <div class="val">
+		<input id="webbox_url" type="text" placeholder="http://your.domain.com:8000/"></input>
+		<div id="webbox_alive" style="display:none"> <div class="green_dot"></div> Server is alive and breathing! </div>
+		<div id="webbox_dead" style="display:none"> <div class="red_dot"></div> Cannot connect to the server :( </div> 
+	      </div>
 	    </div>
 	    <div class="setting">
 	      <div class="key">your password</div><div class="val"><input id="webbox_password" type="password"></input></div>
