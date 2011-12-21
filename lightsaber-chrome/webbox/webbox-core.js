@@ -20,11 +20,9 @@ require(
 			    var model = new m.Model({},ns.webbox + "bookmark-"+((new Date()).valueOf()));
 			    model.set2(ns.expand('rdf:type'),wkb.resource(ns.expand('webbox:Bookmark')));
 			    model.set2(ns.expand('webbox:url'),wkb.string(context.pageUrl));
-			    // model.set2(ns.expand('dc:created'),new Date().valueOf());
+			    model.set2(ns.expand('dc:created'),wkb.date(new Date()));
 			    model.save();			    			    
-			} catch (x) {
-			    console.error(x); 
-			}
+			} catch (x) {  console.error(x); }
 		    }
 		});
 	    chrome.contextMenus.create(
@@ -33,14 +31,17 @@ require(
 		    title:"Save selection",
 		    contexts:["selection"],
 		    onclick:function(context) {
-			var model = new m.Model({},ns.webbox + "scrap-"+((new Date()).valueOf()));
-			model.set2(ns.expand('rdf:type'), wkb.resource(ns.expand('webbox:Scrap')));
-			model.set2(ns.expand('webbox:url'),wkb.string(context.pageUrl));
-			model.set2(ns.expand('webbox:contents'), wkb.string(context.selectionText));
-			// model.set2(ns.expand('dc:created'),new Date().valueOf());
-			model.save();
+			try {
+			    var model = new m.Model({},ns.webbox + "scrap-"+((new Date()).valueOf()));
+			    model.set2(ns.expand('rdf:type'), wkb.resource(ns.expand('webbox:Scrap')));
+			    model.set2(ns.expand('webbox:url'),wkb.string(context.pageUrl));
+			    model.set2(ns.expand('webbox:contents'), wkb.string(context.selectionText));
+			    model.set2(ns.expand('dc:created'),wkb.dateTime(new Date()));			
+			    model.save();					    
+			} catch (x) { console.error(x); }
 		    }
 		});
+
 
 	    var bookmarkclass = new m.Model({},ns.expand('webbox:Bookmark'));
 	    bookmarkclass.set2(ns.expand('rdfs:label'), wkb.string('Bookmark'));

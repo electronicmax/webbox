@@ -79,15 +79,14 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js'],
 	   var integer = function(d) {
 	       return $.rdf.literal(d,{datatype:ns.expand("xsd:integer")});
 	   };
-	   var date = function(d) {
-	       // todo 
-	       return $.rdf.literal(d,{datatype:ns.expand("xsd:date")});
+	   var dateTime = function(d) {
+	       console.assert(d instanceof Date, "d must be a date");
+	       return $.rdf.literal(d.toISOString(),{datatype:ns.expand("xsd:dateTime")});
 	   };	   
 	   var resource = function(s) {
 	       s = ns.expand(s);
 	       return $.rdf.resource("<"+s+">");
-	   };
-	   
+	   };	   
 	   return {
 	       ping:ping,
 	       make_kb:make_kb,
@@ -95,7 +94,7 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js'],
 	       get_sp_object:get_sp_object,
 	       string:string,
 	       integer:integer,
-	       date:date,
+	       dateTime:dateTime,
 	       resource:resource
 	   };
        });
