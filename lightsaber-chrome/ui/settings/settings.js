@@ -13,10 +13,12 @@ define(['/webbox/util.js','/webbox/webbox-kb.js', '/webbox/webbox-config.js'],
 		  fields : ['webid','webbox_url','weblogging','page_bookmarking'], 
 		  
 		  initialize:function() {
+		      
 		      var this_ = this;
 		      var f_vals = this.load_values();
 		      this.bind("_webbox_url_changed", function(val) { this_.test_webbox_connection(val); });
 		      this.$('input[type=checkbox]').iphoneStyle();
+		      
 		  },
 		  _fire_webbox_url_changed:function() {
 		      var this_ = this;

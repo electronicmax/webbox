@@ -18,9 +18,9 @@ require(
 		    onclick:function(context) {
 			try {
 			    var model = new m.Model({},ns.webbox + "bookmark-"+((new Date()).valueOf()));
-			    model.set2(ns.expand('rdf:type'),wkb.resource(ns.expand('webbox:Bookmark')));
-			    model.set2(ns.expand('webbox:url'),wkb.string(context.pageUrl));
-			    model.set2(ns.expand('dc:created'),wkb.date(new Date()));
+			    model.set2('rdf:type',wkb.resource(ns.expand('webbox:Bookmark')));
+			    model.set2('webbox:url',wkb.string(context.pageUrl));
+			    model.set2('dc:created',wkb.date(new Date()));
 			    model.save();			    			    
 			} catch (x) {  console.error(x); }
 		    }
@@ -33,10 +33,10 @@ require(
 		    onclick:function(context) {
 			try {
 			    var model = new m.Model({},ns.webbox + "scrap-"+((new Date()).valueOf()));
-			    model.set2(ns.expand('rdf:type'), wkb.resource(ns.expand('webbox:Scrap')));
-			    model.set2(ns.expand('webbox:url'),wkb.string(context.pageUrl));
-			    model.set2(ns.expand('webbox:contents'), wkb.string(context.selectionText));
-			    model.set2(ns.expand('dc:created'),wkb.dateTime(new Date()));			
+			    model.set2('rdf:type', wkb.resource(ns.expand('webbox:Scrap')));
+			    model.set2('webbox:url',wkb.string(context.pageUrl));
+			    model.set2('webbox:contents', wkb.string(context.selectionText));
+			    model.set2('dc:created',wkb.dateTime(new Date()));			
 			    model.save();					    
 			} catch (x) { console.error(x); }
 		    }

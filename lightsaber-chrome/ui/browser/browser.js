@@ -14,9 +14,7 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 		      // run me after initialize to populate my graphs
 		      this._populate().then(
 			  function() {
-			      console.log("applying roundabout-------------- ", $('div.collections'));
 			      $('div.collections').roundabout({	 childSelector:'div.collection' });
-
 			  });
 		  },
 		  _key_rotate:function(evt) {
