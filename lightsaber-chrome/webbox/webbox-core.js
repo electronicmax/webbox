@@ -20,7 +20,7 @@ require(
 			    var model = new m.Model({},ns.webbox + "bookmark-"+((new Date()).valueOf()));
 			    model.set2('rdf:type',wkb.resource(ns.expand('webbox:Bookmark')));
 			    model.set2('webbox:url',wkb.string(context.pageUrl));
-			    model.set2('dc:created',wkb.date(new Date()));
+			    model.set2('dc:created',wkb.dateTime(new Date()));
 			    model.save();			    			    
 			} catch (x) {  console.error(x); }
 		    }
