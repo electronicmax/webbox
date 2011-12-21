@@ -2,7 +2,6 @@
 define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js'],
        function(ns, configbox) {
 	   var config = configbox.config;
-	   console.log("Config .... ", config);
 	   var make_kb = function() {
 	       return $.rdf.databank([], {base: ns.base, namespaces:ns.ns});
 	   };
@@ -29,8 +28,7 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js'],
 			     });
 			     if(cont) { cont(results); }
 			 });
-	   };
-	   
+	   };	   
 	   var get_sp_object = function(subject, predicate, graph) {
 	       // subject should be a uri,
 	       subject = ns.expand(subject.toString());
@@ -53,8 +51,7 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js'],
 		       }		       
 		   });
 	       return d.promise();	       
-	   };	   
-	   
+	   };	   	   
 	   var get_graphs = function() {
 	       // gets list of distinct ORM entities in the KB:
 	       // TODO: make this more efficient so that we don't have to parse all the triples	       
@@ -75,11 +72,30 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js'],
 			}).fail(d.reject);
 	       return d.promise();
 	   };
+
+	   var string = function(s) {
+	       return $.rdf.literal(s,{datatype:ns.expand("xsd:string")});
+	   };
+	   var integer = function(d) {
+	       return $.rdf.literal(d,{datatype:ns.expand("xsd:integer")});
+	   };
+	   var date = function(d) {
+	       // todo 
+	       return $.rdf.literal(d,{datatype:ns.expand("xsd:date")});
+	   };	   
+	   var resource = function(s) {
+	       s = ns.expand(s);
+	       return $.rdf.resource("<"+s+">");
+	   };
 	   
 	   return {
 	       ping:ping,
 	       make_kb:make_kb,
 	       get_graphs:get_graphs,
-	       get_sp_object:get_sp_object
+	       get_sp_object:get_sp_object,
+	       string:string,
+	       integer:integer,
+	       date:date,
+	       resource:resource
 	   };
        });

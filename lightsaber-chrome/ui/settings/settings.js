@@ -10,12 +10,13 @@ define(['/webbox/util.js','/webbox/webbox-kb.js', '/webbox/webbox-config.js'],
 		      "keyup #webbox_url" : "_fire_webbox_url_changed"
 		  },
 		  
-		  fields : ['webid','webbox_url'], 
+		  fields : ['webid','webbox_url','weblogging','page_bookmarking'], 
 		  
 		  initialize:function() {
 		      var this_ = this;
 		      var f_vals = this.load_values();
 		      this.bind("_webbox_url_changed", function(val) { this_.test_webbox_connection(val); });
+		      this.$('input[type=checkbox]').iphoneStyle();
 		  },
 		  _fire_webbox_url_changed:function() {
 		      var this_ = this;
@@ -89,7 +90,7 @@ define(['/webbox/util.js','/webbox/webbox-kb.js', '/webbox/webbox-config.js'],
 		      var o = {};
 		      this.fields.map(function(f) {
 					  console.log(f, $("#"+f), $("#"+f).val());
-					  o[f] = $("#"+f).val().trim();
+					  o[f] = $("#"+f).attr("type") == 'checkbox' ? $("#"+f)[0].checked : $("#"+f).val().trim();
 				      });
 		      return o;
 		  },
@@ -97,7 +98,11 @@ define(['/webbox/util.js','/webbox/webbox-kb.js', '/webbox/webbox-config.js'],
 		      var o = {};
 		      this.fields.map(function(f) {
 					  o[f] = (storage[f] || '');
-					  $("#"+f).val(o[f]);
+					  if ($("#"+f).attr("type") !== 'checkbox') {
+					      $("#"+f).val(o[f]);
+					  } else {
+					      $("#"+f)[0].checked = (storage[f] == 'true');
+					  }
 				      });
 		      return o;
 		  },

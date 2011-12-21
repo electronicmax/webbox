@@ -1,6 +1,5 @@
 define([],
 	function() {
-	    console.log("window watcher init >> ");
 	    var ww = Backbone.Model.extend(
 		    {
 			initialize:function() {
@@ -38,9 +37,7 @@ define([],
 			},
 			change:function(url) { }
 		    });
-	    console.log("returning ", ww);
             return {
-		blah:123,
 		WindowWatcher : ww
 	    };
 	});

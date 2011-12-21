@@ -2,11 +2,13 @@
 <html>
 	<head>
 	  <link rel="stylesheet" type="text/css" href="/ui/css/common.css"/>
-	  <link rel="stylesheet" type="text/css" href="/ui/css/settings.css"/>                
+	  <link rel="stylesheet" type="text/css" href="/ui/css/settings.css"/>
+	  <link rel="stylesheet" type="text/css" href="/lib/iphone-checkboxes/style.css"/>
 	  <script type="text/javascript" src="/lib/jquery.min.js"></script>
           <script type="text/javascript" src="/lib/underscore-min.js"></script>
           <script type="text/javascript" src="/lib/backbone-min.js"></script>
 	  <script type="text/javascript" src="/lib/less.js"></script>
+	  <script type="text/javascript" src="/lib/iphone-checkboxes/iphone-style-checkboxes.js"></script>	  
 	  <script type="text/javascript" src="/lib/jquery.rdfquery.core.min-1.0.js"></script>
 	  <script type="text/javascript" src="/lib/jquery.rdfquery.rdfa.min-1.0.js"></script>
 	  <script type="text/javascript" src="/lib/jquery.rdfquery.rules.min-1.0.js"></script>	  	  
@@ -16,30 +18,32 @@
 
 	  <div id="main">
 	    <h1>webbox configuration</h1>
-	    <h2>where's your webbox?</h2>
 	  <div class="title">webbox</div>
 	  <div class="settings">
+	    <h2> You and Your Webbox </h2>
 	    <div class="setting">
-	      <div class="key">what's your webid ?</div><div class="val"><input id="webid" type="text" placeholder="http://your.domain.com/fred.flinstone"></input>
+	      <div class="key">Your Webid :</div><div class="val"><input id="webid" type="text" placeholder="http://your.domain.com/fred.flinstone"></input>
 		<div class="undertext"> &gt; <a href="http://www.w3.org/wiki/Foaf+ssl">don't have a webid?</a></div>
 		<div id="fetching" style="display:none"><div class="loader"></div> Fetching FOAF file ... </div>
 		<div id="error" style="display:none"></div>		
 	      </div>	      
 	    </div>
 	    <div class="setting">
-	      <div class="key">where does your webbox live ?</div><div class="val"><input id="webbox_url" type="text" placeholder="http://your.domain.com:8000/"></input>
+	      <div class="key">Your Webbox:</div><div class="val"><input id="webbox_url" type="text" placeholder="http://your.domain.com:8000/"></input>
 		<div id="webbox_alive" style="display:none"> <div class="green_dot"></div> Server is alive and breathing! </div>
 		<div id="webbox_dead" style="display:none"> <div class="red_dot"></div> Cannot connect to the server :( </div> 
 	      </div>
 	    </div>
-	    <!--
-		vault and password come later
-		<div class="setting">
-		  <div class="key">your password</div><div class="val"><input id="webbox_password" type="password"></input></div>
-		</div>
-		-->
+	    <h2> Modules (Experimental) </h2>
+	    <div class="setting">
+	      <div class="key"><label for="weblogging">Web logging?</label></div>
+	      <div class="val"><input type="checkbox" id="weblogging"/>
+	    </div>
+	    <div class="setting">
+	      <div class="key"><label for="weblogging">Page bookmarking?</label></div>
+	      <div class="val"><input type="checkbox" id="page_bookmarking"/>
+	    </div>	      
 	  </div>
-
 	  <div class="buttons">
 	    <button class="save">save settings</button>
 	  </div>
