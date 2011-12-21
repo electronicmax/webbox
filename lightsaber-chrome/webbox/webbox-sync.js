@@ -1,10 +1,11 @@
 // assumes require, $, $.rdf are defined
 define(
     ['/webbox/webbox-ns.js', '/webbox/webbox-model.js', '/webbox/util.js', '/webbox/webbox-config.js', '/webbox/webbox-kb.js'],    
-    function(ns, models, util, config, wkb) {
+    function(ns, models, util, configbox, wkb) {
 	// updates the sync() method so that by default serializes
 	// models to rdf
 	// backbone-patch
+	var config = configbox.config;
 	var oldSync = Backbone.sync;
 	var contract_ns = function(prefixed) {
 	    var pref = prefixed.split(':');
@@ -120,19 +121,19 @@ define(
 	};	
 
 	var put_update = function(uri, serialized_body) {
-	    console.log("Asserting into graph ", uri + " --- " + (config.ENDPOINT+"/data/"+uri));
-	    return $.ajax({ type:"PUT", url: config.ENDPOINT+"/data/"+uri, data:serialized_body, datatype:"text", headers:{ "Content-Type" : "application/rdf+xml" }});
+	    console.log("Asserting into graph ", uri + " --- " + (config.webbox_url+"/data/"+uri));
+	    return $.ajax({ type:"PUT", url: config.webbox_url+"/data/"+uri, data:serialized_body, datatype:"text", headers:{ "Content-Type" : "application/rdf+xml" }});
 	};
 
 	var get_update = function(model) {
 	    var uri = model.url();
 	    var query = _("CONSTRUCT { ?s ?p ?o } WHERE { GRAPH \<<%= uri %>\> { ?s ?p ?o. } } LIMIT 100000").template({uri:uri});
-	    var get = $.ajax({ type:"GET", url:config.ENDPOINT+"/sparql/", data:{query:query}});
+	    var get = $.ajax({ type:"GET", url:config.webbox_url+"/sparql/", data:{query:query}});
 	    var kb = wkb.make_kb();
 	    var _d = new $.Deferred();
 	    var fetch_model = arguments.callee;
 	    get.then(function(doc){
-			 // console.log("finished getting, now populating");
+			 console.log("finished getting, now populating --- ");
 			 kb.load(doc, {});
 			 var obj = {};
 			 var recursive_fetch_dfds = [];

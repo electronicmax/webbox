@@ -15,26 +15,29 @@
 	<body>
 
 	  <div id="main">
-	    <h1>webbox settings</h1>
-	    <h2>identity and connectivity</h2>
+	    <h1>webbox configuration</h1>
+	    <h2>where's your webbox?</h2>
 	  <div class="title">webbox</div>
 	  <div class="settings">
 	    <div class="setting">
-	      <div class="key">your webid</div><div class="val"><input id="webid" type="text" placeholder="http://your.domain.com/fred.flinstone"></input>
+	      <div class="key">what's your webid ?</div><div class="val"><input id="webid" type="text" placeholder="http://your.domain.com/fred.flinstone"></input>
 		<div class="undertext"> &gt; <a href="http://www.w3.org/wiki/Foaf+ssl">don't have a webid?</a></div>
+		<div id="fetching" style="display:none"><div class="loader"></div> Fetching FOAF file ... </div>
+		<div id="error" style="display:none"></div>		
 	      </div>	      
 	    </div>
 	    <div class="setting">
-	      <div class="key">your webbox</div>
-	      <div class="val">
-		<input id="webbox_url" type="text" placeholder="http://your.domain.com:8000/"></input>
+	      <div class="key">where does your webbox live ?</div><div class="val"><input id="webbox_url" type="text" placeholder="http://your.domain.com:8000/"></input>
 		<div id="webbox_alive" style="display:none"> <div class="green_dot"></div> Server is alive and breathing! </div>
 		<div id="webbox_dead" style="display:none"> <div class="red_dot"></div> Cannot connect to the server :( </div> 
 	      </div>
 	    </div>
-	    <div class="setting">
-	      <div class="key">your password</div><div class="val"><input id="webbox_password" type="password"></input></div>
-	    </div>	    	    
+	    <!--
+		vault and password come later
+		<div class="setting">
+		  <div class="key">your password</div><div class="val"><input id="webbox_password" type="password"></input></div>
+		</div>
+		-->
 	  </div>
 
 	  <div class="buttons">
@@ -42,8 +45,6 @@
 	  </div>
 	  <div class="status">
 	    <div class="saving"><div class="loader"></div> Saving settings ... </div>
-	    <div id="fetching" style="display:none"><div class="loader"></div> Fetching FOAF file ... </div>
-	    <div id="error" style="display:none"></div>
 	  </div>	  
 	  </div>
 	  <script type="text/template"></script>
