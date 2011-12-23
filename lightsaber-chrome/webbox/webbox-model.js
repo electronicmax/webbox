@@ -17,12 +17,15 @@ define(
 		    this.set(options);
 		    return v;
 		},		
-		_test:function() {   this.set({"firstname":"fred", "lastname" : "flinstone", gender: "male", alive: false});	},
 		// this is a compatibility function used by sync
 		url:function() { return this.uri; }
 	    }
 	);
+	
 	return {
-	    Model:Model	       
+	    Model:Model,
+	    is_model:function(v) {
+		return typeof(v) == 'object' && v instanceof Model;
+	    }
 	};
     });

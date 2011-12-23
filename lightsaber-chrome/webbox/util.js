@@ -1,5 +1,5 @@
 define([],
-       function() {
+       function(models) {
 	    Date.prototype.toShortStringUK = function(){
 		var hours = (this.getHours() < 10 ? "0" : "") + this.getHours();
 		var minutes = (this.getMinutes() < 10 ? "0" : "") + this.getMinutes();
@@ -66,6 +66,9 @@ define([],
 		return count;
 	    }
 	    return {
+		is_resource : function(r) {
+		    return r && r instanceof $.uri || r instanceof $.rdf.resource;
+		},
 		edit_distance : function(a,b) {
 		    // return the smallest of the three values passed in
 		    var minimator = function(x,y,z) {

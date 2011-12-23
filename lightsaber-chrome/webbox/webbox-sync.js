@@ -24,12 +24,6 @@ define(
 	    console.log(r.toString());
 	    return r;
 	};
-	var is_resource = function(r) {
-	    return r && r instanceof $.uri || r instanceof $.rdf.resource;
-	};	
-	var is_model = function(v) {
-	    return typeof(v) == 'object' && v instanceof models.Model;
-	};
 	var to_literal_or_resource = function(v) {
 	    if ( v instanceof $.rdf.resource ) { return v; }
 	    if ( v instanceof $.rdf.literal ) { return v; }
@@ -38,7 +32,7 @@ define(
 	    if ( typeof(v) == 'string' ) { /* todo: check ? */
 		return $.rdf.literal(v, { datatype:ns.expand("xsd:string") });  // ns.ns.xsd+"string" });
 	    } 
-	    if ( is_model(v) ) { return $.rdf.resource("<"+v.uri+">"); }
+	    if ( models.is_model(v) ) { return $.rdf.resource("<"+v.uri+">"); }
 	    return $.rdf.literal(v);
 	};
 	var serialize = function(model, deep, serialized_models) {
@@ -78,7 +72,7 @@ define(
 				console.assert( !($.isArray(v[i])), "Not Implemented Yet: Can't handle nested arrays" );				
 				this_kb.add($.rdf.triple(seq_r,prop_r,v_r));
 				
-				if (deep && is_model(v[i]) && !(v[i].uri in serialized_models)) {
+				if (deep && models.is_model(v[i]) && !(v[i].uri in serialized_models)) {
 				    // serialize and add 'em to our table
 				    _(serialized_models).extend(self(v[i], true, serialized_models));
 				}
@@ -94,7 +88,7 @@ define(
 			    console.log("Adding nonarr triple ", triple.toString());
 
 			    // if model, then we if deep then we want to serialize it too
-			    if (deep && is_model(v) && !(v.uri in serialized_models)) {
+			    if (deep && models.is_model(v) && !(v.uri in serialized_models)) {
 				// then extend the set of serialized dudes to this model
 				console.log("serializing model ", v.uri);
 				_(serialized_models).extend(self(v, true, serialized_models));
@@ -145,7 +139,7 @@ define(
 				     prop = prop.slice(ns.base.length);
 				 }
 				 var val = this.o.value;				 
-				 if (!is_resource(val)) {
+				 if (!util.is_resource(val)) {
 				     obj[prop] = val;    
 				 } else {
 				     var m = new models.Model({},val.toString());

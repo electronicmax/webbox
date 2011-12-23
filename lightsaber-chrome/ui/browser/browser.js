@@ -1,6 +1,5 @@
-define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js','/webbox/util.js', '/ui/browser/views.js'],
-      function(models,ns,wkb,util,views) {
-
+define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js','/webbox/util.js', '/ui/lenses/default-lens.js'],
+      function(models,ns,wkb,util,default_lens) {
 	  var Browser = Backbone.View.extend(
 	      {
 		  initialize:function() {
@@ -18,13 +17,10 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 			  });
 		  },
 		  _key_rotate:function(evt) {
-		      console.log("key up");
 		     if (evt.keyCode == 37) { // left
-			 console.log("left!");
 			 $(this.el).find('.collections').roundabout_animateToPreviousChild(); 
 		     }
 		     if (evt.keyCode == 39) { // right
-			 console.log("right!");
 			 $(this.el).find('.collections').roundabout_animateToNextChild(); 
 		     }
 		  },		  
@@ -45,18 +41,20 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 					   all_dfds.push(d);
 					   m.fetch().then(
 					       function() {
-						   var itemview = items[uri];
-						   if (itemview) {
-						       itemview.update(m);
-						   } else {
-						       itemview = new views.ItemView({model:m});
-						       items[uri] = itemview;
-						   }
-						   var c = this_._get_collection_for_item(itemview).then(
+						   var l_D = new $.Deferred();
+						   this_._get_lens_for_item(m).then(
+						       function(lens) {
+							   console.log("------------------- lens ---- ", lens.lens);
+							   var l = new lens.Lens({model:m});
+							   items[uri] = l;
+							   l_D.resolve(l);							   
+						       });
+						   this_._get_collection_for_item(m).then(
 						       function(c) {
-							   c.addItemIfNotPresent(itemview);						   
-							   d.resolve();	//
-							   console.log("resolving " , c);
+							   l_D.then(function(lens) {
+									c.addItemIfNotPresent(lens);
+									d.resolve({collection:c, lens:lens});
+								    });
 						       });
 					       });
 				       });
@@ -65,14 +63,51 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 		      return D.promise();
 		  },
 		  make_collection:function(t) {
-		      var c = new views.CollectionView({label:t});
-		      $(this.el).find('.collections').append(c.render());
-		      return c;
+		     var c = new default_lens.CollectionView({label:t});
+		     $(this.el).find('.collections').append(c.render());
+		     return c;
 		  },
-		  _get_collection_for_item:function(v) {
+		  _get_lens_for_item:function(v) {
+		      var d = new $.Deferred();
+		      if (models.is_model(v)) {
+			  var typeclass = v.get(ns.expand("rdf:type"));
+			  if (typeclass && models.is_model(typeclass)) {
+			      var go_on = function() {
+				  var lens = typeclass.toJSON()[ ns.expand("webbox:browser_lens") ];
+				  console.log("Selecting lens >> ", lens);
+				  if (lens !== undefined && typeof(lens.value) == 'string') {
+				      // load it. 
+				      define([lens],function(lensc) {
+						 if (lensc) {
+						     console.log('lens:: loaded ', lens);
+						     d.resolve(lensc);
+						 } else {
+						     console.error('lens:: failed to load ', lens, ' falling back 1');
+						     d.resolve({ Lens:default_lens.DefaultLens });
+						 }
+					     });
+				  } else {
+				      // fall back to default.
+				      // console.error('lens :: could not load ', lens, ' falling back to default');				      
+				      d.resolve({ Lens:default_lens.DefaultLens });
+				  }
+			      };
+			      // is it ready or do we have to fetch? 
+			      if (_(typeclass.toJSON()).keys().length > 0) {
+				  go_on();
+			      } else {
+				  typeclass.fetch().then(go_on);
+			      }
+			  } else {
+			      // not a model, so we can resort 
+			      d.resolve({ Lens:default_lens.DefaultLens });
+			  }
+		      }		      
+		      return d.promise();
+		  },
+		  _get_collection_for_item:function(model) {
 		      var this_ = this;
 		      var collections = this.collections;
-		      var model = v.options.model;
 		      var type = model.get(ns.expand("rdf:type")) && model.get(ns.expand("rdf:type")).url ?
 			  model.get(ns.expand("rdf:type")).url() : undefined;
 		      var d = new $.Deferred();

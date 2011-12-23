@@ -9,6 +9,7 @@ require(
 			 }
 		     });
 
+	// todo :: Move these to lightsaber/annotation module
 	if (configbox.config.page_bookmarking) {
 	    chrome.contextMenus.create(
 		{
@@ -24,7 +25,7 @@ require(
 			    model.save();			    			    
 			} catch (x) {  console.error(x); }
 		    }
-		});
+		});	    
 	    chrome.contextMenus.create(
 		{
 		    type:"normal",
@@ -41,13 +42,15 @@ require(
 			} catch (x) { console.error(x); }
 		    }
 		});
-
-
+	    
 	    var bookmarkclass = new m.Model({},ns.expand('webbox:Bookmark'));
 	    bookmarkclass.set2(ns.expand('rdfs:label'), wkb.string('Bookmark'));
-	    bookmarkclass.save();	    
+	    bookmarkclass.set2(ns.expand('webbox:browser_lens'), wkb.string('/ui/browser/lenses/bookmark.js'));
+	    bookmarkclass.save();
+	    
 	    var scrapclass = new m.Model({},ns.expand('webbox:Scrap'));
 	    scrapclass.set2(ns.expand('rdfs:label'), wkb.string('Information Scrap'));
+	    bookmarkclass.set2(ns.expand('webbox:browser_lens'), wkb.string('/ui/browser/lenses/scrap.js'));	    
 	    scrapclass.save();
 	}
 	
