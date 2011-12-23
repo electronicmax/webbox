@@ -1,10 +1,14 @@
 define(
     ['/webbox/webbox-ns.js'],
     function(ns) {
+
+	var ENABLE_CACHING = true;
+	var _model_cache = {};
+	
 	var Model = Backbone.Model.extend(
 	    {
 		initialize:function(attrs, uri) {
-		    this.__make_uri(uri);		    
+		    this.__make_uri(uri);
 		},
 		__make_uri:function(uri) {
 		    if (!this.uri) {
@@ -18,7 +22,20 @@ define(
 		    return v;
 		},		
 		// this is a compatibility function used by sync
-		url:function() { return this.uri; }
+		url:function() { return this.uri; },
+		fetch:function(options) {
+		    // all caching functionality goes in here
+		    var this_ = this;
+		    if (!ENABLE_CACHING || (options && options.cache == false) || _model_cache[this.uri] == undefined) {
+			_model_cache[this.uri] = this;
+			return Backbone.Model.prototype.fetch.apply(this,arguments);
+		    }
+		    // return a cached copy instead
+		    this.attributes = _(_model_cache[this.uri].attributes).clone();
+		    var d = new $.Deferred();
+		    d.resolve(this);
+		    return d.promise();
+		}
 	    }
 	);
 	
