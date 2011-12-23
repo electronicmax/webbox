@@ -10,7 +10,7 @@
     margin: 3px 0px;
     text-overflow:ellipsis;
     border-radius:3px;
-
+    vertical-align:middle;    
 }
 
 .bookmark_lens .url a {
@@ -21,5 +21,17 @@
 
 .bookmark_lens .created {
     font-size:90%;
+}
+
+.bookmark_lens .icon {
+    display:inline-block;
+    width:60px;
+    vertical-align:middle;    
+}
+
+.bookmark_lens .main {
+    display:inline-block;
+    vertical-align:middle;
+    
 }
 
