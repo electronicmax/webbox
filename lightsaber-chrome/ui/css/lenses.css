@@ -1,7 +1,7 @@
 
 
 .bookmark_lens {
-    color:rgba(71, 190, 31, 1.0);    
+    color:rgba(41, 120, 11, 1.0);    
     display: inline-block;
     width: 90%;
     min-height: 12px;
@@ -14,7 +14,8 @@
 }
 
 .bookmark_lens .url a {
-    color: rgb(71, 190, 31);    
+    color:rgb(41, 120, 11);
+/*    color: rgb(71, 190, 31);     */
     font-weight:2000;
 }
 
