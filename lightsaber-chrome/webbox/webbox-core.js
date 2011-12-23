@@ -44,13 +44,13 @@ require(
 		});
 	    
 	    var bookmarkclass = new m.Model({},ns.expand('webbox:Bookmark'));
-	    bookmarkclass.set2(ns.expand('rdfs:label'), wkb.string('Bookmark'));
-	    bookmarkclass.set2(ns.expand('webbox:browser_lens'), wkb.string('/ui/browser/lenses/bookmark.js'));
+	    bookmarkclass.set2('rdfs:label', wkb.string('Bookmark'));
+	    bookmarkclass.set2('webbox:browser_lens', wkb.string('/ui/lenses/bookmark.js'));
 	    bookmarkclass.save();
 	    
 	    var scrapclass = new m.Model({},ns.expand('webbox:Scrap'));
-	    scrapclass.set2(ns.expand('rdfs:label'), wkb.string('Information Scrap'));
-	    bookmarkclass.set2(ns.expand('webbox:browser_lens'), wkb.string('/ui/browser/lenses/scrap.js'));	    
+	    scrapclass.set2('rdfs:label', wkb.string('Information Scrap'));
+	    // scrapclass.set2('webbox:browser_lens', wkb.string('/ui/lenses/scrap.js'));	    
 	    scrapclass.save();
 	}
 	

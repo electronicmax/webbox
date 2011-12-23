@@ -1,0 +1,24 @@
+
+
+.bookmark_lens {
+    color:rgba(71, 190, 31, 1.0);    
+    display: inline-block;
+    width: 90%;
+    min-height: 12px;
+    border: 1px solid rgba(71, 190, 31, 1.0); /*rgba(40, 200, 4, 0.6);*/
+    padding: 7px 10px;
+    margin: 3px 0px;
+    text-overflow:ellipsis;
+    border-radius:3px;
+
+}
+
+.bookmark_lens .url a {
+    color: rgb(71, 190, 31);    
+    font-weight:2000;
+}
+
+.bookmark_lens .created {
+    font-size:90%;
+}
+

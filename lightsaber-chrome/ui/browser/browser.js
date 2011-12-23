@@ -44,7 +44,7 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 						   var l_D = new $.Deferred();
 						   this_._get_lens_for_item(m).then(
 						       function(lens) {
-							   console.log("------------------- lens ---- ", lens.lens);
+							   console.log("------------------- lens ---- ", lens.Lens);
 							   var l = new lens.Lens({model:m});
 							   items[uri] = l;
 							   l_D.resolve(l);							   
@@ -73,16 +73,16 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 			  var typeclass = v.get(ns.expand("rdf:type"));
 			  if (typeclass && models.is_model(typeclass)) {
 			      var go_on = function() {
-				  var lens = typeclass.toJSON()[ ns.expand("webbox:browser_lens") ];
-				  console.log("Selecting lens >> ", lens);
-				  if (lens !== undefined && typeof(lens.value) == 'string') {
-				      // load it. 
-				      define([lens],function(lensc) {
+				  var lens = typeclass.get("browser_lens");
+				  if (lens !== undefined && typeof(lens) == 'string') {
+				      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> DEFINING ", lens);
+				      require([lens],
+					     function(lensc) {
 						 if (lensc) {
-						     console.log('lens:: loaded ', lens);
+						     console.log('!!!!!!! >>> lens:: loaded ', lens);
 						     d.resolve(lensc);
 						 } else {
-						     console.error('lens:: failed to load ', lens, ' falling back 1');
+						     console.error('!!!!!!!!!!!!! >>>> lens:: failed to load ', lens, ' falling back 1');
 						     d.resolve({ Lens:default_lens.DefaultLens });
 						 }
 					     });
@@ -93,7 +93,7 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 				  }
 			      };
 			      // is it ready or do we have to fetch? 
-			      if (_(typeclass.toJSON()).keys().length > 0) {
+			      if (false && _(typeclass.toJSON()).keys().length > 0) {
 				  go_on();
 			      } else {
 				  typeclass.fetch().then(go_on);
