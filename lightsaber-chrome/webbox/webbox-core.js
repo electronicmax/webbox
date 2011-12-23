@@ -9,6 +9,15 @@ require(
 			 }
 		     });
 
+	var getTitle = function() {
+	    var d = new $.Deferred();
+	    chrome.windows.getLastFocused(
+		function(window) {
+		    chrome.tabs.getSelected(window.id,function(tab) { d.resolve(tab.title); });
+		});
+	    return d.promise();
+	};
+
 	// todo :: Move these to lightsaber/annotation module
 	if (configbox.config.page_bookmarking) {
 	    chrome.contextMenus.create(
@@ -22,7 +31,12 @@ require(
 			    model.set2('rdf:type',wkb.resource(ns.expand('webbox:Bookmark')));
 			    model.set2('webbox:url',wkb.string(context.pageUrl));
 			    model.set2('dc:created',wkb.dateTime(new Date()));
-			    model.save();			    			    
+			    getTitle().then(
+				function(title) {
+				    model.set2('dc:title',title);
+				    model.save();			    			    
+				});			    
+			    
 			} catch (x) {  console.error(x); }
 		    }
 		});	    

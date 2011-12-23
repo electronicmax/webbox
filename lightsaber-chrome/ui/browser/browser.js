@@ -13,7 +13,7 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 		      // run me after initialize to populate my graphs
 		      this._populate().then(
 			  function() {
-			      $('div.collections').roundabout({	 childSelector:'div.collection' });
+			      // $('div.collections').roundabout({	 childSelector:'div.collection' });
 			  });
 		  },
 		  _key_rotate:function(evt) {
