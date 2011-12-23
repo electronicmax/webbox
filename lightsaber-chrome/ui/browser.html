@@ -1,18 +1,12 @@
 <!DOCTYPE html> 
 <html>
 	<head>
-	  <!--
-	      <link rel="stylesheet/less" type="text/css" href="/ui/css/browser.less">
-	      <script src="/lib/less.js" type="text/javascript"></script>
-	   -->
-
 	  <link rel="stylesheet" type="text/css" href="/ui/css/browser.css">
 	  <script type="text/javascript" src="/lib/jquery.min.js"></script>
           <script type="text/javascript" src="/lib/underscore-min.js"></script>
           <script type="text/javascript" src="/lib/backbone-min.js"></script>
 	  <script type="text/javascript" src="/lib/jquery.rdfquery.core-1.0.js"></script>
 	  <script type="text/javascript" src="/lib/json.js"></script>
-	  <script type="text/javascript" src="/lib/jquery.roundabout.js"></script>	  	  
 	  <script type="text/javascript" src="/lib/require.js" data-main="/ui/browser/main.js"></script>
 	  
 	</head>
@@ -26,7 +20,7 @@
 
 	  <!-- collection template -->
 	  <script type="text/template" id="collection_template">
-	    <div class="label"><%= label %></div>
+	    <div class="collection_name"><%= label %></div>
 	    <div class="items"></div>
 	  </script>
 

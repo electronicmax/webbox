@@ -22,19 +22,26 @@
    text-align:right;
 }
 .collection {
+    position:relative;
     text-align:left;
     border: 1px solid rgba(0, 0, 0, 0.1);
-    padding: 0 8px;
-    margin: 8px;
+    margin: 50px;
+    padding: 20px 10px;
 }
-.collection .label {
-    font-weight:bold;
+.collection .collection_name {
+    font-size: 18pt;
+    font-weight: bold;
+    position: absolute;
+    left: 18px;
+    top: 12px;
 }
 .itemview {
     padding: 0 8px;
     margin: 8px;
 }
-
+.collection .items {
+    margin:52px 0px 0px 240px;
+}
 .roundabout-holder {
     width:90%;
     padding: 0;
