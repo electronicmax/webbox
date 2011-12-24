@@ -1,5 +1,8 @@
 @import url(/ui/css/common.css);
 @import url(/ui/css/lenses.css);
+body {
+    background-color:rgb(90,110,110);
+}
 #title {
     position:absolute;
     font-family: 'Orbitron', sans-serif;
@@ -16,16 +19,18 @@
   text-align:center;
 }     
 #count {
+   font-size:12pt;
    position:absolute;
    top:0px;
    right:0px;
    text-align:right;
 }
 .collection {
+    background-color:rgba(255,255,255,0.9);
     position:relative;
     text-align:left;
     border: 1px solid rgba(0, 0, 0, 0.1);
-    margin: 50px;
+    margin: 30px;
     padding: 20px 10px;
 }
 .collection .collection_name {
