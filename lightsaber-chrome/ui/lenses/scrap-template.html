@@ -1,0 +1,10 @@
+<div class="bookmark_lens">
+  <div class="icon"><img src="/ui/lenses/imgs/clip.png" width="30"></div>
+  <div class="main">
+    <div class="url"><%= m['contents'].slice(0,Math.max(40,m['url'].length)) %> ...</div>
+    <% if (m['url']) { %>
+    <i> via </i> : <a href="<%= m['url'] %>"><%=m['url']%></a>
+    <% } %>
+    <div class="created"><%= m["http://purl.org/dc/elements/1.1/created"] %></div>
+  </div>
+</div>
