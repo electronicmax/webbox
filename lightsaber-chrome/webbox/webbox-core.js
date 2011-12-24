@@ -64,7 +64,7 @@ require(
 	    
 	    var scrapclass = new m.Model({},ns.expand('webbox:Scrap'));
 	    scrapclass.set2('rdfs:label', wkb.string('Information Scrap'));
-	    // scrapclass.set2('webbox:browser_lens', wkb.string('/ui/lenses/scrap.js'));	    
+	    scrapclass.set2('webbox:browser_lens', wkb.string('/ui/lenses/scrap.js'));	    
 	    scrapclass.save();
 	}
 	
