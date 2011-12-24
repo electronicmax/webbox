@@ -33,7 +33,7 @@ require(
 			    model.set2('dc:created',wkb.dateTime(new Date()));
 			    getTitle().then(
 				function(title) {
-				    model.set2('dc:title',title);
+				    model.set2('dc:title',wkb.string(title));
 				    model.save();			    			    
 				});			    
 			    
@@ -52,7 +52,11 @@ require(
 			    model.set2('webbox:url',wkb.string(context.pageUrl));
 			    model.set2('webbox:contents', wkb.string(context.selectionText));
 			    model.set2('dc:created',wkb.dateTime(new Date()));			
-			    model.save();					    
+			    getTitle().then(
+				function(title) {
+				    model.set2('webbox:src_page_title',wkb.string(title));
+				    model.save();			    			    
+				});				    
 			} catch (x) { console.error(x); }
 		    }
 		});
