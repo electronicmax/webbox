@@ -17,22 +17,7 @@
 	  <div id="title">webbox</div>
 	  <div id="count"></div>
 	  <div id="recent"></div>
-
-	  <!-- collection template -->
-	  <script type="text/template" id="collection_template">
-	    <div class="collection_name"><%= label %></div>
-	    <div class="items"></div>
-	  </script>
-
-	  <!-- item template --> 
-	  <script type="text/template" id="item_template">
-	    <div class="itemview">
-	      <div class="label"><%= m.label || m.name %></div>
-	      <div class="uri"><%= m.uri %></div>
-	      <div class="properties" style="display:none"></div>
-	    </div>
-	  </script>
-
+	  
 	  <!-- editor related -->
 	  <script type="text/template" id="editor_template">
 	    <div class="rows"></div>
@@ -45,9 +30,6 @@
 	      <input type="text" class="val"><%= val %></input>
 	      <button class="del_row">-</button>
 	    </div>
-	  </script>
-	  
-	  
-	  
+	  </script>	  
 	</body>
 </html>

@@ -1,8 +1,12 @@
-define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js', '/ui/browser/editorview.js'],
-      function(ns,model,utils,editor) {
+define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js',
+	'/ui/browser/editorview.js',
+	'/lib/text.js!/ui/lenses/collection-template.html',
+	'/lib/text.js!/ui/lenses/default-lens-template.html'],
+      function(ns,model,utils,editor,
+	       collection_template,default_lens_template) {
 	  var CollectionView = Backbone.View.extend(
 	      {
-		  template:$('#collection_template').text(),
+		  template:collection_template,
 		  className:"collection",
 		  initialize:function() {
 		      this.views = [];
@@ -22,11 +26,10 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js', '/u
 		      return this.el;
 		  }
 	      }
-	  );
-	  
+	  );	  
 	  var DefaultLens = Backbone.View.extend(
 	      {
-		  template:$('#item_template').text(),
+		  template:default_lens_template,
 		  events: {
 		      "click" : "_cb_toggle_visible"  
 		  },
