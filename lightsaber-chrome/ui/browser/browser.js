@@ -1,7 +1,10 @@
-define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js','/webbox/util.js', '/ui/lenses/default-lens.js'],
-      function(models,ns,wkb,util,default_lens) {
+define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js','/webbox/util.js','/ui/lenses/default-lens.js','/ui/browser/editor.js'],
+      function(models,ns,wkb,util,default_lens,editor) {
 	  var Browser = Backbone.View.extend(
 	      {
+		  events:{
+		      'click .edit': "_cb_edit_clicked"
+		  },
 		  initialize:function() {
 		      var this_ = this;
 		      this.items = {};
@@ -32,7 +35,6 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 			  function(uris) {
 			      // update count
 			      var s = _("<%= c %> items").template({ c: uris.length });
-			      console.log(" updating count ", s, $("#count").length);
 			      $("#count").html(s);
 			      var all_dfds = [];
 			      uris.map(function(uri) {
@@ -44,10 +46,9 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 						   var l_D = new $.Deferred();
 						   this_._get_lens_for_item(m).then(
 						       function(lens) {
-							   console.log("------------------- lens ---- ", lens.Lens);
 							   var l = new lens.Lens({model:m});
 							   items[uri] = l;
-							   l_D.resolve(l);							   
+							   l_D.resolve(l);
 						       });
 						   this_._get_collection_for_item(m).then(
 						       function(c) {
@@ -61,6 +62,14 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 			      $.when.apply($,all_dfds).then(function() { console.log("DONE !"); D.resolve();  });
 			  });
 		      return D.promise();
+		  },
+		  _cb_edit_clicked:function(evt) {
+		     // console.log("clicked on ", model);
+		      window.CT = evt.currentTarget;
+		     var view = $(evt.currentTarget).parents('.item').find('.lens').data('view');
+		     var model = view.options.model;
+		     var e = new editor.Editor({model:model, el:$('#editor')[0]});
+ 		     e.show();
 		  },
 		  make_collection:function(t) {
 		     var c = new default_lens.CollectionView({label:t});

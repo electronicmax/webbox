@@ -1,9 +1,31 @@
 define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js',
-	'/ui/browser/editorview.js',
 	'/lib/text.js!/ui/lenses/collection-template.html',
+	'/lib/text.js!/ui/lenses/toolbar-template.html',	
 	'/lib/text.js!/ui/lenses/default-lens-template.html'],
-      function(ns,model,utils,editor,
-	       collection_template,default_lens_template) {
+
+      function(ns,model,utils,collection_template,toolbar_template,default_lens_template) {
+
+	  var ToolbarView = Backbone.View.extend(
+	      {
+		  template:toolbar_template,
+		  className:"item",
+		  events:{
+		      'click .edit': '_cb_edit'
+		  },
+		  initialize:function() {
+		  },
+		  render:function() {
+		      $(this.el).html(_(this.template).template({m:this.options.lens.options.model.toJSON()}));
+		      $(this.el).find('.main').append(this.options.lens.render());
+		      return this.el;
+		  },
+		  _cb_edit:function() {
+		      var this_ = this;
+		      this.trigger('edit', function() { this_.options.lens.trigger('edit',this_.options.lens.options.model); });
+		  }
+	      }
+	  );
+
 	  var CollectionView = Backbone.View.extend(
 	      {
 		  template:collection_template,
@@ -13,7 +35,8 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js',
 		  },
 		  addItemIfNotPresent:function(itemview) {
 		      if (this.views.indexOf(itemview) < 0) {
-			  $(this.items_dom).append(itemview.render());
+			  var tv = new ToolbarView({lens:itemview});
+			  $(this.items_dom).append(tv.render());
 			  this.views.push(itemview);
 		      }
 		  },		  
@@ -26,18 +49,19 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js',
 		      return this.el;
 		  }
 	      }
-	  );	  
+	  );
+	  
 	  var DefaultLens = Backbone.View.extend(
 	      {
 		  template:default_lens_template,
 		  events: {
-		      "click" : "_cb_toggle_visible"  
+		      "click" : "_cb_click"  
 		  },
+		  className:"itemview lens",
 		  initialize:function() {
 		  },
 		  update:function(m) {
 		      this.options.model = m;
-		      if (this.editor) { this.editor.options.model = m; }
 		      this.render();
 		  },
 		  _convert_names:function(model) {
@@ -55,29 +79,14 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js',
 		      n.uri = model.url();
 		      return n;
 		  },
-		  _cb_toggle_visible:function(evt) {
-		      return;
-		      // console.log("target ", evt.target, this.el);
-		      if (evt.target !== this.el) {
-			  return;
-		      }
-		      if ($(this.el).find('.properties').is(":visible")) {
-			  console.log("hiding propreties for ", this.options.model.url());
-			  $(this.el).find('.properties').slideUp(); 
-		      } else {
-			  console.log("showing propreties for ", this.options.model.url());
-			  $(this.el).find('.properties').slideDown();
-		      }
+		  _cb_click:function() {
+		      this.trigger('click', this.options.model);
 		  },
 		  render:function() {
-		      $(this.el).data("view", this);
 		      $(this.el).html(
 			  _(this.template).template({ m : this._convert_names(this.options.model) })
 		      );
-		      
-		      this.editor = new editor.EditorView({ el:$(this.el).find('.properties')[0], model:this.options.model });
-		      console.log('editor attached to ', $(this.el).find('.properties')[0]);
-		      this.editor.render();
+		      $(this.el).data("view", this);
 		      return this.el;
 		  }
 	      }

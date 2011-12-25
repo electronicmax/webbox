@@ -1,7 +1,8 @@
 @import url(/ui/css/common.css);
 @import url(/ui/css/lenses.css);
+@import url(/ui/css/editor.css);
 body {
-    background-color:rgb(90,110,110);
+    background-color:rgb(190,210,210);
 }
 #title {
     position:absolute;
@@ -40,6 +41,9 @@ body {
     left: 18px;
     top: 12px;
 }
+.item {
+    position:relative;
+}    
 .itemview {
     padding: 0 8px;
     margin: 8px;
@@ -65,12 +69,3 @@ body {
 
  .roundabout-in-focus { cursor: auto; }
 
-.editor_row *{
-    font-size:8pt !important;
-}
- 
-.editor_row .key, .editor_row .val{
-    min-width:100px !important;
-    width:100px;
-    display:inline-block;
-}

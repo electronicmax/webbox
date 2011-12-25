@@ -1,0 +1,30 @@
+.modal_back {
+    position:fixed;
+    top:0;left:0;bottom:0;right:0;
+    z-index:1000;
+    background-color:rgba(10,10,10,0.5);
+}
+
+.editor {
+    position:fixed;
+    background-color:white;
+    border:1px solid black;
+    padding:20px 40px;
+    z-index:1200;
+    left:100px; top:100px;
+    min-width:700px;
+    overflow:auto;
+}
+.editor .editor_row {
+}
+.editor_row input {
+    width:300px;
+}
+.editor_row *{
+    font-size:8pt !important;
+} 
+.editor_row .key, .editor_row .val{
+    min-width:100px !important;
+    width:300px;
+    display:inline-block;
+}

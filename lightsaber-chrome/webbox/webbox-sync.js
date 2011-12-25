@@ -39,6 +39,10 @@ define(
 	    // serializes a single model; however, deep is true and v is a model,
 	    // will serialize that too and return an object:
 	    //   { u1 : --model_1_serialized--, u2 : ...  }
+
+	    // deep is dangerous, disabling for now
+	    deep = false;
+	    
 	    var base = model.base || model.get("_base") || ns.base;
 	    var uri = model.url();
 	    var uri_r = $.rdf.resource("<"+uri+">");

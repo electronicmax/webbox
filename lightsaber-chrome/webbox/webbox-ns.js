@@ -31,8 +31,12 @@ define([],
 		     prefixes:function() {  return _(prefix_to_ns).keys(); },		
 		     base:base,
 		     ns:prefix_to_ns,
-		     expand:function(uri) {
+		     expand:function(uri,add_base) {
 			 var prefcombo = uri.split(':');
+			 if (prefcombo.length < 2) {
+			     if (add_base) { return base + uri; }
+			     return uri;
+			 }
 			 if (prefcombo[0].indexOf('http') == 0)  {
 			     return uri;			     
 			 }
@@ -40,6 +44,14 @@ define([],
 			     return prefix_to_ns[prefcombo[0]] + prefcombo[1];
 			 }
 			 throw new Error("Unknown ns " + prefcombo[0]);
+		     },
+		     contract:function(uri) {
+			 var matching = _(prefix_to_ns).keys().filter(function(k) { return uri.indexOf(prefix_to_ns[k]) == 0; });
+			 if (matching.length > 0) {
+			     var mk = matching[0];
+			     return mk + ":" + uri.slice(prefix_to_ns[mk].length);
+			 }
+			 return uri;			 
 		     }
 		 }).extend(prefix_to_ns);
     });

@@ -1,22 +1,45 @@
-
-
 .bookmark_lens {
     color:rgba(41, 120, 11, 1.0);    
     display: inline-block;
     width: 90%;
     min-height: 12px;
-     padding: 7px 10px;
+    padding: 7px 0px;
     margin: 3px 0px;
     text-overflow:ellipsis;
-    border-radius:3px;
     vertical-align:middle;
-    border:1px solid white;
 }
-
-.bookmark_lens:hover {
-   border: 1px solid rgba(71, 190, 31, 1.0); /*rgba(40, 200, 4, 0.6);*/
+.item {
+    position:relative;
 }
-
+.toolbar {
+    height:100%;
+}
+div.toolbar .buttons {
+    top:0px; bottom:0px;
+    height:99%;
+    position:absolute;    
+    left:-20px;
+    opacity:0.2;
+    border:1px solid pink;
+}
+div.toolbar .buttons img {
+    position:absolute;
+    margin-top:50%;
+    top:-10px;
+    vertical-align:middle;
+}
+div.toolbar:hover > .buttons {
+    transition: opacity 0.6s;
+    opacity:1; 
+}
+.item {
+    border: 1px solid white;
+}
+.item:hover {
+    border: 1px solid rgba(10,10,10,0.2);
+    transition:border 1s;
+    border-radius:3px;
+}
 .bookmark_lens .url a {
     color:rgb(41, 120, 11);
     font-weight:2000;
@@ -36,10 +59,8 @@
     vertical-align:middle;
     
 }
-
-
 .scrap_lens {
-    color:rgba(41, 120, 11, 1.0);    
+    color:rgb(50,50,50);
     display: inline-block;
     width: 90%;
     min-height: 12px;

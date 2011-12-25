@@ -15,6 +15,9 @@ define(
 			this.uri = uri ? uri : ns.base + this.cid;
 		    } 
 		},
+		clear:function() {
+		    this.attributes = {};
+		},
 		set2:function(k,v) {
 		    var options = {};
 		    options[ns.expand(k)] = v;
