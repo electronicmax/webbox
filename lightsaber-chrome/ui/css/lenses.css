@@ -20,7 +20,6 @@ div.toolbar .buttons {
     position:absolute;    
     left:-20px;
     opacity:0.2;
-    border:1px solid pink;
 }
 div.toolbar .buttons img {
     position:absolute;
@@ -33,7 +32,7 @@ div.toolbar:hover > .buttons {
     opacity:1; 
 }
 .item {
-    border: 1px solid white;
+    border: 1px solid rgba(255,255,255,0);
 }
 .item:hover {
     border: 1px solid rgba(10,10,10,0.2);

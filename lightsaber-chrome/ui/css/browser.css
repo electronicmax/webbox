@@ -2,7 +2,7 @@
 @import url(/ui/css/lenses.css);
 @import url(/ui/css/editor.css);
 body {
-    background-color:rgb(190,210,210);
+    background-color:rgb(255,255,255); /*(190,210,210);*/
 }
 #title {
     position:absolute;
@@ -27,10 +27,10 @@ body {
    text-align:right;
 }
 .collection {
-    background-color:rgba(255,255,255,0.9);
+    background-color:white;
     position:relative;
     text-align:left;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.2);
     margin: 30px;
     padding: 20px 10px;
 }
@@ -58,14 +58,3 @@ body {
     list-style: none;
 }
  
-.roundabout-moveable-item { 
-    background-color: rgba(255,255,255,0.8); // #ffc;
-    border: 1px solid #999;
-    min-width:320px;
-    height:500px;
-    overflow:scroll;
-    padding:35px;
-}
-
- .roundabout-in-focus { cursor: auto; }
-

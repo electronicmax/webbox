@@ -1,17 +1,16 @@
 .modal_back {
-    position:fixed;
+    position:absolute;
     top:0;left:0;bottom:0;right:0;
     z-index:1000;
     background-color:rgba(10,10,10,0.5);
 }
-
 .editor {
-    position:fixed;
+    position:absolute;
     background-color:white;
     border:1px solid black;
     padding:20px 40px;
     z-index:1200;
-    left:100px; top:100px;
+    left:10%; top:10%;
     min-width:700px;
     overflow:auto;
 }
