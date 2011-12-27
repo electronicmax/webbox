@@ -65,10 +65,10 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 		  },
 		  _cb_edit_clicked:function(evt) {
 		     // console.log("clicked on ", model);
-		      window.CT = evt.currentTarget;
 		     var view = $(evt.currentTarget).parents('.item').find('.lens').data('view');
 		     var model = view.options.model;
-		     var e = new editor.Editor({model:model, el:$('#editor')[0]});
+		     var holder = $(evt.currentTarget).parents('.item').find('.editor_holder');
+		     var e = new editor.Editor({model:model, el:holder[0]});
  		     e.show();
 		  },
 		  make_collection:function(t) {

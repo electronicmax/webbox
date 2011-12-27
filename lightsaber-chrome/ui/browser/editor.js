@@ -37,7 +37,7 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 		   guess_type:function(v) {
 		       // is it a resource?
 		       if (parseInt(v).toString() == v.toString()) {  return parseInt(v);      }
-		       if (ns.expand(v) !== v) {  return new m.Model({},ns.expand(v));  }
+		       try { if (ns.expand(v) !== v) {  return new m.Model({},ns.expand(v));  }  } catch (x) { }
 		       // if ((new Date(v)).toString() !== 'Invalid Date') {  return new Date(v);  }
 		       return v;
 		   },
@@ -69,7 +69,7 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 		   },		   
 		   _cb_close:function() {
 		       var this_ = this;
-		       $(this.el).find('.modal_back').fadeOut("fast", function() {  $(this).remove(); });
+		       $(this_.el).html('');
 		   }
 	       });
 	   return {
