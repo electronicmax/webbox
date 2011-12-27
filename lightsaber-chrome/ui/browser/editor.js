@@ -59,7 +59,7 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 		       return this.options.model.save();
 		   },
 		   _cb_new_row:function() {
-		       var t = _($('#editor_row_template').html()).template({});
+		       var t = _(row_templ).template({key:'',val:''});
 		       $(this.el).find('.rows').append(t);
 		   },
 		   _cb_del_row:function(evt) {

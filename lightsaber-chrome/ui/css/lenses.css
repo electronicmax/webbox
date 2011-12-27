@@ -82,7 +82,11 @@ div.toolbar:hover > .buttons {
     font-weight:2000;
     overflow:hidden;
 }
-
+.del_row {
+    width:25px;
+    height:25px;
+    min-width:25px;
+}
 .scrap_lens .created {
     font-size:90%;
 }

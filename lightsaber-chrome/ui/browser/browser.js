@@ -9,24 +9,15 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 		      var this_ = this;
 		      this.items = {};
 		      this.collections = {};
-		      // set up count display etc
-		      $(window).keyup(function(evt) { this_._key_rotate(evt); });
+		      this.bind('load_start', function() { $('.loader').show(); });
+		      this.bind('load_end', function() { $('.loader').hide(); });
 		  },
 		  setup:function() {
 		      // run me after initialize to populate my graphs
-		      this._populate().then(
-			  function() {
-			      // $('div.collections').roundabout({	 childSelector:'div.collection' });
-			  });
+		      var this_ = this;
+		      this.trigger('load_start');
+		      this._populate().then(function() { console.log('done --- '); this_.trigger('load_end'); });
 		  },
-		  _key_rotate:function(evt) {
-		     if (evt.keyCode == 37) { // left
-			 $(this.el).find('.collections').roundabout_animateToPreviousChild(); 
-		     }
-		     if (evt.keyCode == 39) { // right
-			 $(this.el).find('.collections').roundabout_animateToNextChild(); 
-		     }
-		  },		  
 		  _populate:function() {
 		      var this_ = this;
 		      var items = this.items;
@@ -111,32 +102,44 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 		      }		      
 		      return d.promise();
 		  },
+		  _get_label:function(v) {
+		      var d = new $.Deferred();
+		      if (!models.is_model(v)) {
+			  d.resolve(v.toString());
+		      } else {
+			  v.fetch().then(function() { d.resolve( v.get(ns.expand('rdfs:label')) ); });			  
+		      }
+		      return d.promise();			  
+		  },
 		  _get_collection_for_item:function(model) {
 		      var this_ = this;
 		      var collections = this.collections;
-		      var type = model.get(ns.expand("rdf:type")) && model.get(ns.expand("rdf:type")).url ?
-			  model.get(ns.expand("rdf:type")).url() : undefined;
+		      var collection = undefined; 
+		      if (this.collection_function !== undefined) {
+			  collection = this.collection_function(model);
+		      } else {
+			  collection = model.get(ns.expand("rdf:type")) ;
+		      }		      
 		      var d = new $.Deferred();
-		      if (!type) {
+		      if (!collection) {
 			  if (!collections.unknown) {
 			      collections.unknown = this.make_collection("Other Things"); 
 			  }
 			  return d.resolve(collections.unknown);
-		      }		      
-		      if (!collections[type]) {
-			  // need to find the name of the class/type!
+		      }
+		      var collection_id = models.is_model(collection) ? collection.url() : collection.toString();		      
+		      if (!collections[collection_id]) {
+			  // need to find the label for the collection! 
 			  var c = this_.make_collection("");
-			  collections[type] = c;
-			  wkb.get_sp_object(type,"rdfs:label").then(
-			      function(labels) {
-				  if (labels.length > 0) {
-				      c.options.label = labels[0];
-				      c.render();
-				  }
-			      });
-			  d.resolve(c);				      			  
+			  collections[collection_id] = c;
+			  this._get_label(collection).then(
+			      function(label) {
+				  c.options.label = label ? label : collection_id;
+				  c.render();		      
+				  d.resolve(c);				  
+			      });				      			  
 		      } else {
-			  d.resolve(collections[type]);
+			  d.resolve(collections[collection_id]);
 		      }		      
 		      return d;		      
 		  }

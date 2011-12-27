@@ -41,6 +41,6 @@ h3 { font-weight:100; font-size:12pt; }
     margin-right:auto;
     width:80%;
 }
-.loader { display:inline-block; background-image:url(/img/loader.gif); width:16px; height:16px; }
+.loader { display:inline-block; background-image:url(/img/loader.gif); width:16px; height:16px; display:none; }
 
 
