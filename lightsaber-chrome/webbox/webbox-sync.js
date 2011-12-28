@@ -163,14 +163,21 @@ define(
 	    if (['create', 'update'].indexOf(method) >= 0) {
 		// may return multiple models as a result, we want to serialize each one
 		var serialized = {};
+		var total = new $.Deferred();		
 		serialize(model,true,serialized);
 		var ds = []; // deferreds
 		_(serialized).keys().map(
 		    function(uri) {
-			ds.push(put_update(uri,serialized[uri]));
+			var _d = put_update(uri,serialized[uri]); 
+			ds.push(_d);
+			_d.error(function(err) {
+				     console.error("error with putting ", uri, " :: ", err, err.statusCode().status, err.statusCode().statusText);
+				     total.fail();
+				 });
 		    });
 		// console.log("Sync Save deferreds ", ds.length);
-		return $.when.apply($,ds);
+		$.when.apply($,ds).then(total.resolve);		
+		return total.promise();
 	    } else if (method == 'read') {
 		return get_update(model);
 	    }
