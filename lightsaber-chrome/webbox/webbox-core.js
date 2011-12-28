@@ -79,6 +79,7 @@ require(
 			     util : util,
 			     wkb : wkb,
 			     ns : ns,
+			     tests:tests,
 			     config:configbox.config,
 			     test_webbox : function() {
 				  tests.run(); 

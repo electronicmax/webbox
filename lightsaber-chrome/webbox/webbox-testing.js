@@ -2,6 +2,8 @@ define(
     ['/webbox/webbox-ns.js', '/webbox/webbox-model.js', '/webbox/util.js', '/webbox/webbox-config.js', '/webbox/webbox-kb.js'],
     
     function(ns,m,util,config, wkb) {
+	m.disable_caching();
+	
 	var t1 = function() {
 	    var f = new m.Model({},"http://unit.tests.com/t1");
 	    var f2 = new m.Model({},"http://unit.tests.com/t2");

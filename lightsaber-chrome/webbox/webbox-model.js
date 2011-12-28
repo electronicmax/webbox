@@ -46,6 +46,7 @@ define(
 	    Model:Model,
 	    is_model:function(v) {
 		return typeof(v) == 'object' && v instanceof Model;
-	    }
+	    },
+	    disable_caching:function() { ENABLE_CACHING = false; }
 	};
     });
