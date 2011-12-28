@@ -118,7 +118,7 @@ define(['/webbox/util.js','/webbox/webbox-kb.js', '/webbox/webbox-config.js'],
 		      } else {
 			  // todo : dan
 			  storage['SPARQL_URL'] = storage['webbox_url'] + '/sparql/';
-			  storage['PUT_URL'] = storage['webbox_url'] + 'graph=';
+			  storage['PUT_URL'] = storage['webbox_url'] + '/?graph=';
 		      }
 		      console.log("Set SPARQL: ", storage['SPARQL_URL'] + " //  PUT: " + storage['PUT_URL']); 
 		      return o;
