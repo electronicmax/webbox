@@ -10,13 +10,12 @@ define(['/webbox/util.js','/webbox/webbox-kb.js', '/webbox/webbox-config.js'],
 		      "keyup #webbox_url" : "_fire_webbox_url_changed"
 		  },
 		  
-		  fields : ['webid','webbox_url','weblogging','page_bookmarking'], 
+		  fields : ['webid','webbox_url','weblogging','page_bookmarking','mode_4store'], 
 		  
-		  initialize:function() {
-		      
+		  initialize:function() {		      
 		      var this_ = this;
 		      var f_vals = this.load_values();
-		      this.bind("_webbox_url_changed", function(val) { this_.test_webbox_connection(val); });
+		      this.bind("_webbox_url_changed", function(val) {   this_.test_webbox_connection(val);});
 		      this.$('input[type=checkbox]').iphoneStyle();
 		      
 		  },
@@ -28,14 +27,14 @@ define(['/webbox/util.js','/webbox/webbox-kb.js', '/webbox/webbox-config.js'],
 		      console.log("attempting to test", url);
 		      var this_ = this;
 		      wkb.ping(url).done(function(x) {
-					     console.log("success callback", x);
-					     $('#webbox_dead').slideUp();
-					     $('#webbox_alive').slideDown();
-					 }).fail(function(y) {
-						     console.log("fail callback");
-						     $('#webbox_alive').slideUp();						  
-						     $('#webbox_dead').slideDown();
-						 });
+							 console.log("success callback", x);
+							 $('#webbox_dead').slideUp();
+							 $('#webbox_alive').slideDown();
+						     }).fail(function(y) {
+								 console.log("fail callback");
+								 $('#webbox_alive').slideUp();						  
+								 $('#webbox_dead').slideDown();
+							     });
 		  },
 		  fetch_webid:function() {
 		      var url = $('#webid').val();
@@ -112,6 +111,16 @@ define(['/webbox/util.js','/webbox/webbox-kb.js', '/webbox/webbox-config.js'],
 		      var o = {};
 		      var vals = this.get_values_from_fields();
 		      this.fields.map(function(f) { storage[f] = (vals[f] || undefined); });
+		      if (vals['mode_4store']) {
+			  // then set the endpoint
+			  storage['SPARQL_URL'] = storage['webbox_url'] + '/sparql/';
+			  storage['PUT_URL'] = storage['webbox_url'] + '/data/'; // webbox_url+"/data/"
+		      } else {
+			  // todo : dan
+			  storage['SPARQL_URL'] = storage['webbox_url'] + '/sparql/';
+			  storage['PUT_URL'] = storage['webbox_url'] + 'graph=';
+		      }
+		      console.log("Set SPARQL: ", storage['SPARQL_URL'] + " //  PUT: " + storage['PUT_URL']); 
 		      return o;
 		  },		  
 		  save_settings:function() {

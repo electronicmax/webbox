@@ -119,14 +119,14 @@ define(
 	};	
 
 	var put_update = function(uri, serialized_body) {
-	    console.log("Asserting into graph ", uri + " --- " + (config.webbox_url+"/data/"+uri));
-	    return $.ajax({ type:"PUT", url: config.webbox_url+"/data/"+uri, data:serialized_body, datatype:"text", headers:{ "Content-Type" : "application/rdf+xml" }});
+	    console.log("Asserting into graph ", uri + " --- " + (config.PUT_URL + uri));
+	    return $.ajax({ type:"PUT", url: config.PUT_URL + uri, data:serialized_body, datatype:"text", headers:{ "Content-Type" : "application/rdf+xml" }});
 	};
 
 	var get_update = function(model) {
 	    var uri = model.url();
 	    var query = _("CONSTRUCT { ?s ?p ?o } WHERE { GRAPH \<<%= uri %>\> { ?s ?p ?o. } } LIMIT 100000").template({uri:uri});
-	    var get = $.ajax({ type:"GET", url:config.webbox_url+"/sparql/", data:{query:query}});
+	    var get = $.ajax({ type:"GET", url:config.SPARQL_URL, data:{query:query}});
 	    var kb = wkb.make_kb();
 	    var _d = new $.Deferred();
 	    var fetch_model = arguments.callee;
