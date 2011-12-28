@@ -2,7 +2,7 @@ define(
     ['/webbox/webbox-ns.js'],
     function(ns) {
 
-	var ENABLE_CACHING = true;
+	var ENABLE_CACHING = false;
 	var _model_cache = {};
 	
 	var Model = Backbone.Model.extend(
