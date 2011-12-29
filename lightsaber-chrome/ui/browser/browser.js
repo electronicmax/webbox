@@ -25,11 +25,12 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 		      wkb.get_graphs().then(
 			  function(uris) {
 			      // update count
+			      console.log("GOT ", uris);
 			      var s = _("<%= c %> items").template({ c: uris.length });
 			      $("#count").html(s);
 			      var all_dfds = [];
 			      uris.map(function(uri) {
-					   var m = new models.Model({},uri);
+					   var m = models.get_resource(uri);
 					   var d = new $.Deferred();
 					   all_dfds.push(d);
 					   m.fetch().then(

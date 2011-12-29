@@ -91,8 +91,28 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js'],
 	   var resource = function(s) {
 	       s = ns.expand(s);
 	       return $.rdf.resource("<"+s+">");
-	   };	   
+	   };
+
+	   var get_updated_messages = function(since_time) {
+	       var query_template = 'SELECT ?msg ?time ?entity WHERE { GRAPH <http://webbox.ecs.soton.ac.uk/ns#ReceivedSIOCGraph> { ?msg a <http://rdfs.org/sioc/ns#Post> . ?msg <http://purl.org/dc/terms/created> ?time . ?msg <http://xmlns.com/foaf/0.1/primaryTopic> ?entity. } FILTER (?time > "<%= since_time.toISOString() %>") }'; 
+	       var query = _(query_template).template({ since_time:since_time || new Date(0) });
+	       var d = new $.Deferred();	       
+	       var get = $.ajax({ type:"GET", url:config.SPARQL_URL, data:{query:query}}).success(
+		   function(doc) {
+		       var lits = $(doc, "results").find('result').map(
+			   function() {
+			       var entity_uri = $(this).find('binding[name=entity]').find('uri').text();
+			       var date_literal = $(this).find('binding[name=time]').find('literal').text();
+			       var dl = new Date(date_literal);
+			       return { updated_resource_uri: entity_uri,  date:dl  };
+			   }).get();
+		       d.resolve(lits);
+		   }).error(d.fail);
+	       return d.promise();	       
+	   };
+	   
 	   return {
+	       get_updated_messages:get_updated_messages,
 	       ping:ping,
 	       make_kb:make_kb,
 	       get_graphs:get_graphs,

@@ -146,9 +146,9 @@ define(
 				 if (!util.is_resource(val)) {
 				     obj[prop] = val;    
 				 } else {
-				     var m = new models.Model({},val.toString());
+				     var m = models.get_resource(val.toString()); // new models.Model({},val.toString());
 				     obj[prop] = m;
-				     recursive_fetch_dfds.push(fetch_model(m));
+				     if (!m.is_fetched()) { recursive_fetch_dfds.push(fetch_model(m)); }				     
 				 }				 
 			     });
 			 model.set(obj);
@@ -175,7 +175,6 @@ define(
 				     total.fail();
 				 });
 		    });
-		// console.log("Sync Save deferreds ", ds.length);
 		$.when.apply($,ds).then(total.resolve);		
 		return total.promise();
 	    } else if (method == 'read') {

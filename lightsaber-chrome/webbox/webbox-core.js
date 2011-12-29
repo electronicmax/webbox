@@ -27,7 +27,7 @@ require(
 		    contexts:["page"],
 		    onclick:function(context) {
 			try {
-			    var model = new m.Model({},ns.webbox + "bookmark-"+((new Date()).valueOf()));
+			    var model = m.get_resource(ns.webbox + "bookmark-"+((new Date()).valueOf()));
 			    model.set2('rdf:type',wkb.resource(ns.expand('webbox:Bookmark')));
 			    model.set2('webbox:url',wkb.string(context.pageUrl));
 			    model.set2('dc:created',wkb.dateTime(new Date()));
@@ -47,7 +47,7 @@ require(
 		    contexts:["selection"],
 		    onclick:function(context) {
 			try {
-			    var model = new m.Model({},ns.webbox + "scrap-"+((new Date()).valueOf()));
+			    var model = m.get_resource(ns.webbox + "scrap-"+((new Date()).valueOf()));
 			    model.set2('rdf:type', wkb.resource(ns.expand('webbox:Scrap')));
 			    model.set2('webbox:url',wkb.string(context.pageUrl));
 			    model.set2('webbox:contents', wkb.string(context.selectionText));
@@ -61,12 +61,12 @@ require(
 		    }
 		});
 	    
-	    var bookmarkclass = new m.Model({},ns.expand('webbox:Bookmark'));
+	    var bookmarkclass = m.get_resource(ns.expand('webbox:Bookmark'));
 	    bookmarkclass.set2('rdfs:label', wkb.string('Bookmark'));
 	    bookmarkclass.set2('webbox:browser_lens', wkb.string('/ui/lenses/bookmark.js'));
 	    bookmarkclass.save();
 	    
-	    var scrapclass = new m.Model({},ns.expand('webbox:Scrap'));
+	    var scrapclass = m.get_resource(ns.expand('webbox:Scrap'));
 	    scrapclass.set2('rdfs:label', wkb.string('Information Scrap'));
 	    scrapclass.set2('webbox:browser_lens', wkb.string('/ui/lenses/scrap.js'));	    
 	    scrapclass.save();

@@ -5,15 +5,15 @@ define(
 	m.disable_caching();
 	
 	var t1 = function() {
-	    var f = new m.Model({},"http://unit.tests.com/t1");
-	    var f2 = new m.Model({},"http://unit.tests.com/t2");
+	    var f = m.get_resource("http://unit.tests.com/t1");
+	    var f2 = m.get_resource("http://unit.tests.com/t2");
 	    var d = new $.Deferred();
 	    var age = Math.round(100*Math.random());
 	    var name = "test1-"+util.guid(10);
 	    f.set({name:name, age:age,lover:f2});
 	    f.save().then(
 		function() {
-		    var g = new m.Model({},"http://unit.tests.com/t1");
+		    var g = m.get_resource("http://unit.tests.com/t1");
 		    g.fetch().then(function(x) {
 				       console.assert(g.get("name") == name, "name !== ", name, g.get("name"));
 				       console.assert(g.get("age") == age, "age !==  ", age, g.get("name"));
@@ -52,7 +52,7 @@ define(
 		    u.save();
 		});
 
-	    var persons = new m.Model({},ns.expand('webbox:Person'));
+	    var persons = m.get_resource(ns.expand('webbox:Person'));
 	    var options = {};
 	    options[ns.expand('rdfs:label')] = 'Person(s)';
 	    persons.set(options);
@@ -72,7 +72,7 @@ define(
 			   mn.save();
 			   return mn;
 		       });
-	    var place = new m.Model({},ns.expand('webbox:Place'));
+	    var place = m.get_resource(ns.expand('webbox:Place'));
 	    var options = {};
 	    options[ns.expand('rdfs:label')] = 'Places';
 	    place.set(options);
@@ -83,7 +83,7 @@ define(
 	var make_bookmarks = function() {
 	    
 	    var mk_bkmk = function(name,url) {
-		var bkmk = new m.Model({}, ns.expand(url.replace(/ /g,'_').toLowerCase()));
+		var bkmk = m.get_resource( ns.expand(url.replace(/ /g,'_').toLowerCase()));
 		// omit type
 		bkmk.set2("rdfs:label", name);
 		bkmk.set2("webbox:href", url);
@@ -91,7 +91,7 @@ define(
 	    };
 
 	    var mk_bkmks = function(kv, typeuri, typelabel) {
-		var typeclass = new m.Model({}, ns.expand(typeuri));
+		var typeclass = m.get_resource( ns.expand(typeuri));
 		typeclass.set2("rdfs:label", typelabel);
 		typeclass.save();
 		return _(kv).keys().map(

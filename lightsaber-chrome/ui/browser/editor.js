@@ -37,7 +37,7 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 		   guess_type:function(v) {
 		       // is it a resource?
 		       if (parseInt(v).toString() == v.toString()) {  return parseInt(v);      }
-		       try { if (ns.expand(v) !== v) {  return new m.Model({},ns.expand(v));  }  } catch (x) { }
+		       try { if (ns.expand(v) !== v) {  return m.get_resource(ns.expand(v)); }  } catch (x) { }
 		       // if ((new Date(v)).toString() !== 'Invalid Date') {  return new Date(v);  }
 		       return v;
 		   },
