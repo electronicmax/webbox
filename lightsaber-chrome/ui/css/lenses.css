@@ -15,17 +15,18 @@
     height:100%;
 }
 div.toolbar .buttons {
-    top:0px; bottom:0px;
+    bottom:0px;
     height:99%;
-    position:absolute;    
-    left:-20px;
+    position:absolute;
+    left:-18px;
+    margin-top:50%;
+    top:-16px;
     opacity:0.2;
+    width:16px;
 }
 div.toolbar .buttons img {
-    position:absolute;
-    margin-top:50%;
-    top:-10px;
     vertical-align:middle;
+    padding:1px 2px;
 }
 div.toolbar:hover > .buttons {
     transition: opacity 0.6s;
@@ -101,3 +102,20 @@ div.toolbar:hover > .buttons {
     vertical-align:middle;
     
 }
+
+.box {
+    position:absolute;
+    background-color:white;
+    border:1px solid black;
+    padding:20px 40px;
+    z-index:1200;
+    left:10%; top:10%;
+    min-width:700px;
+    overflow:auto;
+}
+.box .close_x {
+    position:absolute;
+    right:10px;
+    top:10px;
+}
+

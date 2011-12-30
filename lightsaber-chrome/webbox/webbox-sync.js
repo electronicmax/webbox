@@ -53,7 +53,12 @@ define(
 	    
 	    // make a place for us to store the models as they get serialized
 	    serialized_models = (serialized_models !== undefined) ? serialized_models : {};
-
+	    var recursive_serialize = function(v) {
+		if (deep && models.is_model(v) && !(v.uri in serialized_models)) {
+		    _(serialized_models).extend(self(v[i], true, serialized_models));
+		}
+	    };
+	    
 	    var _res = function(prefix,name) {
 		return $.rdf.resource("<"+ns[prefix] + name + ">");
 		// return $.rdf.resource(name,{namespaces:this_kb.namespaces});
@@ -62,48 +67,35 @@ define(
 	    _(data).keys().map(
 		function(k) {
 		    var v = data[k];
-		    var k_r = to_property(k);
+		    var k_r = to_property(k);		    
 		    // console.log(" TO PROPERTY OF ", k, " is ", k_r, k_r.toString());
-		    if ($.isArray(v)) { 
-			// arrays turn into Seqs:
+		    if (v instanceof wkb.ModelSeq) { 
+			// if it's a Seq
 			var seq_r = _res('webbox', "_seq_"+k);
 			this_kb.add($.rdf.triple(seq_r, _res('rdf', 'type'), _res('rdf', 'Seq')));
 			util.intRange(0,v.length).map(
 			    function(i) {
 				var prop_r = $.rdf.resource("<"+ns.rdf+"_"+(i+1)+">");
-				var v_r = to_literal_or_resource(v[i]);
-				
+				var v_r = to_literal_or_resource(v.at(i));
 				console.assert( !($.isArray(v[i])), "Not Implemented Yet: Can't handle nested arrays" );				
 				this_kb.add($.rdf.triple(seq_r,prop_r,v_r));
-				
-				if (deep && models.is_model(v[i]) && !(v[i].uri in serialized_models)) {
-				    // serialize and add 'em to our table
-				    _(serialized_models).extend(self(v[i], true, serialized_models));
-				}
+				recursive_serialize(v[i]);				
 			    });
 			var triple = $.rdf.triple(uri_r,k_r,seq_r);
 			this_kb.add(triple);
+		    } else if ($.isArray(v)) {
+			// serialize it straight up as multiple properties
+			v.map(function(v_i) {
+				  var triple = $.rdf.triple(uri_r,k_r,to_literal_or_resource(v_i));
+				  this_kb.add(triple);
+				  recursive_serialize(v_i);
+			      });			
 		    } else {
-			// non array, simple type or model
-			try {
-			    var v_r = to_literal_or_resource(v);			    
-			    var triple = $.rdf.triple(uri_r,k_r,v_r);
-			    this_kb.add(triple);
-			    console.log("Adding nonarr triple ", triple.toString());
-
-			    // if model, then we if deep then we want to serialize it too
-			    if (deep && models.is_model(v) && !(v.uri in serialized_models)) {
-				// then extend the set of serialized dudes to this model
-				console.log("serializing model ", v.uri);
-				_(serialized_models).extend(self(v, true, serialized_models));
-				log("serialized models is ", serialized_models);
-			    }
-			} catch (x) {
-			    console.error(" :( ");
-			    console.error(x, x.stack);
-			    window.E = x;
-			}
-			    
+			// simply party
+			var v_r = to_literal_or_resource(v);			    
+			var triple = $.rdf.triple(uri_r,k_r,v_r);
+			this_kb.add(triple);
+			recursive_serialize(v);			
 		    }
 		});
 	    console.log("setting serialized models ", uri);
@@ -130,6 +122,13 @@ define(
 	    var kb = wkb.make_kb();
 	    var _d = new $.Deferred();
 	    var fetch_model = arguments.callee;
+	    var set_val = function(o,p,v) {
+		if (o[p] === undefined) { o[p] = v; return; }
+		if (o[p] !== undefined && $.isArray(o[p])) {
+		    return o[p].push(v);
+		}
+		o[p] = [o[p], v];
+	    };
 	    get.then(function(doc){
 			 console.log("finished getting, now populating --- ");
 			 kb.load(doc, {});
@@ -138,18 +137,11 @@ define(
 			 $.rdf({databank:kb}).where('<'+uri+'> ?p ?o').each(
 			     function() {
 				 var prop = this.p.value.toString();
-				 // console.log(" got prop ", prop);
-				 if (prop.indexOf(ns.base) == 0) {
-				     prop = prop.slice(ns.base.length);
-				 }
-				 var val = this.o.value;				 
-				 if (!util.is_resource(val)) {
-				     obj[prop] = val;    
-				 } else {
-				     var m = models.get_resource(val.toString()); // new models.Model({},val.toString());
-				     obj[prop] = m;
-				     if (!m.is_fetched()) { recursive_fetch_dfds.push(fetch_model(m)); }				     
-				 }				 
+				 // do we really want to do this? 
+				 if (prop.indexOf(ns.base) == 0) { prop = prop.slice(ns.base.length); }
+				 // TODO: handle SEQs
+				 var val = this.o.value;
+				 set_val(obj, prop, !util.is_resource(val) ? val : models.get_resource(val.toString()));
 			     });
 			 model.set(obj);
 			 $.when.apply($,recursive_fetch_dfds).then(function() { _d.resolve(model);  });

@@ -2,8 +2,14 @@
 define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js','/webbox/util.js'],
        function(ns, configbox, util) {
 
-	   var is_model = function(v) { return typeof(v) == 'object' && v instanceof Model; };
+	   var ModelSeq = Backbone.Collection.extend({ seq:true });
+	   var make_seq = function(arr) {
+	       var s = new ModelSeq();
+	       if (arr !== undefined) { s.reset(arr); }
+	       return s;
+	   };
 	   
+	   var is_model = function(v) { return typeof(v) == 'object' && v instanceof Model; };
 	   var config = configbox.config;
 	   var make_kb = function() {
 	       return $.rdf.databank([], {base: ns.base, namespaces:ns.ns});
@@ -141,6 +147,8 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js','/webbox/util.js'],
 	       string:string,
 	       integer:integer,
 	       dateTime:dateTime,
-	       resource:resource
+	       resource:resource,
+	       seq:make_seq,
+	       ModelSeq:ModelSeq
 	   };
        });

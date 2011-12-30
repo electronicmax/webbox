@@ -34,7 +34,7 @@ define(
 		var uri = ns.expand('enakting_people:'+first_name+"_"+last_name+"_"+seed+"_"+util.guid());
 		var options = {};
 		options[ns.expand('foaf:givenName')] = first_name;
-		options[ns.expand('foaf:lastName')] = first_name;		
+		options[ns.expand('foaf:lastName')] = last_name;		
 		options[ns.expand('rdf:type')] = ns.expand('foaf:Person');
 		options[ns.expand('webbox:address')] = m.get_resource(config.config.webbox_url);
 		options[ns.expand('foaf:mbox')] = util.guid() + "@mbox.hip.cat";
@@ -48,7 +48,6 @@ define(
 	    util.intRange(0,25).map(
 		function() {
 		    var u = make_person();
-		    console.log("PERSON >>> ", u.url(), u, u.toJSON() );		    
 		    objs[u.url()] = u;
 		    console.log(u.url(), u);
 		    u.save();

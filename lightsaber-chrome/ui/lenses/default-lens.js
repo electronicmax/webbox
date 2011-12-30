@@ -9,19 +9,12 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js',
 	      {
 		  template:toolbar_template,
 		  className:"item",
-		  events:{
-		      'click .edit': '_cb_edit'
-		  },
 		  initialize:function() {
 		  },
 		  render:function() {
 		      $(this.el).html(_(this.template).template({m:this.options.lens.options.model.toJSON()}));
 		      $(this.el).find('.main').append(this.options.lens.render());
 		      return this.el;
-		  },
-		  _cb_edit:function() {
-		      var this_ = this;
-		      this.trigger('edit', function() { this_.options.lens.trigger('edit',this_.options.lens.options.model); });
 		  }
 	      }
 	  );

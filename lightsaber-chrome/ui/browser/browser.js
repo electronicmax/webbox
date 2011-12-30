@@ -1,9 +1,10 @@
 define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js','/webbox/util.js','/ui/lenses/default-lens.js','/ui/browser/editor.js'],
-      function(models,ns,wkb,util,default_lens,editor) {
+      function(models,ns,wkb,util,default_lens,editor,sharer) {
 	  var Browser = Backbone.View.extend(
 	      {
 		  events:{
-		      'click .edit': "_cb_edit_clicked"
+		      'click .edit': "_cb_edit_clicked",
+		      'click .share': "_cb_share_clicked"		      
 		  },
 		  initialize:function() {
 		      var this_ = this;
@@ -63,6 +64,14 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 		     var e = new editor.Editor({model:model, el:holder[0]});
  		     e.show();
 		  },
+		  _cb_share_clicked:function(evt) {
+		     // console.log("clicked on ", model);
+		     var view = $(evt.currentTarget).parents('.item').find('.lens').data('view');
+		     var model = view.options.model;
+		     var holder = $(evt.currentTarget).parents('.item').find('.editor_holder');
+		     var e = new sharer.Sharer({model:model, el:holder[0]});
+ 		     e.show();
+		  },		  
 		  make_collection:function(t) {
 		     var c = new default_lens.CollectionView({label:t});
 		     $(this.el).find('.collections').append(c.render());

@@ -21,7 +21,8 @@ define([],
 	    'emax':'http://hip.cat/emax#',
 	    'webbox':'http://webbox.ecs.soton.ac.uk/webbox/',
 	    'enakting':'http://enakting.org/data/',
-	    'enakting_people':'http://enakting.org/people/'	    
+	    'enakting_people':'http://enakting.org/people/',
+	    'sioc':'http://rdfs.org/sioc/ns#'
 	};
 	var base = prefix_to_ns.webbox;	
 	return _({
