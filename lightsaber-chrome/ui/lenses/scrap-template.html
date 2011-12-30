@@ -3,9 +3,9 @@
   <div class="main">
     <div class="contents"><%= m['contents'].slice(0,80) %> ...</div>
     <div class="url">
-      <% if (m['url']) { %>
+      <% if (m.url) { %>
       <i> via </i>:	  
-      <a href="<%= m['url'] %>"><%= m['src_page_title'] ? m['src_page_title'].substring(0,20) : "source page" %> ... </a>
+      <a href="<%= m.url %>"><%= m['src_page_title'] ? m['src_page_title'].substring(0,20) : "source page" %> ... </a>
       <% }  %>
     </div>
     <div class="created">(<%= m["http://purl.org/dc/elements/1.1/created"] %>)</div>

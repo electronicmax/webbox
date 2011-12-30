@@ -58,8 +58,7 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js',
 		      "click" : "_cb_click"  
 		  },
 		  className:"itemview lens",
-		  initialize:function() {
-		  },
+		  initialize:function() {},
 		  update:function(m) {
 		      this.options.model = m;
 		      this.render();
@@ -84,7 +83,11 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js',
 		  },
 		  render:function() {
 		      $(this.el).html(
-			  _(this.template).template({ m : this._convert_names(this.options.model) })
+			  _(this.template).template({
+							uri: this.options.model.uri,
+							m : this.options.model.toJSON(),
+							ns: ns.expand
+						    })
 		      );
 		      $(this.el).data("view", this);
 		      return this.el;

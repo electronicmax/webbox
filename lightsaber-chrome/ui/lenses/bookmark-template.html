@@ -1,9 +1,9 @@
 <div class="bookmark_lens lens">
   <div class="icon"><img src="/ui/lenses/imgs/page.png" width="30"></div>
   <div class="main">
-    <div class="url"><a target="_blank" href="<%= m.url %>"><%= m['http://purl.org/dc/elements/1.1/title'] || m.url.slice(0,40) %></a></div>
+    <div class="url"><a target="_blank" href="<%= uri %>"><%= m['http://purl.org/dc/elements/1.1/title'] || uri.slice(0,40) %></a></div>
     <% if (m['http://purl.org/dc/elements/1.1/title']) { %>
-    <%= m.url.slice(0,40) %>
+    <%= uri.slice(0,40) %>
     <% } %>
     <div class="created"><%= m["http://purl.org/dc/elements/1.1/created"] %></div>
   </div>

@@ -37,18 +37,13 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js','/webbox/util.js'],
 			     if(cont) { cont(results); }
 			 });
 	   };
-	   var get_orm_objects_of_type = function(type_uri) {
+	   var get_objects_of_type = function(type_uri) {
 	       var d = new $.Deferred();
-
-	       // unpack
 	       if (util.is_resource(type_uri)) { type_uri = type_uri.value.toString(); }
 	       if (is_model(type_uri)) {  type_uri = type_uri.uri; }
 	       if (typeof(type_uri) !== 'string') { type_uri = type_uri.toString();     }
-	       type_uri = ns.expand(type_uri);
-	       
+	       type_uri = ns.expand(type_uri);	       
 	       var query = _("SELECT ?s WHERE { GRAPH ?s { ?s a \<<%= type_uri %>\> . }} LIMIT 100000").template({type_uri:type_uri});
-	       console.log("get_orm_objects_of_type query ", query, config.SPARQL_URL);
-	       
 	       var get = $.ajax({ type:"GET", url:config.SPARQL_URL, data:{query:query}}).then(
 		   function(doc) {		       
 		       var resources = $(doc, "results").find('uri').map(
@@ -118,7 +113,6 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js','/webbox/util.js'],
 	       s = ns.expand(s);
 	       return $.rdf.resource("<"+s+">");
 	   };
-
 	   var get_updated_messages = function(since_time) {
 	       var query_template = 'SELECT ?msg ?time ?entity WHERE { GRAPH <http://webbox.ecs.soton.ac.uk/ns#ReceivedSIOCGraph> { ?msg a <http://rdfs.org/sioc/ns#Post> . ?msg <http://purl.org/dc/terms/created> ?time . ?msg <http://xmlns.com/foaf/0.1/primaryTopic> ?entity. } FILTER (?time > "<%= since_time.toISOString() %>") }'; 
 	       var query = _(query_template).template({ since_time:since_time || new Date(0) });
@@ -143,7 +137,7 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js','/webbox/util.js'],
 	       make_kb:make_kb,
 	       get_graphs:get_graphs,
 	       get_sp_object:get_sp_object,
-	       get_orm_objects_of_type:get_orm_objects_of_type,
+	       get_objects_of_type:get_objects_of_type,
 	       string:string,
 	       integer:integer,
 	       dateTime:dateTime,

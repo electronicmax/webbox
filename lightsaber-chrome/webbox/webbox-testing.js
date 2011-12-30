@@ -32,13 +32,13 @@ define(
 		console.log("first_name", first_name);
 		var last_name = util.randomlyPick(['Shadbolt', 'Smith', 'Need', 'Electron', 'Yang', 'Gibbins', 'Berners-Lee', 'Hall', 'Penta', 'schraefel', 'West', 'Saunders', 'Popov']);
 		var uri = ns.expand('enakting_people:'+first_name+"_"+last_name+"_"+seed+"_"+util.guid());
-		var options =
-		    {
-			first_name:first_name,
-			last_name:last_name
-		    };
+		var options = {};
+		options[ns.expand('foaf:givenName')] = first_name;
+		options[ns.expand('foaf:lastName')] = first_name;		
 		options[ns.expand('rdf:type')] = ns.expand('foaf:Person');
 		options[ns.expand('webbox:address')] = m.get_resource(config.config.webbox_url);
+		options[ns.expand('foaf:mbox')] = util.guid() + "@mbox.hip.cat";
+		options[ns.expand('foaf:page')] = 'http://hip.cat/peeps/' + util.guid();		
 		options[ns.expand('rdfs:label')] = first_name + " " + last_name;
 		var bm = new m.Model(options,uri);
 		return bm;
@@ -57,6 +57,7 @@ define(
 	    var persons = m.get_resource(ns.expand('foaf:Person'));
 	    var options = {};
 	    options[ns.expand('rdfs:label')] = 'A Person';
+	    options[ns.expand('webbox:browser_lens')] = '/ui/lenses/person.js';
 	    persons.set(options);
 	    persons.save();
 	    

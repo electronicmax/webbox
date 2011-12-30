@@ -1,4 +1,4 @@
-.bookmark_lens {
+.bookmark_lens, .page_lens {
     color:rgba(41, 120, 11, 1.0);    
     display: inline-block;
     width: 90%;
@@ -48,12 +48,12 @@ div.toolbar:hover > .buttons {
     font-size:90%;
 }
 
-.bookmark_lens .icon {
+.bookmark_lens .icon, .person_lens .icon {
     display:inline-block;
     width:60px;
     vertical-align:middle;    
 }
-.bookmark_lens .main {
+.bookmark_lens .main, .person_lens .main {
     display:inline-block;
     vertical-align:middle;
     

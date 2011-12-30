@@ -1,5 +1,5 @@
 <!-- item template --> 
-<div class="label"><%= m.label || m.name %></div>
-<div class="uri"><%= m.uri %></div>
+<div class="label"><%= m[ns('rdfs:label')] || m.name %></div>
+<div class="uri"><%= uri %></div>
 <div class="properties" style="display:none"></div>
 
