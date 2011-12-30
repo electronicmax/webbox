@@ -1,4 +1,5 @@
-define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js','/webbox/util.js','/ui/lenses/default-lens.js','/ui/browser/editor.js'],
+define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js','/webbox/util.js','/ui/lenses/default-lens.js','/ui/browser/editor.js',
+	'/ui/browser/sharer.js'],
       function(models,ns,wkb,util,default_lens,editor,sharer) {
 	  var Browser = Backbone.View.extend(
 	      {
@@ -69,7 +70,7 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 		     var view = $(evt.currentTarget).parents('.item').find('.lens').data('view');
 		     var model = view.options.model;
 		     var holder = $(evt.currentTarget).parents('.item').find('.editor_holder');
-		     var e = new sharer.Sharer({model:model, el:holder[0]});
+		     var e = new sharer.Sharer({browser:this,model:model,el:holder[0]});
  		     e.show();
 		  },		  
 		  make_collection:function(t) {

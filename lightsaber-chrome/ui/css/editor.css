@@ -1,9 +1,3 @@
-.modal_back {
-    position:absolute;
-    top:0;left:0;bottom:0;right:0;
-    z-index:1000;
-    background-color:rgba(10,10,10,0.5);
-}
 .editor {
     position:absolute;
     background-color:white;
@@ -26,4 +20,21 @@
     min-width:100px !important;
     width:300px;
     display:inline-block;
+}
+
+select {
+    width:100%;
+}
+.box {
+    min-height:150px;
+}
+.peeps {
+    width:100%;
+    border:1px solid rgba(20,20,20,0.2);
+    padding:10 5px;
+    min-height:50px;
+    margin:10px 0px;
+}
+.person_selector {
+    width:100%;
 }

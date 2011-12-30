@@ -1,0 +1,13 @@
+<div class="person_lens lens">
+  <div class="icon"><img src="<%= m[ns('foaf:img')] ? m[ns('foaf:img')] : '/img/person-icon.png' %>" width="30"></div>
+  
+  <div class="main">
+    <% if (m[ns('foaf:name')]) { %><%= m[ns('foaf:name')] %>
+    <% } else if (m[ns('foaf:givenName')] && m[ns('foaf:familyName')]) { %> <%= m[ns('foaf:givenName')] + ' ' + m[ns('foaf:familyName')] %>
+    <% } else if (m[ns('foaf:firstName')] && m[ns('foaf:lastName')]) { %> <%= m[ns('foaf:firstName')] + ' ' + m[ns('foaf:lastName')] %>
+    <% } else if (m[ns('rdfs:label')]) { %> <%= m[ns('rdfs:label')] %> <% } %>
+    <div class="url"><%= uri %></div>
+    <% if (m[ns('foaf:mbox')]) { %><a href="<%= m[ns('foaf:mbox')] %>"><%= m[ns('foaf:mbox')] %> <% } %>
+    <% if (m[ns('foaf:page')]) { %><a href="<%= m[ns('foaf:page')] %>"><%= m[ns('foaf:page')] %> <% } %>            
+  </div>
+</div>
