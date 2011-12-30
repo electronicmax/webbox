@@ -21,12 +21,12 @@
     width:300px;
     display:inline-block;
 }
-
 select {
     width:100%;
 }
 .box {
     min-height:150px;
+    overflow:none;
 }
 .peeps {
     width:100%;
