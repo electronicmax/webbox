@@ -26,23 +26,25 @@ define(
 	var tests = [t1]; // add unit tests here
 
 	var make_people = function() {
+	    var seed = util.guid();
 	    var make_person = function() {
 		var first_name = util.randomlyPick(['Cat', 'Nichola', 'Nigel', 'Jack', 'Peter','Susan', 'monica', 'Daniel', 'Yang', 'Nick', 'Hugh', 'Ian', 'Tim', 'Wendy', 'Antonio', 'Igor']);
 		console.log("first_name", first_name);
 		var last_name = util.randomlyPick(['Shadbolt', 'Smith', 'Need', 'Electron', 'Yang', 'Gibbins', 'Berners-Lee', 'Hall', 'Penta', 'schraefel', 'West', 'Saunders', 'Popov']);
-		var uri = ns.expand('enakting_people:'+first_name+"_"+last_name);
+		var uri = ns.expand('enakting_people:'+first_name+"_"+last_name+"_"+seed+"_"+util.guid());
 		var options =
 		    {
 			first_name:first_name,
 			last_name:last_name
 		    };
-		options[ns.expand('rdf:type')] = ns.expand('webbox:Person');
+		options[ns.expand('rdf:type')] = ns.expand('foaf:Person');
+		options[ns.expand('webbox:address')] = m.get_resource(config.config.webbox_url);
 		options[ns.expand('rdfs:label')] = first_name + " " + last_name;
 		var bm = new m.Model(options,uri);
 		return bm;
 	    };
-	    console.log("foo");
 	    var objs = {};
+	    console.log("Creating 25 people");
 	    util.intRange(0,25).map(
 		function() {
 		    var u = make_person();
@@ -52,9 +54,9 @@ define(
 		    u.save();
 		});
 
-	    var persons = m.get_resource(ns.expand('webbox:Person'));
+	    var persons = m.get_resource(ns.expand('foaf:Person'));
 	    var options = {};
-	    options[ns.expand('rdfs:label')] = 'Person(s)';
+	    options[ns.expand('rdfs:label')] = 'A Person';
 	    persons.set(options);
 	    persons.save();
 	    

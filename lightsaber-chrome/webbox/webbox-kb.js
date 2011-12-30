@@ -1,6 +1,9 @@
 
-define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js'],
-       function(ns, configbox) {
+define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js','/webbox/util.js'],
+       function(ns, configbox, util) {
+
+	   var is_model = function(v) { return typeof(v) == 'object' && v instanceof Model; };
+	   
 	   var config = configbox.config;
 	   var make_kb = function() {
 	       return $.rdf.databank([], {base: ns.base, namespaces:ns.ns});
@@ -33,7 +36,30 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js'],
 			     });
 			     if(cont) { cont(results); }
 			 });
-	   };	   
+	   };
+	   var get_orm_objects_of_type = function(type_uri) {
+	       var d = new $.Deferred();
+
+	       // unpack
+	       if (util.is_resource(type_uri)) { type_uri = type_uri.value.toString(); }
+	       if (is_model(type_uri)) {  type_uri = type_uri.uri; }
+	       if (typeof(type_uri) !== 'string') { type_uri = type_uri.toString();     }
+	       type_uri = ns.expand(type_uri);
+	       
+	       var query = _("SELECT ?s WHERE { GRAPH ?s { ?s a \<<%= type_uri %>\> . }} LIMIT 100000").template({type_uri:type_uri});
+	       console.log("get_orm_objects_of_type query ", query, config.SPARQL_URL);
+	       
+	       var get = $.ajax({ type:"GET", url:config.SPARQL_URL, data:{query:query}}).then(
+		   function(doc) {		       
+		       var resources = $(doc, "results").find('uri').map(
+			   function(x) {
+			       return $(this).text();
+			   }).get();
+		       console.log("resources : ", resources);		       
+		       d.resolve(resources);
+		   });
+	       return d.promise();	       
+	   };
 	   var get_sp_object = function(subject, predicate, graph) {
 	       // subject should be a uri,
 	       subject = ns.expand(subject.toString());
@@ -117,6 +143,7 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js'],
 	       make_kb:make_kb,
 	       get_graphs:get_graphs,
 	       get_sp_object:get_sp_object,
+	       get_orm_objects_of_type:get_orm_objects_of_type,
 	       string:string,
 	       integer:integer,
 	       dateTime:dateTime,
