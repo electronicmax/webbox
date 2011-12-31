@@ -8,38 +8,6 @@
     text-overflow:ellipsis;
     vertical-align:middle;
 }
-.item {
-    position:relative;
-}
-.toolbar {
-    height:100%;
-}
-div.toolbar .buttons {
-    bottom:0px;
-    height:99%;
-    position:absolute;
-    left:-18px;
-    margin-top:50%;
-    top:-16px;
-    opacity:0.2;
-    width:16px;
-}
-div.toolbar .buttons img {
-    vertical-align:middle;
-    padding:1px 2px;
-}
-div.toolbar:hover > .buttons {
-    transition: opacity 0.6s;
-    opacity:1; 
-}
-.item {
-    border: 1px solid rgba(255,255,255,0);
-}
-.item:hover {
-    border: 1px solid rgba(10,10,10,0.2);
-    transition:border 1s;
-    border-radius:3px;
-}
 .bookmark_lens .url a {
     color:rgb(41, 120, 11);
     font-weight:2000;

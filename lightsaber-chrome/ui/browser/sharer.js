@@ -22,7 +22,8 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 			   shared_addressees = $.isArray(this.options.model.get(ns.expand("sioc:addressed_to"))) ?
 			       this.options.model.get(ns.expand("sioc:addressed_to")) :
 			       [this.options.model.get(ns.expand("sioc:addressed_to"))];
-		       }		       
+		       }
+		       console.log("SHARED ADDRESSES ", shared_addressees);
 		       // populate chosen with options
 		       var select = $(this.el).find('select')[0];
 		       $(select).chosen();		       
@@ -32,7 +33,6 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 					  var p = m.get_resource(puri);
 					  p.fetch().then(
 					      function() {
-						  console.log("foo ", p.toJSON());
 						  var option = _('<option value="<%= m.uri %>" <%= selected ? "selected" : ""%>><%= m.get(ns.expand("rdfs:label")) || m.get(ns.expand("foaf:name")) %></option>').template(
 						      {
 							  ns:ns,
