@@ -1,10 +1,6 @@
 .bookmark_lens, .page_lens {
     color:rgba(41, 120, 11, 1.0);    
     display: inline-block;
-    width: 90%;
-    min-height: 12px;
-    padding: 7px 0px;
-    margin: 3px 0px;
     text-overflow:ellipsis;
     vertical-align:middle;
 }
@@ -12,7 +8,6 @@
     color:rgb(41, 120, 11);
     font-weight:2000;
 }
-
 .bookmark_lens .created {
     font-size:90%;
 }
@@ -27,10 +22,18 @@
     vertical-align:middle;
     
 }
+.name {
+    font-size:120%;
+}
+.email, .email a, .homepage, .homepage a {
+    font-size:95%;
+    font-weight:100px;
+    opacity:0.8;
+}
 .scrap_lens {
     color:rgb(50,50,50);
     display: inline-block;
-v    width: 90%;
+    width: 90%;
     min-height: 12px;
     padding: 7px 10px;
     margin: 3px 0px;
@@ -70,7 +73,6 @@ v    width: 90%;
     vertical-align:middle;
     
 }
-
 .box {
     position:absolute;
     background-color:white;

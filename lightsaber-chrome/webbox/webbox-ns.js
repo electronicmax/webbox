@@ -19,7 +19,7 @@ define([],
 	    'plum':'http://projects.csail.mit.edu/connectingme/plum#',
 	    'rww': 'http://www.w3.org/2011/10/12-rww#',
 	    'emax':'http://hip.cat/emax#',
-	    'webbox':'http://webbox.ecs.soton.ac.uk/ns#',
+	    'webbox':'http://webbox.ecs.soton.ac.uk/ns/',
 	    'enakting':'http://enakting.org/data/',
 	    'enakting_people':'http://enakting.org/people/',
 	    'sioc':'http://rdfs.org/sioc/ns#'
