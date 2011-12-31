@@ -5,16 +5,18 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 	       Sharer: Backbone.View.extend(
 	       {
 		   template:template,
-		   events:{  'click .ok' : "_cb_save",   },
+		   events:{  'click .ok' : "_cb_save"  },
 		   initialize:function() {
-		       this.box = new box.Box({el:this.el});		       
+		       var this_ = this;
+		       this.box = new box.Box({el:this.el});
+		       this.box.bind("close", function() { this_._cb_save(); });
 		   },
 		   show:function() {
 		       return this.render();
 		   },
 		   render:function() {
 		       var main_el = $(this.box.render()).find('.main');
-		       main_el.html(_(this.template).template({}));
+		       main_el.html(_(this.template).template({m:this.options.model,ns:ns}));
 		       var shared_addressees = [];
 		       if (this.options.model.get(ns.expand("sioc:addressed_to"))) {
 			   shared_addressees = $.isArray(this.options.model.get(ns.expand("sioc:addressed_to"))) ?
@@ -24,7 +26,6 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 		       // populate chosen with options
 		       var select = $(this.el).find('select')[0];
 		       $(select).chosen();		       
-		       console.log("select ", select);
 		       wkb.get_objects_of_type('foaf:Person').then(
 			   function(ps) {
 			       ps.map(function(puri) {
@@ -46,8 +47,17 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 			   });		       
 		   },
 		   _cb_save:function() {
-		       // save.		       
-		   },
+		       try {
+			   var values = $(this.el).find('select').val() || [];
+			   var model = this.options.model;
+			   var resources = values.map(function(uri) {
+							  console.log("Getting resource ", uri, typeof(uri), m, m.get_resource);
+							  return m.get_resource(uri);
+						      });
+			   model.set2('sioc:addressed_to', resources); 
+			   model.save();
+		       } catch (x) {  console.error('ERROR trying to save updated sharing state ', x);  }
+		   },		       
 		   _cb_close:function() {
 		       var this_ = this;
 		       $(this_.el).html('');

@@ -7,7 +7,6 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 		   events:{ 'click .close' : "_cb_close" },
 		   initialize:function() {
 		       var this_ = this;
-		       this.bind('close', function() { this_._cb_close(); });
 		   },
 		   show:function() { return this.render(); },
 		   render:function(child_el) {
@@ -16,8 +15,8 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 		       return this.el;		       
 		   },
 		   _cb_close:function() {
-		       var this_ = this;
-		       $(this_.el).html('');
+		       this.trigger("close");
+		       $(this.el).children().slideUp();
 		   }		   
 	       });
 	   return { Box:Box };	   
