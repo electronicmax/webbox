@@ -111,8 +111,11 @@ define(
 	};	
 
 	var put_update = function(uri, serialized_body) {
-	    console.log("Asserting into graph ", uri + " --- " + (config.PUT_URL + uri));
-	    return $.ajax({ type:"PUT", url: config.PUT_URL + uri, data:serialized_body, datatype:"text", headers:{ "Content-Type" : "application/rdf+xml" }});
+	    var put_uri = config.PUT_URL + (config.mode_4store == 'false' ? "?graph=" + encodeURIComponent(uri) : uri);
+	    console.log(" >>> putting to ", put_uri);
+	    return $.ajax({ type:"PUT",
+			    url: put_uri,
+			    data:serialized_body, datatype:"text", headers:{ "Content-Type" : "application/rdf+xml" }});
 	};
 
 	var get_update = function(model) {

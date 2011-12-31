@@ -110,7 +110,7 @@ define(['/webbox/util.js','/webbox/webbox-kb.js', '/webbox/webbox-config.js'],
 		  save_values:function() {
 		      var o = {};
 		      var vals = this.get_values_from_fields();
-		      this.fields.map(function(f) { storage[f] = (vals[f] || undefined); });
+		      this.fields.map(function(f) { storage[f] = vals[f]; });
 		      if (vals['mode_4store']) {
 			  // then set the endpoint
 			  storage['SPARQL_URL'] = storage['webbox_url'] + '/sparql/';
@@ -118,7 +118,7 @@ define(['/webbox/util.js','/webbox/webbox-kb.js', '/webbox/webbox-config.js'],
 		      } else {
 			  // todo : dan
 			  storage['SPARQL_URL'] = storage['webbox_url'] + '/sparql/';
-			  storage['PUT_URL'] = storage['webbox_url'] + '/?graph=';
+			  storage['PUT_URL'] = storage['webbox_url'] + '/'; // storage['webbox_url'] + '/?graph=';
 		      }
 		      console.log("Set SPARQL: ", storage['SPARQL_URL'] + " //  PUT: " + storage['PUT_URL']); 
 		      return o;
