@@ -1,3 +1,15 @@
+.item {
+    position:relative;
+}
+.item {
+    border: 1px solid rgba(255,255,255,0);
+    border-radius:3px;    
+}
+.item:hover {
+    -webkit-transition:border 0.35s;
+    border: 1px solid rgba(10,10,10,0.2);
+}
+
 .bookmark_lens, .page_lens {
     color:rgba(41, 120, 11, 1.0);    
     display: inline-block;
@@ -11,7 +23,6 @@
 .bookmark_lens .created {
     font-size:90%;
 }
-
 .bookmark_lens .icon, .person_lens .icon {
     display:inline-block;
     width:60px;
@@ -30,12 +41,15 @@
     font-weight:100px;
     opacity:0.8;
 }
+.lens {
+    padding: 7px 10px;    
+}
 .scrap_lens {
     color:rgb(50,50,50);
     display: inline-block;
     width: 90%;
     min-height: 12px;
-    padding: 7px 10px;
+
     margin: 3px 0px;
     text-overflow:ellipsis;
     border-radius:3px;

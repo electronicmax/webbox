@@ -6,7 +6,8 @@ define(
 		events: {
 		    'click .profile': "open_profile",
 		    'click .explorer': "open_browser",		    
-		    'click .settings': "open_settings"
+		    'click .settings': "open_settings",
+		    'click .inbox': "open_inbox"
 		},
 		initialize:function() {
 		    
@@ -19,7 +20,10 @@ define(
 		},		
 		open_settings:function() {
 		    chrome.windows.create({'url': '/ui/settings.html', 'type': 'normal'}, function(window) {});
-		}
+		},
+		open_inbox:function() {
+		    chrome.windows.create({'url': '/ui/inbox.html', 'type': 'normal'}, function(window) {});
+		}		
 	    }
 	);
 	window.view = new PopupView({el:$("#main")[0]}) ;

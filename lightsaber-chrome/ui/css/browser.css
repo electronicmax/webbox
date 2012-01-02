@@ -79,14 +79,3 @@ div.toolbar .buttons img {
     padding:1px 2px;
 }
 
-.item {
-    position:relative;
-}
-.item {
-    border: 1px solid rgba(255,255,255,0);
-    border-radius:3px;    
-}
-.item:hover {
-    -webkit-transition:border 0.35s;
-    border: 1px solid rgba(10,10,10,0.2);
-}

@@ -34,6 +34,7 @@ require(
 			    getTitle().then(
 				function(title) {
 				    model.set2('dc:title',wkb.string(title));
+				    model.set2('rdfs:label',wkb.string(title));
 				    model.save();			    			    
 				});			    
 			    
@@ -51,6 +52,7 @@ require(
 			    model.set2('rdf:type', wkb.resource(ns.expand('webbox:Scrap')));
 			    model.set2('webbox:url',wkb.string(context.pageUrl));
 			    model.set2('webbox:contents', wkb.string(context.selectionText));
+			    model.set2('rdfs:label', wkb.string(context.selectionText));
 			    model.set2('dc:created',wkb.dateTime(new Date()));			
 			    getTitle().then(
 				function(title) {
@@ -64,12 +66,16 @@ require(
 	    var bookmarkclass = m.get_resource(ns.expand('webbox:Bookmark'));
 	    bookmarkclass.set2('rdfs:label', wkb.string('Bookmark'));
 	    bookmarkclass.set2('webbox:browser_lens', wkb.string('/ui/lenses/bookmark.js'));
-	    bookmarkclass.save();
-	    
+	    bookmarkclass.save();	    
 	    var scrapclass = m.get_resource(ns.expand('webbox:Scrap'));
 	    scrapclass.set2('rdfs:label', wkb.string('Information Scrap'));
 	    scrapclass.set2('webbox:browser_lens', wkb.string('/ui/lenses/scrap.js'));	    
 	    scrapclass.save();
+
+	    var mclass = m.get_resource(ns.expand('webbox:WebboxMessage'));
+	    mclass.set2('rdfs:label', wkb.string('Incoming Message Notifications'));
+	    mclass.set2('webbox:browser_lens', wkb.string('/ui/lenses/webbox-message.js'));	    
+	    mclass.save();	    
 	}
 	
 	console.log("Core extnding window .. ");

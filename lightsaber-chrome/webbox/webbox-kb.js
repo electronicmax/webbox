@@ -120,20 +120,39 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js','/webbox/util.js'],
 	       return $.rdf.resource("<"+s+">");
 	   };
 	   var get_updated_messages = function(since_time) {
-	       var query_template = 'SELECT ?msg ?time ?entity WHERE { GRAPH <http://webbox.ecs.soton.ac.uk/ns#ReceivedSIOCGraph> { ?msg a <http://rdfs.org/sioc/ns#Post> . ?msg <http://purl.org/dc/terms/created> ?time . ?msg <http://xmlns.com/foaf/0.1/primaryTopic> ?entity. } FILTER (?time > "<%= since_time.toISOString() %>") }'; 
-	       var query = _(query_template).template({ since_time:since_time || new Date(0) });
+	       // var query_template = 'SELECT ?msg ?time ?entity WHERE { GRAPH <http://webbox.ecs.soton.ac.uk/ns#ReceivedSIOCGraph> { ?msg a <http://rdfs.org/sioc/ns#Post> . ?msg <http://purl.org/dc/terms/created> ?time . ?msg <http://xmlns.com/foaf/0.1/primaryTopic> ?entity. } FILTER (?time > "<%= since_time.toISOString() %>") }';
 	       var d = new $.Deferred();	       
-	       var get = $.ajax({ type:"GET", url:config.SPARQL_URL, data:{query:query}}).success(
-		   function(doc) {
-		       var lits = $(doc, "results").find('result').map(
-			   function() {
-			       var entity_uri = $(this).find('binding[name=entity]').find('uri').text();
-			       var date_literal = $(this).find('binding[name=time]').find('literal').text();
-			       var dl = new Date(date_literal);
-			       return { updated_resource_uri: entity_uri,  date:dl  };
-			   }).get();
-		       d.resolve(lits);
-		   }).error(d.fail);
+	       require(
+		   ['/webbox/webbox-model.js'],
+		   function(models) {
+		       var query_template = 'SELECT ?msg ?whom ?when ?what WHERE { GRAPH <http://webbox.ecs.soton.ac.uk/ns#ReceivedSIOCGraph> { ?msg <http://rdfs.org/sioc/ns#addressed_to> ?whom . ?msg <http://purl.org/dc/terms/created> ?when . ?msg <http://xmlns.com/foaf/0.1/primaryTopic> ?what . }}';
+		       var query = _(query_template).template({since_time:since_time || new Date(0)});
+		       var updated_thing_loads = [];
+		       var get = $.ajax({ type:"GET", url:config.SPARQL_URL, data:{query:query}}).success(
+			   function(doc) {
+			       var lits = $(doc, "results").find('result').map(
+				   function() {
+				       // turn em into little models for us 
+				       var msg_uri = $(this).find('binding[name=msg]').find('uri').text();
+				       var whom = $(this).find('binding[name=whom]').find('uri').text();
+				       var what = $(this).find('binding[name=what]').find('uri').text();
+				       var date_literal = $(this).find('binding[name=when]').find('literal').text();
+				       var dl = new Date(date_literal);
+				       var m = models.get_resource(msg_uri);
+				       var what_r = models.get_resource(what);
+				       m.set2('sioc:addressed_to',models.get_resource(whom));
+				       m.set2('foaf:primaryTopic', what_r);
+				       m.set2('dc:created',dl);
+				       m.set2('rdf:type',models.get_resource('webbox:WebboxMessage'));				       
+				       // prepare a deferred for the target's retrieval
+				       var _d = new $.Deferred();
+				       updated_thing_loads.push(_d);
+				       what_r.fetch().then(_d.resolve);				       
+				       return m;
+				   }).get();
+			       $.when.apply($,updated_thing_loads).then(function() { d.resolve(lits); });
+			   }).error(d.fail);		       
+		   });
 	       return d.promise();	       
 	   };
 	   

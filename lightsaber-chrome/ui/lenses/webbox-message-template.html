@@ -1,0 +1,3 @@
+<div class="created">Received at <%= m["http://purl.org/dc/elements/1.1/created"] %>:</div>
+<div class="contents"><%= m[ns('foaf:primaryTopic')].get(ns('rdfs:label')) !== undefined ? m[ns('foaf:primaryTopic')].get(ns('rdfs:label')).slice(0,80) : m[ns('foaf:primaryTopic')].uri.slice(0,80) %> ...</div>
+<div class="url">(<a href="<%= m.uri %>"><%= uri.slice(0,40) %> ... </a>)</div>    

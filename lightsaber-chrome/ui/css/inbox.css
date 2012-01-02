@@ -1,0 +1,37 @@
+@import url(/ui/css/common.css);
+@import url(/ui/css/lenses.css);
+@import url(/ui/css/editor.css);
+body {
+    background-color:rgb(255,255,255); /*(190,210,210);*/
+}
+#main {
+  width:100%;
+  text-align:center;
+}     
+#count {
+   font-size:12pt;
+   position:absolute;
+   top:0px;
+   right:0px;
+   text-align:right;
+}
+.item {
+    position:relative;
+    text-align:left;
+}
+.item:hover {
+    -webkit-transition:border 0.35s;
+    border: 1px solid rgba(10,10,10,0.2);
+}
+.itemview {
+    padding: 0 8px;
+    margin: 8px;
+}
+.item .toolbar .buttons{
+    display:none;
+}
+.message_lens {
+    padding: 7px 10px;    
+   display:none;
+}
+

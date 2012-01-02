@@ -30,6 +30,7 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js',
 		      if (this.views.indexOf(itemview) < 0) {
 			  var tv = new ToolbarView({lens:itemview});
 			  $(this.items_dom).append(tv.render());
+			  $(this.items_dom).find(".lens").slideDown();
 			  this.views.push(itemview);
 		      }
 		  },		  
