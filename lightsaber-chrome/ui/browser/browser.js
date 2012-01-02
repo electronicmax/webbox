@@ -21,40 +21,41 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 		      this._populate().then(function() { console.log('done --- '); this_.trigger('load_end'); });
 		  },
 		  _populate:function() {
+		      // todo: rename "_update"
 		      var this_ = this;
 		      var items = this.items;
-		      var D = new $.Deferred();		      
-		      wkb.get_graphs().then(
-			  function(uris) {
-			      // update count
-			      console.log("GOT ", uris);
-			      var s = _("<%= c %> items").template({ c: uris.length });
-			      $("#count").html(s);
-			      var all_dfds = [];
-			      uris.map(function(uri) {
-					   var m = models.get_resource(uri);
-					   var d = new $.Deferred();
-					   all_dfds.push(d);
-					   m.fetch().then(
-					       function() {
-						   var l_D = new $.Deferred();
-						   this_._get_lens_for_item(m).then(
-						       function(lens) {
-							   var l = new lens.Lens({model:m});
-							   items[uri] = l;
-							   l_D.resolve(l);
-						       });
-						   this_._get_collection_for_item(m).then(
-						       function(c) {
-							   l_D.then(function(lens) {
-									c.addItemIfNotPresent(lens);
-									d.resolve({collection:c, lens:lens});
-								    });
-						       });
-					       });
-				       });
-			      $.when.apply($,all_dfds).then(function() { console.log("DONE !"); D.resolve();  });
-			  });
+		      var D = new $.Deferred();
+		      var set = this.options.models;		      
+		      var s = _("<%= c %> items").template({ c: set.length });
+		      $("#count").html(s);		      
+		      var all_dfds = [];
+		      set.map(function(m) {
+				  var d = new $.Deferred();
+				  all_dfds.push(d);
+				  m.fetch().then(
+				      function() {
+					  var l_D = new $.Deferred();
+					  if (items[m.uri] == undefined) {
+					      this_._get_lens_for_item(m).then(
+						  function(lens) {
+						      var l = new lens.Lens({model:m});
+						      items[m.uri] = l;
+						      l_D.resolve(l);
+						  });
+					      this_._get_collection_for_item(m).then(
+						  function(c) {
+						      l_D.then(function(lens) {
+								   c.addItemIfNotPresent(lens);
+								   d.resolve({collection:c, lens:lens});
+							       });
+						  });						       
+					  } else {
+					      items[m.uri].update(m);
+					      d.resolve({lens:items[m.uri]});
+					  }
+				      });
+			      });
+		      $.when.apply($,all_dfds).then(function() { console.log("DONE !"); D.resolve();  });
 		      return D.promise();
 		  },
 		  _cb_edit_clicked:function(evt) {
