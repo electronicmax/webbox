@@ -24,14 +24,15 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js',
 		  template:collection_template,
 		  className:"collection",
 		  initialize:function() {
-		      this.views = [];
+		      this.tbviews = [];
 		  },
 		  addItemIfNotPresent:function(itemview) {
-		      if (this.views.indexOf(itemview) < 0) {
+		      if (this.tbviews.map(function(tbv) { return tbv.options.lens; }).indexOf(itemview) < 0) {
 			  var tv = new ToolbarView({lens:itemview});
 			  $(this.items_dom).append(tv.render());
 			  $(this.items_dom).find(".lens").slideDown();
-			  this.views.push(itemview);
+			  this.tbviews.push(tv);
+			  itemview.collection = this;
 		      }
 		  },		  
 		  render:function() {
@@ -39,8 +40,16 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js',
 			  _(this.template).template(this.options)
 		      );
 		      this.items_dom = $(this.el).find('.items')[0];
-		      this.views.map(function(v) { $(this.items_dom).append(v.render()); });
+		      this.tbviews.map(function(v) { $(this.items_dom).append(v.render()); });
 		      return this.el;
+		  },
+		  remove:function(itemview) {
+		      var matching = this.tbviews.filter(
+			  function(tbv) {
+			      return tbv.lens == itemview;
+			  });
+		      matching.map(function(x) {  $(x.el).remove(); });
+		      this.tbviews = _().without.apply(_(this.tbviews),[matching]);		      
 		  }
 	      }
 	  );
@@ -85,6 +94,12 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js',
 		      );
 		      $(this.el).data("view", this);
 		      return this.el;
+		  },
+		  remove:function() {
+		      if (this.collection !== undefined) {
+			  this.collection.remove(this);
+		      }
+		      $(this.el).html('');
 		  }
 	      }
 	  );

@@ -5,9 +5,10 @@
  todo: this thing should probably read in all sorts of ns's prefix-cc style
 */
 
-define([],
-    function() {
+define(['/webbox/webbox-config.js'],
+    function(config) {
 	var prefix_to_ns = {
+	    'me': (config.config['webbox_url'] + '/'|| 'http://localhost:8211'),
 	    'xsd':'http://www.w3.org/2001/XMLSchema#',
 	    'rdf':'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
 	    'rdfs':'http://www.w3.org/2000/01/rdf-schema#',
@@ -22,6 +23,7 @@ define([],
 	    'webbox':'http://webbox.ecs.soton.ac.uk/ns#',
 	    'enakting':'http://enakting.org/data/',
 	    'enakting_people':'http://enakting.org/people/',
+	    'enakting_test':'http://enakting.org/test/ns#',	    
 	    'sioc':'http://rdfs.org/sioc/ns#'
 	};
 	var base = prefix_to_ns.webbox;	

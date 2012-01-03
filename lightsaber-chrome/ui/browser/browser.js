@@ -55,6 +55,13 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 					  }
 				      });
 			      });
+		      // now remove excess guys --
+		      _.difference(_(items).keys(), set.map(function(x) { return x.uri; })).map(
+			  function(intruder_uri) {
+			      items[intruder_uri].remove();
+			      delete items[intruder_uri];
+			  });
+				 
 		      $.when.apply($,all_dfds).then(function() { console.log("DONE !"); D.resolve();  });
 		      return D.promise();
 		  },

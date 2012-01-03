@@ -2,6 +2,7 @@ define(
     ['/webbox/webbox-ns.js', '/webbox/webbox-model.js', '/webbox/util.js', '/webbox/webbox-config.js', '/webbox/webbox-kb.js'],
     
     function(ns,m,util,config, wkb) {
+	
 	m.disable_caching();
 	
 	var t1 = function() {
@@ -25,41 +26,41 @@ define(
 	};
 	var tests = [t1]; // add unit tests here
 
+	var make_person = function(first, last, seed, add_guid) {
+	    var uri = ns.expand('enakting_test:'+[first, last, (seed ? seed :''), (add_guid ? "_"+util.guid() : '')].filter(function(x) { return x.length > 0; }).join('_'));
+	    var props = {};
+	    props[ns.expand('foaf:givenName')] = first;
+	    props[ns.expand('foaf:lastName')] = last;		
+	    props[ns.expand('rdf:type')] = ns.expand('foaf:Person');
+	    props[ns.expand('webbox:address')] = m.get_resource(config.config.webbox_url);
+	    props[ns.expand('foaf:mbox')] = util.guid() + "@mbox.hip.cat"; 
+	    props[ns.expand('foaf:page')] = 'http://hip.cat/peeps/' + util.guid();		
+	    props[ns.expand('rdfs:label')] = first + " " + last;
+	    return new m.Model(props,uri);
+	};
+	
 	var make_people = function() {
 	    var seed = util.guid();
-	    var make_person = function() {
-		var first_name = util.randomlyPick(['Cat', 'Nichola', 'Nigel', 'Jack', 'Peter','Susan', 'monica', 'Daniel', 'Yang', 'Nick', 'Hugh', 'Ian', 'Tim', 'Wendy', 'Antonio', 'Igor']);
-		console.log("first_name", first_name);
-		var last_name = util.randomlyPick(['Shadbolt', 'Smith', 'Need', 'Electron', 'Yang', 'Gibbins', 'Berners-Lee', 'Hall', 'Penta', 'schraefel', 'West', 'Saunders', 'Popov']);
-		var uri = ns.expand('enakting_people:'+first_name+"_"+last_name+"_"+seed+"_"+util.guid());
-		var options = {};
-		options[ns.expand('foaf:givenName')] = first_name;
-		options[ns.expand('foaf:lastName')] = last_name;		
-		options[ns.expand('rdf:type')] = ns.expand('foaf:Person');
-		options[ns.expand('webbox:address')] = m.get_resource(config.config.webbox_url);
-		options[ns.expand('foaf:mbox')] = util.guid() + "@mbox.hip.cat";
-		options[ns.expand('foaf:page')] = 'http://hip.cat/peeps/' + util.guid();		
-		options[ns.expand('rdfs:label')] = first_name + " " + last_name;
-		var bm = new m.Model(options,uri);
-		return bm;
-	    };
 	    var objs = {};
 	    console.log("Creating 25 people");
 	    util.intRange(0,25).map(
 		function() {
-		    var u = make_person();
+		    var u = make_person(
+			util.randomlyPick(['Cat', 'Nichola', 'Nigel', 'Jack', 'Peter','Susan', 'monica', 'Daniel', 'Yang', 'Nick', 'Hugh', 'Ian', 'Tim', 'Wendy', 'Antonio', 'Igor']),
+			util.randomlyPick(['Shadbolt', 'Smith', 'Need', 'Electron', 'Yang', 'Gibbins', 'Berners-Lee', 'Hall', 'Penta', 'schraefel', 'West', 'Saunders', 'Popov']),
+			seed,
+			true
+		    );
 		    objs[u.url()] = u;
 		    console.log(u.url(), u);
 		    u.save();
 		});
-
 	    var persons = m.get_resource(ns.expand('foaf:Person'));
 	    var options = {};
 	    options[ns.expand('rdfs:label')] = 'A Person';
 	    options[ns.expand('webbox:browser_lens')] = '/ui/lenses/person.js';
 	    persons.set(options);
-	    persons.save();
-	    
+	    persons.save();	    
 	    return objs;
 	};
 
@@ -81,9 +82,44 @@ define(
 	    place.save();
 	    return cs;
 	};
+	
 
-	var make_bookmarks = function() {
-	    
+	var make_sharing = function() {
+	    var a = make_person('Lisbeth', 'Salander', '');
+	    a.save();	    
+	    var model = m.get_resource(ns.me + "scrap-"+((new Date()).valueOf()));
+	    model.set2('rdf:type', wkb.resource(ns.expand('webbox:Scrap')));
+	    model.set2('webbox:url',wkb.string('http://web.mit.edu'));
+	    model.set2('webbox:contents', wkb.string("After all we're all alike"));
+	    model.set2('rdfs:label', wkb.string("After all we're all alike"));
+	    model.set2('sioc:addressed_to', a);
+	    model.set2('dc:created',wkb.dateTime(new Date()));			
+	    model.set2('webbox:src_page_title',wkb.string('Hackers Manifesto ' + (new Date()).toString()));
+	    model.save();
+	    // now let them save	    
+	};
+	
+	return {
+	    run: function() {
+		util.intRange(tests.length).map(
+		    function(i) {
+			console.log(i);
+			console.group();
+			console.log("Test ", i);
+			tests[i]().then(function() { console.log("if no errors, passed T1"); });	
+		    });
+	    },
+	    get_graphs:wkb.get_graphs,
+	    make_people:make_people,
+	    make_places:make_places,
+	    make_sharing:make_sharing
+	};	
+    });
+
+
+/* old bits
+
+ 	var make_bookmarks = function() {	    
 	    var mk_bkmk = function(name,url) {
 		var bkmk = m.get_resource( ns.expand(url.replace(/ /g,'_').toLowerCase()));
 		// omit type
@@ -126,21 +162,5 @@ define(
 		     ns.expand("webbox:JavascriptBookmarks"),
 		     "Javascript Resources");	  	    
 
-	};	
-	
-	return {
-	    run: function() {
-		util.intRange(tests.length).map(
-		    function(i) {
-			console.log(i);
-			console.group();
-			console.log("Test ", i);
-			tests[i]().then(function() { console.log("if no errors, passed T1"); });	
-		    });
-	    },
-	    get_graphs:wkb.get_graphs,
-	    make_people:make_people,
-	    make_places:make_places,
-	    make_bookmarks:make_bookmarks    
-	};	
-    });
+	};
+*/

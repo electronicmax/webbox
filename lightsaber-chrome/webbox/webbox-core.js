@@ -27,7 +27,7 @@ require(
 		    contexts:["page"],
 		    onclick:function(context) {
 			try {
-			    var model = m.get_resource(ns.webbox + "bookmark-"+((new Date()).valueOf()));
+			    var model = m.get_resource(ns.me + "bookmark-"+((new Date()).valueOf()));
 			    model.set2('rdf:type',wkb.resource(ns.expand('webbox:Bookmark')));
 			    model.set2('webbox:url',wkb.string(context.pageUrl));
 			    model.set2('dc:created',wkb.dateTime(new Date()));
@@ -48,7 +48,7 @@ require(
 		    contexts:["selection"],
 		    onclick:function(context) {
 			try {
-			    var model = m.get_resource(ns.webbox + "scrap-"+((new Date()).valueOf()));
+			    var model = m.get_resource(ns.me + "scrap-"+((new Date()).valueOf()));
 			    model.set2('rdf:type', wkb.resource(ns.expand('webbox:Scrap')));
 			    model.set2('webbox:url',wkb.string(context.pageUrl));
 			    model.set2('webbox:contents', wkb.string(context.selectionText));
@@ -71,7 +71,6 @@ require(
 	    scrapclass.set2('rdfs:label', wkb.string('Information Scrap'));
 	    scrapclass.set2('webbox:browser_lens', wkb.string('/ui/lenses/scrap.js'));	    
 	    scrapclass.save();
-
 	    var mclass = m.get_resource(ns.expand('webbox:WebboxMessage'));
 	    mclass.set2('rdfs:label', wkb.string('Incoming Message Notifications'));
 	    mclass.set2('webbox:browser_lens', wkb.string('/ui/lenses/webbox-message.js'));	    
