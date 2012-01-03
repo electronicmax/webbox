@@ -26,7 +26,7 @@ define(
 		    chrome.windows.create({'url': '/ui/inbox.html', 'type': 'normal'}, function(window) {});
 		},
 		open_notes:function() {
-		    chrome.windows.create({'url': '/ui/notes.html', 'type': 'normal'}, function(window) {});
+		    chrome.windows.create({'url': '/ui/notes.html', 'type': 'popup'}, function(window) {});
 		}				
 	    }
 	);
