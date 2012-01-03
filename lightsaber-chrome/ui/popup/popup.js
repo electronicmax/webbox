@@ -7,7 +7,8 @@ define(
 		    'click .profile': "open_profile",
 		    'click .explorer': "open_browser",		    
 		    'click .settings': "open_settings",
-		    'click .inbox': "open_inbox"
+		    'click .inbox': "open_inbox",
+		    'click .notes': "open_notes"		    
 		},
 		initialize:function() {
 		    
@@ -23,7 +24,10 @@ define(
 		},
 		open_inbox:function() {
 		    chrome.windows.create({'url': '/ui/inbox.html', 'type': 'normal'}, function(window) {});
-		}		
+		},
+		open_notes:function() {
+		    chrome.windows.create({'url': '/ui/notes.html', 'type': 'normal'}, function(window) {});
+		}				
 	    }
 	);
 	window.view = new PopupView({el:$("#main")[0]}) ;

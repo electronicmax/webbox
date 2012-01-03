@@ -37,7 +37,6 @@ require(
 				    model.set2('rdfs:label',wkb.string(title));
 				    model.save();			    			    
 				});			    
-			    
 			} catch (x) {  console.error(x); }
 		    }
 		});	    
