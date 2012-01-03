@@ -1,9 +1,9 @@
-define(['/webbox/webbox-sync.js', '/ui/browser/browser.js', '/webbox/webbox-kb.js', '/webbox/webbox-model.js', '/ui/lenses/note.js', '/webbox/util.js',
+define(['/webbox/webbox-sync.js', '/ui/browser/browser.js', '/webbox/webbox-kb.js', '/webbox/webbox-model.js',
+        '/ui/lenses/note.js',
+        '/webbox/util.js',
 	'/webbox/webbox-ns.js'],
       function(sync, browser, wkb, models, notelens, util, ns) {
-
-	  
-
+          
 	  var NotesCollection = Backbone.Collection.extend(
 	      {
 		  fetch:function() {
@@ -140,7 +140,7 @@ define(['/webbox/webbox-sync.js', '/ui/browser/browser.js', '/webbox/webbox-kb.j
 	      });
 
 
-	  var nv = new NotesView({ el: $('body')[0] });
+	  var nv = new NotesView({ el: $('#main_lhs')[0] });
 	  nv.render();
 	  // by default we're the whole set
 

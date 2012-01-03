@@ -1,10 +1,8 @@
 define(
     ['/webbox/webbox-ns.js', '/webbox/webbox-kb.js'],
     function(ns, wkb) {
-
 	var ENABLE_CACHING = false;
 	var _model_cache = {};
-
 	var Model = Backbone.Model.extend(
 	    {
 		initialize:function(attrs, uri) {
@@ -71,8 +69,7 @@ define(
 		    $.when.apply($.when,ds).then(d);		    
 		});
 	    return d.promise();
-	};
-	
+	};	
 	var get_resource =  function(uri) {
 	    if (uri === undefined) { throw new Error("get_resource: URI undefined"); }
 	    uri = ns.expand(uri);
@@ -80,8 +77,7 @@ define(
 		_model_cache[uri] = new Model({},uri);
 	    }
 	    return _model_cache[uri];
-	};
-	
+	};	
 	return {
 	    Model:Model,
 	    is_model:function(v) {

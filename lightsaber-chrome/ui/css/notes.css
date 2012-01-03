@@ -21,10 +21,10 @@ body {
     z-index:-1000;
     font-weight:10;
 }
-#main {
-  width:100%;
-  text-align:center;
-}     
+.notes {
+    height:100%;
+    width:400px;
+}
 #count {
    font-size:12pt;
    position:absolute;
@@ -55,7 +55,6 @@ body {
 }
 .collection .items {
     margin:30px 0px 0px 5px;
-    max-width:600px;
 }
 .toolbar { height:100%; }
 
@@ -64,7 +63,7 @@ div.toolbar .buttons {
 }
 .input {
     margin-top:40px;
-    width:100%;
+    width:98%;
     border-top:none;
     border-bottom:2px solid rgb(0,55,0);
     border-left:none;
@@ -72,12 +71,13 @@ div.toolbar .buttons {
     padding:5px 3px;
 }
 .note_lens {
+    max-width:400px;
     position:relative;
     margin:0px; padding:0px;
 }
 .note_lens > .contents {
     border: 1px solid rgba(0,0,0,0.2);
-    padding: 5px 3px;
+    padding: 5px 10px 3px 3px;
     margin: 2px;
 }
 .note_lens > .contents:focus {
@@ -87,4 +87,27 @@ div.toolbar .buttons {
 .note_lens .close {
     position:absolute;
     right:5px; top:5px; 
+}
+#main_lhs {
+    position:absolute;
+    top:0; bottom:0px; left:0px;
+    width:400px;
+    height:100%;
+    overflow:auto;
+    border-right:1px solid rgba(0,0,0,0.1);
+}
+#main_rhs {
+    position:absolute;
+    top:0; bottom:0px; right:0px;    
+    height:100%;
+}
+.sheet_ui .main_sheet {
+    border-right:1px solid rgba(0,0,0,0.1);
+    width:100%;
+    height:80%;
+}
+.sheet_ui .controls {
+    border-right:1px solid rgba(0,0,0,0.1);
+    width:100%;
+    height:100px;
 }

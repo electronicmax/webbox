@@ -12,7 +12,18 @@
 	  <script type="text/javascript" src="/lib/require.js" data-main="/ui/notes/notes.js"></script>
 	</head>
 	<body>
-	  <div contentEditable="true" class="input" tabindex='1'></div>
-	  <div id="notes"></div>	  
+          <div id="main_lhs">
+	    <div contentEditable="true" class="input" tabindex='1'></div>
+	    <div id="notes"></div>
+          </div>
+          <div id="main_rhs">
+            <div id="sheet_ui">
+              <div class="controls">
+                <button class="new">new</button>
+                <div class="sheets"></div>
+              </div>              
+              <div class="main_sheet"></div>                
+            </div>
+          </div>
 	</body>
 </html>
