@@ -12,7 +12,7 @@ define(
 		},
 		__make_uri:function(uri) {
 		    if (!this.uri) {
-			this.uri = uri ? uri : ns.base + this.cid;
+			this.uri = uri ? uri : ns.me + this.cid;
 		    } 
 		},
 		clear:function() {

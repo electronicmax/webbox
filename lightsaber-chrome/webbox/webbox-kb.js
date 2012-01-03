@@ -12,7 +12,7 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js','/webbox/util.js'],
 	   var is_model = function(v) { return typeof(v) == 'object' && v instanceof Model; };
 	   var config = configbox.config;
 	   var make_kb = function() {
-	       return $.rdf.databank([], {base: ns.base, namespaces:ns.ns});
+	       return $.rdf.databank([], { base: ns.me, namespaces:ns.ns });
 	   };
 	   var ping = function(url) {
 	       var this_ = this;

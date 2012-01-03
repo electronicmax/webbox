@@ -7,12 +7,6 @@ define(
 	// backbone-patch
 	var config = configbox.config;
 	var oldSync = Backbone.sync;
-	var contract_ns = function(prefixed) {
-	    var pref = prefixed.split(':');
-	    var pre = pref[0], pos = pref[1];
-	    console.assert(ns[pre] !== undefined, "Could not find prefix " + pre);
-	    return ns[pre] + pos;
-	};
 	var to_property = function(key) {
 	    if (key.indexOf('http') == 0) {
 		return $.rdf.resource("<"+key+">");
@@ -20,7 +14,7 @@ define(
 	    if (key.indexOf(':') >= 0)  {
 		return $.rdf.resource(key, {namespaces:ns});
 	    }
-	    var r =  $.rdf.resource("<"+ns.base + key+">");
+	    var r =  $.rdf.resource("<"+ns.me + key+">");
 	    console.log(r.toString());
 	    return r;
 	};
@@ -41,9 +35,7 @@ define(
 	    //   { u1 : --model_1_serialized--, u2 : ...  }
 
 	    // deep is dangerous, disabling for now
-	    deep = false;
-	    
-	    var base = model.base || model.get("_base") || ns.base;
+	    deep = false;	    
 	    var uri = model.url();
 	    var uri_r = $.rdf.resource("<"+uri+">");
 	    var data = model.toJSON();
@@ -109,7 +101,6 @@ define(
 	    serialized_models[uri] = this_kb.dump({format:'application/rdf+xml', serialize: true});
 	    return deep ? serialized_models : serialized_models[uri];
 	};	
-
 	var put_update = function(uri, serialized_body) {
 	    var put_uri = config.PUT_URL + (config.mode_4store == 'false' ? "?graph=" + encodeURIComponent(uri) : uri);
 	    console.log(" >>> putting to ", put_uri);
@@ -117,7 +108,7 @@ define(
 			    url: put_uri,
 			    data:serialized_body, datatype:"text", headers:{ "Content-Type" : "application/rdf+xml" }});
 	};
-
+	
 	var get_update = function(model) {
 	    var uri = model.url();
 	    var query = _("CONSTRUCT { ?s ?p ?o } WHERE { GRAPH \<<%= uri %>\> { ?s ?p ?o. } } LIMIT 100000").template({uri:uri});
@@ -141,7 +132,7 @@ define(
 			     function() {
 				 var prop = this.p.value.toString();
 				 // do we really want to do this? 
-				 if (prop.indexOf(ns.base) == 0) { prop = prop.slice(ns.base.length); }
+				 if (prop.indexOf(ns.me) == 0) { prop = prop.slice(ns.me.length); }
 				 // TODO: handle SEQs
 				 var val = this.o.value;
 				 set_val(obj, prop, !util.is_resource(val) ? val : models.get_resource(val.toString()));
