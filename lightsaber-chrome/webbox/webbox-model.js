@@ -40,7 +40,11 @@ define(
 		    var d = new $.Deferred();
 		    d.resolve(this);
 		    return d.promise();
-		}
+		},
+		delete:function() {
+		    this.attributes = {};
+		    this.save();
+		}		
 	    }
 	);
 

@@ -5,7 +5,9 @@ define(
 	    Lens:defaultlens.DefaultLens.extend(
 		{
 		    className:'note_lens lens',
-		    template:template
+		    template:template,
+		    events: {	'click .close': '_cb_kill'   },
+		    _cb_kill:function() { this.trigger('kill'); }
 		}
 	    )
 	};	
