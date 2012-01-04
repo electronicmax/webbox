@@ -1,7 +1,16 @@
-require(
-    ['/webbox/webbox-model.js','/webbox/webbox-sync.js', '/webbox/util.js', '/webbox/webbox-config.js', '/webbox/webbox-testing.js','/webbox/webbox-kb.js','/webbox/webbox-ns.js', '/js/window-watcher.js'],
-    function(m,sync,util,configbox,tests,wkb,ns,ww) {
-
+define(
+    [
+        '/webbox/webbox-model.js',
+        '/webbox/webbox-sync.js',
+        '/webbox/util.js',
+        '/webbox/webbox-config.js',
+        '/webbox/webbox-testing.js',
+        '/webbox/webbox-kb.js',
+        '/webbox/webbox-ns.js',
+        '/js/window-watcher.js',
+        '/webbox/webbox-basic.js'
+    ],
+    function(m,sync,util,configbox,tests,wkb,ns,ww,basic) {
 	var watcher = new ww.WindowWatcher();	
 	watcher.bind("changed", function(x) {
 			 if (configbox.config.weblogging == 'true') {
@@ -61,20 +70,11 @@ require(
 			} catch (x) { console.error(x); }
 		    }
 		});
-	    
-	    var bookmarkclass = m.get_resource(ns.expand('webbox:Bookmark'));
-	    bookmarkclass.set2('rdfs:label', wkb.string('Bookmark'));
-	    bookmarkclass.set2('webbox:browser_lens', wkb.string('/ui/lenses/bookmark.js'));
-	    bookmarkclass.save();	    
-	    var scrapclass = m.get_resource(ns.expand('webbox:Scrap'));
-	    scrapclass.set2('rdfs:label', wkb.string('Information Scrap'));
-	    scrapclass.set2('webbox:browser_lens', wkb.string('/ui/lenses/scrap.js'));	    
-	    scrapclass.save();
-	    var mclass = m.get_resource(ns.expand('webbox:WebboxMessage'));
-	    mclass.set2('rdfs:label', wkb.string('Incoming Message Notifications'));
-	    mclass.set2('webbox:browser_lens', wkb.string('/ui/lenses/webbox-message.js'));	    
-	    mclass.save();	    
 	}
+
+        console.log("basic is === ", basic);
+        
+        basic.make_basic_types();
 	
 	console.log("Core extnding window .. ");
 	_(window).extend({

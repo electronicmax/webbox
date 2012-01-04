@@ -49,18 +49,11 @@ define(
 			util.randomlyPick(['Cat', 'Nichola', 'Nigel', 'Jack', 'Peter','Susan', 'monica', 'Daniel', 'Yang', 'Nick', 'Hugh', 'Ian', 'Tim', 'Wendy', 'Antonio', 'Igor']),
 			util.randomlyPick(['Shadbolt', 'Smith', 'Need', 'Electron', 'Yang', 'Gibbins', 'Berners-Lee', 'Hall', 'Penta', 'schraefel', 'West', 'Saunders', 'Popov']),
 			seed,
-			true
-		    );
+			true);
 		    objs[u.url()] = u;
 		    console.log(u.url(), u);
 		    u.save();
 		});
-	    var persons = m.get_resource(ns.expand('foaf:Person'));
-	    var options = {};
-	    options[ns.expand('rdfs:label')] = 'A Person';
-	    options[ns.expand('webbox:browser_lens')] = '/ui/lenses/person.js';
-	    persons.set(options);
-	    persons.save();	    
 	    return objs;
 	};
 
