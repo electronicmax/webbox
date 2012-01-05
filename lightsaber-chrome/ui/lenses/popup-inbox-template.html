@@ -1,0 +1,5 @@
+New from : <span class="from"><%= m[ns('webbox:from')] %></span>
+<div class="title"><%= m[ns('rdfs:label')] %></div>
+<div class="msgtype"><%= m[ns('webbox:typename')] %></div>
+<div class="received">Received at <%= m[ns('webbox:received')] %>:</div>
+<div class="url">(<a href="<%= m.uri %>"><%= uri.slice(0,40) %> ... </a>)</div>    

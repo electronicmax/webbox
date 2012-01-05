@@ -11,6 +11,7 @@ body {
   border:1px solid rgba(0, 0, 0, 0.1);
   width:100%;
   height:180px;
+  overflow:auto;
 }
 h1 {
   font-size:14px;
@@ -18,5 +19,17 @@ h1 {
 .feeds {
   margin: 16px 21px 0 21px;
 }
-
-
+.popup_inbox_lens {
+    margin:5px 3px;
+    padding:15px 15px;
+    background:rgb(242,252,252);
+}
+.popup_inbox_lens .from {
+    font-style:italic;
+}
+.popup_inbox_lens .title {
+    font-weight:bold;
+}
+.popup_inbox_lens a {
+    font-weight:normal;
+}
