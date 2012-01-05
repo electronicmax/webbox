@@ -1,7 +1,7 @@
 <div class="scrap_lens lens">
   <div class="icon"><img src="/ui/lenses/imgs/clip.png" width="30"></div>
   <div class="main">
-    <div class="contents"><%= m['contents'].slice(0,40) %> ...</div>
+    <div class="contents"><%= m[ns('webbox:contents')] ? m[ns('webbox:contents')].slice(0,40) : '' %> ...</div>
     <div class="url">
       <% if (m.url) { %>
       <i> via </i>:	  

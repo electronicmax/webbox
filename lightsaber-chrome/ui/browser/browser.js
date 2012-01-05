@@ -92,7 +92,7 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 			  var typeclass = v.get(ns.expand("rdf:type"));
 			  if (typeclass && models.is_model(typeclass)) {
 			      var go_on = function() {
-				  var lens = typeclass.get("browser_lens");
+				  var lens = typeclass.get(ns.expand("webbox:browser_lens"));
 				  if (lens !== undefined && typeof(lens) == 'string') {
 				      require([lens],
 					     function(lensc) {
