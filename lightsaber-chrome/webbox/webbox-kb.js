@@ -114,7 +114,10 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js','/webbox/util.js'],
 	   var dateTime = function(d) {
 	       console.assert(d instanceof Date, "d must be a date");
 	       return $.rdf.literal(d.toISOString(),{datatype:ns.expand("xsd:dateTime")});
-	   };	   
+	   };
+	   var xmlliteral = function(d) {
+	       return $.rdf.literal(d,{datatype:ns.expand("rdf:XMLLiteral")});
+	   };	              
 	   var resource = function(s) {
 	       s = ns.expand(s);
 	       return $.rdf.resource("<"+s+">");
@@ -164,6 +167,7 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js','/webbox/util.js'],
 	       get_sp_object:get_sp_object,
 	       get_objects_of_type:get_objects_of_type,
 	       string:string,
+               xmlliteral:xmlliteral,
 	       integer:integer,
 	       dateTime:dateTime,
 	       resource:resource,

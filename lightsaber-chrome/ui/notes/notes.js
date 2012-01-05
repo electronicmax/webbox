@@ -19,7 +19,6 @@ define([
 			      note_uris.map(function(uri) {
 						var r = models.get_resource(uri);
 						if (this_.models.indexOf(r) < 0) {
-						    console.log("NOT there, so adding");
 						    this_.add(r);
 						    var _d = new $.Deferred();
 						    ds.push(_d);
@@ -38,23 +37,21 @@ define([
 	  var NotesView = Backbone.View.extend(
 	      {
 		  events: {
-		      'keyup .input': '_cb_search',
-		      'keyup .contents': '_cb_edit'
+		      'keyup .input': '_cb_search'
 		  },
 		  initialize:function() {
 		      var this_ = this;
 		      this.views = [];
 		      this.collection = new NotesCollection();
 		      this.collection.bind('add', function(x) {
-					       console.log('got an add for ', x);
+					       // console.log('got an add for ', x);
 					       if (this_.get_filter()(x)) { this_._add(x);  }
 					   });
 		      this.collection.bind('remove', function(x) {
-					       console.log('got a remove for ', x);
+					       // console.log('got a remove for ', x);
 					       this_._remove(x);
 					   });
 		      this.collection.fetch().then(function() { this_.render(); });
-                      // $(this.el).find('#notes').sortable({revert:true});
 		  },
 		  get_filter:function() {
 		      return this._filter || function() { return true; };
@@ -65,20 +62,10 @@ define([
 		  _clear_input:function() {
 		      $(this.el).find('.input').html('');
 		  },
-		  _cb_edit:function(evt) {
-		      var contents = $(evt.currentTarget).html().trim();
-		      var view = $(evt.currentTarget).parent().data("view");
-		      var m = view.options.model;
-		      m.set2('webbox:contents', contents.trim());
-		      m.save();
-		      console.log("saving ... ", m.uri, contents);
-		  },
 		  _cb_search:function(evt) {
 		      var this_ = this;
 		      var v = $('.input').text();		      
-		      console.log("evt keycode ", evt.keyCode);
 		      if (evt.keyCode == 13) {
-			  console.log("new note!! ", v);
 			  // make a new note
 			  var newn = new models.Model({},ns.expand('me:note-'+util.guid()));
 			  newn.set2('rdf:type', models.get_resource('webbox:Scrap'));			  
@@ -107,7 +94,6 @@ define([
 		      // now update with render
 		      this.render();
 		  },
-
                   // these two methods are callbacks from the collection
 		  _add:function(m) {
 		      var this_ = this;
@@ -123,7 +109,10 @@ define([
                                                                    helper:'clone'
                                                                });
                                          });
-                          
+                          m.bind('change', function(evt) {
+                                     console.log(" CHANGE event ", evt );
+                                     // v.render();
+                                 });                          
 		      } 
 		  },
 		  _remove:function(m) {
@@ -203,7 +192,63 @@ define([
                       wkb.get_objects_of_type('webbox:Sheet').then(
                           function(uris) {
                               this_._populate_sheets(uris.map(function(url) { return models.get_resource(url); }));
-                          });                      
+                          });
+
+                     console.log("ADDING droppable handler to ", $(this.el).find('.plotify'));
+                     $(this.el).find('.plotify').droppable(
+                         {
+                             tolerance:'touch',
+                             drop:function(el,ui) {
+                                 console.log("GOT A PLOTIFY REQUEST");
+                                 var m = $(ui.draggable).data('view').options.model;
+                                 var v = $(ui.draggable).data('view');
+                                 var parse_values = function(s) {
+                                     return s.split('\n').map(function(line) {
+                                                           console.log("line ", line, line.split(':').length, line.split(',') >= 2, line.indexOf(':') < line.indexOf(','));
+                                                           if (line.split(':').length == 2 && line.split(',').length >= 2 && line.indexOf(':') < line.indexOf(',')) {
+                                                               console.log("foooo ", line);
+                                                               var series = line.substring(0,line.indexOf(':'));
+                                                               var datas = line.substring(line.indexOf(':')+1).split(',').
+                                                                   map(function(x) { return parseFloat(x.trim()); }).
+                                                                   filter(function(x) { return !isNaN(x); });
+                                                               datas = _.zip(util.intRange(0,datas.length), datas);
+                                                               console.log('CHART options', {
+                                                                               name: series,
+                                                                               data: datas,
+                                                                               bars:{ show:true }
+                                                                           });
+                                                               return {
+                                                                   name: series,
+                                                                   data: datas,
+                                                                   bars:{ show:true }
+                                                               };  
+                                                           }
+                                                           return undefined;
+                                                       }).filter(function(y) { return y !== undefined; });
+                                 };
+                                 var update_plot = function() {
+                                     // try to parse out the first line
+                                     console.log(" PARSING OUT ", m.get(ns.expand('webbox:contents')));
+                                     var valstext = m.get(ns.expand('webbox:contents'));
+                                     valstext = valstext.value ? valstext.value : valstext;
+                                     var vals = parse_values(valstext);
+                                     var chart = undefined;
+                                     console.log(" resulting vals ", vals);
+                                     if ($(v.el).find('.extras').find('.plot').length > 0) {
+                                         $(v.el).find('.extras').find('.plot').remove();
+                                     }
+                                     var a = $("<div class='plot'></div>").appendTo(  $(v.el).find('.extras') );
+                                     a.height(200);
+                                     a = $(v.el).find('.plot');
+                                     $.plot(a, vals);
+                                 };
+                                 m.bind('change', update_plot);
+                                 update_plot();
+                                 $(v.el).css("top", 10);
+                                 $(v.el).css("left", 10);
+                             }
+                         });
+                      
                       
                   },
                   _populate_sheets:function(sheet_models) {
@@ -236,7 +281,7 @@ define([
                       var sv = new SheetView({model:m});
                       var svel = sv.render();
                       $(svel).hide();
-                      console.log("appending to sheets ", $(this.el).find('.sheets'), svel);
+                      // console.log("appending to sheets ", $(this.el).find('.sheets'), svel);
                       $(this.el).find('.sheets').append(svel);
                       return sv;
                   },                  
@@ -247,7 +292,7 @@ define([
                       wkb.get_objects_of_type('webbox:Sheet').then(
                           function(ms) {
                               var uri = ns.me + 'sheet-'+util.guid();
-                              console.log('new sheet uri ', uri);
+                              // console.log('new sheet uri ', uri);
                               var newr = models.get_resource(ns.me + 'sheet-'+util.guid());                              
                               newr.set2('rdf:type',models.get_resource('webbox:Sheet'));
                               newr.set2('rdfs:label','Sheet ' + ms.length);
