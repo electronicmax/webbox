@@ -117,6 +117,7 @@ div.toolbar .buttons {
     left:0px; top:0px; right:0px;    
 }
 #sheet_ui .sheet {
+    position:relative;
     background-color:rgb(253,253,253);
     border:1px solid rgba(50,50,50,0.2);
     position:absolute;
@@ -128,8 +129,11 @@ div.toolbar .buttons {
     position:absolute;
     left:0px; top:0px; bottom:0px; right:0px;
 }
-.plotify {
-    display: inline-block;
-    border: 1px solid rgba(0,0,0,0.4);
-    padding:5px 3px;       
+.sheet .note_lens .contents {
+    border:none;
 }
+.sheet .note_lens  {
+    border:1px solid rgba(0,0,0,0.4);
+}
+
+

@@ -23,7 +23,13 @@ define(
 		        m.set2('webbox:contents', wkb.xmlliteral(contents.trim()));
 		        m.save();
 		        console.log("saving ... ", m.uri, contents);
-		    }                 
+		    },
+                    setPosition:function(p) {
+                        if (p.left !== undefined) { $(this.el).css('left', p.left); }
+                        if (p.top !== undefined) { $(this.el).css('top', p.top); }
+                        if (p.bottom !== undefined) { $(this.el).css('bottom', p.bottom); }
+                        if (p.right !== undefined) { $(this.el).css('right', p.right); }
+                    }
 		}
 	    )
 	};	

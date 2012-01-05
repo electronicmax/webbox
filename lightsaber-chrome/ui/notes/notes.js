@@ -157,16 +157,28 @@ define([
                                   drop:function(el, ui) {
                                       // console.log("drop! add model to sheet ", this_.options.model.uri);
                                       //console.log(" thing being dragged ", $(ui.draggable).data('view'));
-                                      this_._add_model_to_sheet($(ui.draggable).data('view').options.model);                                            
+ 
+                                      console.log('ui position x:', ui.position.left, ' y:', ui.position.top);
+                                      console.log('ui offset x:', ui.offset.left, ' y:', ui.offset.top);
+                                      
+                                      console.log('el position x:', $(this_.el).position().left, ' y:', $(this_.el).position().top);
+                                      console.log('el offset x:', $(this_.el).offset().left, ' y:', $(this_.el).offset().top);                                      
+
+                                      this_._add_model_to_sheet($(ui.draggable).data('view').options.model,
+                                                                {
+                                                                    left : ui.position.left - $(this_.el).offset().left,
+                                                                    top:  ui.position.top - $(this_.el).offset().top
+                                                                });
                                   }
                               }
                      );
                      return this.el;
                  },
-                  _add_model_to_sheet:function(m) {
+                  _add_model_to_sheet:function(m, position) {
                       // make a new lens
                       if (this.views[m.uri] !== undefined) { return; }
                       var nl = new notelens.Lens({model:m});
+                      nl.setPosition(position);
                       this.views[m.uri] = nl;
                       $(this.el).append(nl.render());
                       $(nl.el).draggable({
@@ -188,18 +200,23 @@ define([
                   initialize:function() {
                       // populate known sheets
                       var this_ = this;
-                      this.sheets = [];
+                      this.sheets = {};
                       wkb.get_objects_of_type('webbox:Sheet').then(
                           function(uris) {
-                              this_._populate_sheets(uris.map(function(url) { return models.get_resource(url); }));
+                              this_._populate_sheets(uris.map(function(url) {
+                                                                  return models.get_resource(url);
+                                                              })).then(
+                                  function() {
+                                      // done populating, let's select one
+                                      console.log('this sheets is ', this_.sheets);
+                                      this_.set_selected_sheet(_(this_.sheets).values()[0]);
+                                  });
                           });
-
                      console.log("ADDING droppable handler to ", $(this.el).find('.plotify'));
                      $(this.el).find('.plotify').droppable(
                          {
                              tolerance:'touch',
                              drop:function(el,ui) {
-                                 console.log("GOT A PLOTIFY REQUEST");
                                  var m = $(ui.draggable).data('view').options.model;
                                  var v = $(ui.draggable).data('view');
                                  var parse_values = function(s) {
@@ -275,9 +292,11 @@ define([
                       var td =  $(t);
                       td.data('model',sm);
                       $(selector_buttons).append(td);
-                      this.sheets[sm.uri] = this._render_sheet_hidden(sm);
+                      var sheet = this._make_sheet(sm);
+                      console.log('sheet >> ', sheet, sm.uri);
+                      this.sheets[sm.uri] = sheet;
                   },
-                  _render_sheet_hidden:function(m) {
+                  _make_sheet:function(m) {
                       var sv = new SheetView({model:m});
                       var svel = sv.render();
                       $(svel).hide();
@@ -303,11 +322,14 @@ define([
                           });
                       return d.promise();
                   },
+                  set_selected_sheet:function(sheet) {
+                      $(this.el).find('.sheets').children(':visible').hide();
+                      $(sheet.el).show();
+                  },
                   _cb_switch:function(evt) {
                       var target = $(evt.currentTarget).find(':selected');                      
                       var uri = target.attr('value');
-                      $(this.el).find('.sheets').children(':visible').hide();
-                      $(this.sheets[uri].el).show();
+                      this.set_selected_sheet(this.sheets[uri]);
                   }
               });
           
