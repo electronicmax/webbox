@@ -7,6 +7,7 @@
 }
 
 body {
+    font-family:sans-serif !important;
     background-color:rgb(255,255,255); /*(190,210,210);*/
     font-size:11pt;
 }
