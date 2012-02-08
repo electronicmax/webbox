@@ -8,7 +8,8 @@ define(
 		    'click .explorer': "open_browser",		    
 		    'click .settings': "open_settings",
 		    'click .inbox': "open_inbox",
-		    'click .notes': "open_notes"		    
+		    'click .notes': "open_notes",
+		    'click .book': "open_book"	    		    
 		},
 		initialize:function() {
 		    this.populate_inbox(); // for a test
@@ -53,7 +54,10 @@ define(
 		},
 		open_notes:function() {
 		    chrome.windows.create({'url': '/ui/notes.html', 'type': 'popup'}, function(window) {});
-		}				
+		},
+		open_book:function() {
+		    chrome.windows.create({'url': '/ui/book.html', 'type': 'popup'}, function(window) {});
+		}						
 	    }
 	);
 	window.view = new PopupView({el:$("#main")[0]}) ;
