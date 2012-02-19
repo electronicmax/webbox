@@ -1,11 +1,12 @@
 // assumes require, $, $.rdf are defined
 define(
     ['/webbox/webbox-ns.js', '/webbox/webbox-model.js', '/webbox/util.js', '/webbox/webbox-config.js', '/webbox/webbox-kb.js'],    
-    function(ns, models, util, configbox, wkb) {
+    function(ns, models, util, config, wkb) {
+
 	// updates the sync() method so that by default serializes
 	// models to rdf
 	// backbone-patch
-	var config = configbox.config;
+	var config = config.config;
 	var oldSync = Backbone.sync;
 	var to_property = function(key) {
 	    if (key.indexOf('http') == 0) {
@@ -15,7 +16,6 @@ define(
 		return $.rdf.resource(key, {namespaces:ns});
 	    }
 	    var r =  $.rdf.resource("<"+ns.me + key+">");
-	    console.log(r.toString());
 	    return r;
 	};
 	var to_literal_or_resource = function(v) {
@@ -60,7 +60,6 @@ define(
 		function(k) {
 		    var v = data[k];
 		    var k_r = to_property(k);		    
-		    // console.log(" TO PROPERTY OF ", k, " is ", k_r, k_r.toString());
 		    if (v instanceof wkb.ModelSeq) { 
 			// if it's a Seq
 			var seq_r = _res('webbox', "_seq_"+k);
@@ -90,20 +89,23 @@ define(
 			recursive_serialize(v);			
 		    }
 		});
-	    console.log("setting serialized models ", uri);
-	    try {
-		console.log("in json: ", this_kb.dump({serialize: true}));
-		console.log("in rdfxml: ", this_kb.dump({format:'application/rdf+xml', serialize: true}));
-	    } catch (x) {
-		console.error(x);
-		window.E = x;
+
+	    if (config.DEBUG_SERIALIZATION) {
+		console.log("setting serialized models ", uri);
+		try {
+		    console.log("in json: ", this_kb.dump({serialize: true}));
+		    console.log("in rdfxml: ", this_kb.dump({format:'application/rdf+xml', serialize: true}));
+		} catch (x) {
+		    console.error(x);
+		    window.E = x;
+		}		
 	    }
 	    serialized_models[uri] = this_kb.dump({format:'application/rdf+xml', serialize: true});
 	    return deep ? serialized_models : serialized_models[uri];
 	};	
 	var put_update = function(uri, serialized_body) {
 	    var put_uri = config.PUT_URL + (config.mode_4store == 'false' ? "?graph=" + encodeURIComponent(uri) : uri);
-	    console.log(" >>> putting to ", put_uri);
+	    if (config.DEBUG_SERIALIZATION) { console.log(" >>> putting to ", put_uri); }
 	    return $.ajax({ type:"PUT",
 			    url: put_uri,
 			    data:serialized_body, datatype:"text", headers:{ "Content-Type" : "application/rdf+xml" }});
@@ -124,7 +126,6 @@ define(
 		o[p] = [o[p], v];
 	    };
 	    get.then(function(doc){
-			 console.log("finished getting, now populating --- ");
 			 kb.load(doc, {});
 			 var obj = {};
 			 var recursive_fetch_dfds = [];

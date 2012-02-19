@@ -22,7 +22,13 @@ define(
 	        persons.set2('rdfs:label', 'A Person');
 	        persons.set2('webbox:browser_lens', '/ui/lenses/person.js');
 	        persons.save();	                                
-            }
+            },
+	    make_pageblossom_demo_types:function() {
+		var m = m.get_resource('me:mc');
+	        m.set2('rdfs:label', wkb.string('mc schraefel'));
+		m.set2('rdf:type',m.get_resource('webbox:Person'));
+	        m.save();
+	    }
         };
     });
     

@@ -12,5 +12,6 @@ define([],
                      data: [[0,1],[1,2],[2,6],[3,3],[4,4]],
                      bars:{ show:true }
                  }]);
-	  $('#magazine').turn('next'); 	  
+	  $('#magazine').turn('next');	  $('#magazine').turn('next'); $('#magazine').turn('next');
+	  $('select').chosen();
       });

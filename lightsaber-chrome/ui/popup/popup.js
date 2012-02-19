@@ -16,12 +16,19 @@ define(
 		},
                 populate_inbox:function() {
                     var m = models.get_resource('me:test-inbox-1');
-                    m.set2('rdfs:label','Wifi password for Robot Den');
-                    m.set2('rdfs:typename','Information Scrap');
-                    m.set2('webbox:received','13:22 yesterday');
-                    m.set2('webbox:from','Dan Smith');
+		    m.set2('rdfs:label',"<b>Question</b> : dear jon, I've noticed...");
+		    m.set2('rdfs:typename','Information Scrap');
+		    m.set2('webbox:received','13:22 yesterday');
+		    m.set2('webbox:from','mc schraefel');
                     var l = new pl.Lens({model:m});
-                    $(this.el).find('.inbox_feed').append(l.render());
+		    var d = l.render();
+		    $(d).addClass('selected');		    
+                    // m.set2('rdfs:label','Wifi password for Robot Den');
+                    // m.set2('rdfs:typename','Information Scrap');
+                    // m.set2('webbox:received','13:22 yesterday');
+                    // m.set2('webbox:from','Dan Smith');
+
+                    $(this.el).find('.inbox_feed').append(d);
 
                     m = models.get_resource('me:test-inbox-2');
                     m.set2('rdfs:label','Notes from webbox dev mtg');
