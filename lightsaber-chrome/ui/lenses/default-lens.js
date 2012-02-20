@@ -29,9 +29,13 @@ define([
 		      var e = new editor.Editor({model:model, el:holder[0]});
  		      e.show();
 		      this.$el.addClass('expanded');
+		      this.$el.find('.buttons').addClass('suppress');
 		      this.trigger('resize');
 		      e.bind('resize', function() { this_.trigger('resize'); });
-		      e.bind('close', function() { this_.trigger('resize'); });		    
+		      e.bind('close', function() {
+				 this_.$el.find('.buttons').removeClass('suppress');
+				 this_.trigger('resize');
+			     });		    
 		  },
 		  _cb_share_clicked:function(evt) {
 		     // console.log("clicked on ", model);
@@ -41,9 +45,14 @@ define([
 		     var holder = $(evt.currentTarget).parents('.item').find('.editor_holder');
 		     var e = new sharer.Sharer({browser:this,model:model,el:holder[0]});
  		     e.show();
+		     this.$el.addClass('expanded');		      
 	             this.trigger('resize');
+		     this.$el.find('.buttons').addClass('suppress');		      
 		     e.bind('resize', function() { this_.trigger('resize'); });
-		     e.bind('close', function() { this_.trigger('resize'); });		    		      
+		     e.bind('close', function() {
+				this_.$el.find('.buttons').remoeClass('suppress');
+				this_.trigger('resize');
+			    });		    		      
 		  },		  
 		  initialize:function() {
 		  },
