@@ -1,10 +1,14 @@
-define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js',
-	'/lib/text.js!/ui/lenses/collection-template.html',
-	'/lib/text.js!/ui/lenses/toolbar-template.html',	
-	'/lib/text.js!/ui/lenses/default-lens-template.html'],
+define([
+	   '/webbox/webbox-ns.js',
+	   '/webbox/webbox-model.js',
+	   '/webbox/util.js',
+	   '/lib/text.js!/ui/lenses/collection-template.html',
+	   '/lib/text.js!/ui/lenses/toolbar-template.html',	
+	   '/lib/text.js!/ui/lenses/default-lens-template.html',
+	   '/lib/text.js!/ui/lenses/default-compact-lens.html'
+       ],
 
-      function(ns,model,utils,collection_template,toolbar_template,default_lens_template) {
-
+      function(ns,model,utils,collection_template,toolbar_template,default_lens_template,compact_lens_template) {
 	  var ToolbarView = Backbone.View.extend(
 	      {
 		  template:toolbar_template,
@@ -18,14 +22,19 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js',
 		  }
 	      }
 	  );
-
 	  var CollectionView = Backbone.View.extend(
 	      {
 		  template:collection_template,
 		  className:"collection",
 		  initialize:function() {
+		      var this_ = this;
 		      this.tbviews = [];
+		      this.bind('init_complete',function() { $(this_.el).find('.items').isotope(this_.ISOTOPE_OPTIONS); });
 		  },
+		  ISOTOPE_OPTIONS:{
+		      itemSelector : '.item',
+		      layoutMode : 'fitRows'
+		  },		  		  
 		  addItemIfNotPresent:function(itemview) {
 		      if (this.tbviews.map(function(tbv) { return tbv.options.lens; }).indexOf(itemview) < 0) {
 			  var tv = new ToolbarView({lens:itemview});
@@ -103,10 +112,11 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-model.js','/webbox/util.js',
 		  }
 	      }
 	  );
- 
+	  
 	  return {
 	      DefaultLens:DefaultLens,
-	      CollectionView:CollectionView
+	      CollectionView:CollectionView,
+	      DefaultCompactLens:DefaultLens.extend({ template:compact_lens_template })
 	  };
       })
 

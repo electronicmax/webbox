@@ -6,8 +6,10 @@
     <% } else if (m[ns('foaf:givenName')] && m[ns('foaf:familyName')]) { %> <%= m[ns('foaf:givenName')] + ' ' + m[ns('foaf:familyName')] %>
     <% } else if (m[ns('foaf:firstName')] && m[ns('foaf:lastName')]) { %> <%= m[ns('foaf:firstName')] + ' ' + m[ns('foaf:lastName')] %>
     <% } else if (m[ns('rdfs:label')]) { %> <%= m[ns('rdfs:label')] %> <% } %>
+    <!--
     <% if (m[ns('foaf:mbox')]) { %></span> - <span class="email">(<a href="<%= m[ns('foaf:mbox')] %>"><%= m[ns('foaf:mbox')] %></a>)</span><% } %>
     <% if (m[ns('foaf:page')]) { %> - <a class="homepage" href="<%= m[ns('foaf:page')] %>">homepage</a> <% } %>            
     <div class="url"><%= uri %></div>
+    -->
   </div>
 </div>

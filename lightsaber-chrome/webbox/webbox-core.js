@@ -73,7 +73,6 @@ define(
 	}
 
         console.log("basic is === ", basic);
-        
         basic.make_basic_types();
 	
 	console.log("Core extnding window .. ");
@@ -84,6 +83,7 @@ define(
 			     wkb : wkb,
 			     ns : ns,
 			     tests:tests,
+			     basic: basic,
 			     config:configbox.config,
 			     test_webbox : function() {
 				  tests.run(); 

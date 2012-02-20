@@ -16,6 +16,9 @@ define(
 		clear:function() {
 		    this.attributes = {};
 		},
+		get:function(k) {
+		    return Backbone.Model.prototype.get.call(this,ns.expand(k));		    
+		},
 		set2:function(k,v) {
 		    var options = {};
 		    options[ns.expand(k)] = v;
@@ -83,6 +86,9 @@ define(
 	    is_model:function(v) {
 		return typeof(v) == 'object' && v instanceof Model;
 	    },
+	    is_collection:function(v) {
+		return typeof(v) == 'object' && v instanceof Backbone.Collection;
+	    },	    
 	    get_resource:get_resource,
 	    disable_caching:function() { ENABLE_CACHING = false; }
 	};

@@ -18,7 +18,13 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 		      // run me after initialize to populate my graphs
 		      var this_ = this;
 		      this.trigger('load_start');
-		      this._populate().then(function() { console.log('done --- '); this_.trigger('load_end'); });
+		      this._populate().then(function() {
+						this_.apply_post_render();
+						console.log('done --- '); this_.trigger('load_end');
+					    });
+		  },
+		  apply_post_render:function() {
+		      _(this.collections).values().map(function(c) { c.trigger('init_complete'); });
 		  },
 		  _populate:function() {
 		      // todo: rename "_update"
@@ -80,45 +86,40 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 		     var holder = $(evt.currentTarget).parents('.item').find('.editor_holder');
 		     var e = new sharer.Sharer({browser:this,model:model,el:holder[0]});
  		     e.show();
-		  },		  
+		  },
 		  make_collection:function(t) {
-		     var c = new default_lens.CollectionView({label:t});
-		     $(this.el).find('.collections').append(c.render());
-		     return c;
+		      var c = new default_lens.CollectionView({label:t});
+		      var el = c.render();
+		      $(this.el).find('.collections').append(el);
+		      return c;
 		  },
 		  _get_lens_for_item:function(v) {
 		      var d = new $.Deferred();
-		      if (models.is_model(v)) {
-			  var typeclass = v.get(ns.expand("rdf:type"));
-			  if (typeclass && models.is_model(typeclass)) {
-			      var go_on = function() {
-				  var lens = typeclass.get(ns.expand("webbox:browser_lens"));
-				  if (lens !== undefined && typeof(lens) == 'string') {
-				      require([lens],
-					     function(lensc) {
-						 if (lensc) {
-						     d.resolve(lensc);
-						 } else {
-						     d.resolve({ Lens:default_lens.DefaultLens });
-						 }
-					     });
-				  } else {
-				      // fall back to default.
-				      // console.error('lens :: could not load ', lens, ' falling back to default');				      
-				      d.resolve({ Lens:default_lens.DefaultLens });
-				  }
-			      };
-			      // is it ready or do we have to fetch? 
-			      if (false && _(typeclass.toJSON()).keys().length > 0) {
-				  go_on();
-			      } else {
-				  typeclass.fetch().then(go_on);
-			      }
-			  } else {
-			      // not a model, so we can resort 
-			      d.resolve({ Lens:default_lens.DefaultLens });
-			  }
-		      }		      
+		      console.assert(models.is_model(v), " Error - " +  v.toString()  + " is not an item. ");
+		      var typeclass = v.get(ns.expand("rdf:type"));
+		      // if we don't know the class then we just return default lens
+		      if (!typeclass || !models.is_model(typeclass)) { 
+			  d.resolve({ Lens:default_lens.DefaultCompactLens }); return d.promise();
+		      }
+		      // now we have typeclass, we just have to load the lens 
+		      typeclass.fetch().then(
+			  function(tc) {
+			      
+			      // load 'em
+			      window.TC = typeclass;
+			      console.log('typeclass ', typeclass.uri, ' ',
+					  _(typeclass.attributes).keys().join(':'),
+					  typeclass.get('webbox:browser_lens'), typeclass.get('browser_lens'));
+			      require(typeclass.get('webbox:browser_lens') ? [typeclass.get('webbox:browser_lens')] : [],
+				      function(lensc) {
+					  if (!lensc) {
+					      console.error("Warning could not load ", typeclass.get('webbox:browser_lens'));
+					      return d.resolve({ Lens:default_lens.DefaultCompactLens });
+					  }
+					  console.log('resolving with ', typeclass.get('webbox:browser_lens'), lensc);
+					  d.resolve(lensc);
+				      });								 
+			  });
 		      return d.promise();
 		  },
 		  _get_label:function(v) {
