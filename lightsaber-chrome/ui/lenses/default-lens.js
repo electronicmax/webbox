@@ -20,6 +20,8 @@ define([
 		      'click .share': "_cb_share_clicked"
 		  },
 		  _cb_edit_clicked:function(evt) {
+		      // resize semantics - we bubble up resize events when we cause an explicit
+		      // change in size -- but otherwise the lens does
 		      var this_ = this;
 		      var view = $(evt.currentTarget).parents('.item').find('.lens').data('view');
 		      var model = view.options.model;
@@ -27,9 +29,9 @@ define([
 		      var e = new editor.Editor({model:model, el:holder[0]});
  		      e.show();
 		      this.$el.addClass('expanded');
-		      this.collection_view.trigger('lens_resize');
-		      e.bind('resize', function() { this_.collection_view.trigger('lens_resize'); });
-		      e.bind('close', function() { this_.collection_view.trigger('lens_resize'); });		    
+		      this.trigger('resize');
+		      e.bind('resize', function() { this_.trigger('resize'); });
+		      e.bind('close', function() { this_.trigger('resize'); });		    
 		  },
 		  _cb_share_clicked:function(evt) {
 		     // console.log("clicked on ", model);
@@ -38,6 +40,9 @@ define([
 		     var holder = $(evt.currentTarget).parents('.item').find('.editor_holder');
 		     var e = new sharer.Sharer({browser:this,model:model,el:holder[0]});
  		     e.show();
+	             this.trigger('resize');
+		     e.bind('resize', function() { this_.trigger('resize'); });
+		     e.bind('close', function() { this_.trigger('resize'); });		    		      
 		  },		  
 		  initialize:function() {
 		  },
@@ -56,20 +61,21 @@ define([
 		      var this_ = this;
 		      this.tbviews = [];
 		      this.bind('init_complete',function() { $(this_.el).find('.items').isotope(this_.ISOTOPE_OPTIONS); });
-		      this.bind('lens_resize', function() {  $(this_.el).find('.items').isotope('reLayout'); });
+		      this.bind('resize', function() {  $(this_.el).find('.items').isotope('reLayout'); });
 		  },
 		  ISOTOPE_OPTIONS:{
 		      itemSelector : '.item',
 		      layoutMode : 'fitRows'
 		  },		  		  
 		  addItemIfNotPresent:function(itemview) {
+		      var this_ = this;
 		      if (this.tbviews.map(function(tbv) { return tbv.options.lens; }).indexOf(itemview) < 0) {
 			  var tv = new ToolbarView({lens:itemview});
 			  $(this.items_dom).append(tv.render());
 			  $(this.items_dom).find(".lens").slideDown();
 			  this.tbviews.push(tv);
-			  tv.collection_view = this;
-			  itemview.collection_view = this;
+			  tv.bind('resize', function() { this_.trigger('resize'); });
+			  itemview.bind('resize', function() { this_.trigger('resize'); });
 		      }
 		  },		  
 		  render:function() {
@@ -102,6 +108,7 @@ define([
 		  update:function(m) {
 		      this.options.model = m;
 		      this.render();
+		      this.trigger('resize');
 		  },
 		  _convert_names:function(model) {
 		      var n = {};
@@ -133,10 +140,8 @@ define([
 		      return this.el;
 		  },
 		  remove:function() {
-		      if (this.collection_view !== undefined) {
-			  this.collection_view.remove(this);
-		      }
 		      this.$el.html('');
+		      this.trigger('resize');
 		  }
 	      }
 	  );
