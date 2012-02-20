@@ -1,2 +1,6 @@
-<div>Sharing for <%= m.get(ns.expand('rdfs:label')) ? m.get(ns.expand('rdfs:label')) + ' (' + m.uri + ')' : m.uri %>:</div>
-<select data-placeholder="select a person to add" multiple class="person_selector"></select>
+<div class="editor">
+  <div>Sharing for <%= m.get(ns.expand('rdfs:label')) ? m.get(ns.expand('rdfs:label')) + ' (' + m.uri + ')' : m.uri %>:</div>
+  <select data-placeholder="select a person to add" multiple class="person_selector"></select>
+  <button class="save">save</button>
+  <button class="close">close</button>  
+</div>

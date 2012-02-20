@@ -35,6 +35,7 @@ define([
 		  },
 		  _cb_share_clicked:function(evt) {
 		     // console.log("clicked on ", model);
+		      var this_ = this;
 		     var view = $(evt.currentTarget).parents('.item').find('.lens').data('view');
 		     var model = view.options.model;
 		     var holder = $(evt.currentTarget).parents('.item').find('.editor_holder');

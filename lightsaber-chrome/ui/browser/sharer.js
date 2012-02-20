@@ -4,18 +4,15 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 	   return {
 	       Sharer: Backbone.View.extend(
 	       {
-		   template:template,
-		   events:{  'click .ok' : "_cb_save"  },
-		   initialize:function() {
-		       var this_ = this;
-		       this.box = new box.Box({el:this.el});
-		       this.box.bind("close", function() { this_._cb_save(); });
+		   template:template,		   
+		   events:{
+		       'click .ok' : "_cb_save",
+		       'click .close' : "_cb_close"
 		   },
-		   show:function() {
-		       return this.render();
-		   },
+		   initialize:function() {},
+		   show:function() { return this.render(); },
 		   render:function() {
-		       var main_el = $(this.box.render()).find('.main');
+		       var main_el = this.$el;
 		       main_el.html(_(this.template).template({m:this.options.model,ns:ns}));
 		       var shared_addressees = [];
 		       if (this.options.model.get(ns.expand("sioc:addressed_to"))) {
@@ -23,7 +20,6 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 			       this.options.model.get(ns.expand("sioc:addressed_to")) :
 			       [this.options.model.get(ns.expand("sioc:addressed_to"))];
 		       }
-		       console.log("SHARED ADDRESSES ", shared_addressees);
 		       // populate chosen with options
 		       var select = $(this.el).find('select')[0];
 		       $(select).chosen();		       
@@ -44,7 +40,8 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 						  $(select).trigger('liszt:updated');
 					      });
 				      });
-			   });		       
+			   });
+		       return this.el;		       
 		   },
 		   _cb_save:function() {
 		       try {
@@ -56,11 +53,13 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 						      });
 			   model.set2('sioc:addressed_to', resources); 
 			   model.save();
+			   this.trigger('resize');			   
 		       } catch (x) {  console.error('ERROR trying to save updated sharing state ', x);  }
 		   },		       
 		   _cb_close:function() {
 		       var this_ = this;
 		       $(this_.el).html('');
+		       this.trigger('resize');
 		   }
 	       })};
        });
