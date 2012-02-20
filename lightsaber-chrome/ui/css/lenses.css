@@ -4,14 +4,18 @@
     position:relative;
 }
 .item {
-    border: 1px solid rgba(255,255,255,0);
-    border-radius:3px;    
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius:3px;
+    -webkit-transition:all 0.2s;
+}
+.expanded {
+    max-width:1000px !important;
+/*    height:600px;    width:800px;*/
 }
 .item:hover {
     -webkit-transition:border 0.35s;
     border: 1px solid rgba(10,10,10,0.2);
 }
-
 .bookmark_lens, .page_lens {
     color:rgba(41, 120, 11, 1.0);    
     display: inline-block;
@@ -27,13 +31,12 @@
 }
 .bookmark_lens .icon, .person_lens .icon {
     display:inline-block;
-    width:60px;
+    width:33px;
     vertical-align:middle;    
 }
 .bookmark_lens .main, .person_lens .main {
     display:inline-block;
-    vertical-align:middle;
-    
+    vertical-align:middle;    
 }
 .name {
     font-size:110%;

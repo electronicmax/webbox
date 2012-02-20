@@ -61,15 +61,19 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 		   _cb_new_row:function() {
 		       var t = _(row_templ).template({key:'',val:''});
 		       $(this.el).find('.rows').append(t);
+		       this.trigger('resize');		       
 		   },
 		   _cb_del_row:function(evt) {
 		       var row = $(evt.currentTarget).parent();
 		       console.log("row to delete is ", row);
-		       $(row).remove();		       
+		       $(row).remove();
+		       this.trigger('resize');
 		   },		   
 		   _cb_close:function() {
 		       var this_ = this;
 		       $(this_.el).html('');
+		       console.log('triggering close');
+		       this.trigger('close');
 		   }
 	       });
 	   return {

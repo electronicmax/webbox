@@ -1,15 +1,11 @@
 .editor {
-    position:absolute;
     background-color:white;
-    border:1px solid black;
     padding:20px 40px;
     z-index:1200;
-    left:10%; top:10%;
     min-width:700px;
     overflow:auto;
 }
-.editor .editor_row {
-}
+.editor .editor_row {}
 .editor_row input {
     width:300px;
 }

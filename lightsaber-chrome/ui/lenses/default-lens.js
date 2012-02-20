@@ -2,21 +2,47 @@ define([
 	   '/webbox/webbox-ns.js',
 	   '/webbox/webbox-model.js',
 	   '/webbox/util.js',
+	   '/ui/browser/editor.js',
+	   '/ui/browser/sharer.js',	   
 	   '/lib/text.js!/ui/lenses/collection-template.html',
 	   '/lib/text.js!/ui/lenses/toolbar-template.html',	
 	   '/lib/text.js!/ui/lenses/default-lens-template.html',
 	   '/lib/text.js!/ui/lenses/default-compact-lens.html'
        ],
 
-      function(ns,model,utils,collection_template,toolbar_template,default_lens_template,compact_lens_template) {
+      function(ns,model,utils,editor,sharer,collection_template,toolbar_template,default_lens_template,compact_lens_template) {
 	  var ToolbarView = Backbone.View.extend(
 	      {
 		  template:toolbar_template,
 		  className:"item",
+		  events:{
+		      'click .edit': "_cb_edit_clicked",
+		      'click .share': "_cb_share_clicked"
+		  },
+		  _cb_edit_clicked:function(evt) {
+		      var this_ = this;
+		      var view = $(evt.currentTarget).parents('.item').find('.lens').data('view');
+		      var model = view.options.model;
+		      var holder = this.$el.find('.editor_holder');
+		      var e = new editor.Editor({model:model, el:holder[0]});
+ 		      e.show();
+		      this.$el.addClass('expanded');
+		      this.collection_view.trigger('lens_resize');
+		      e.bind('resize', function() { this_.collection_view.trigger('lens_resize'); });
+		      e.bind('close', function() { this_.collection_view.trigger('lens_resize'); });		    
+		  },
+		  _cb_share_clicked:function(evt) {
+		     // console.log("clicked on ", model);
+		     var view = $(evt.currentTarget).parents('.item').find('.lens').data('view');
+		     var model = view.options.model;
+		     var holder = $(evt.currentTarget).parents('.item').find('.editor_holder');
+		     var e = new sharer.Sharer({browser:this,model:model,el:holder[0]});
+ 		     e.show();
+		  },		  
 		  initialize:function() {
 		  },
 		  render:function() {
-		      $(this.el).html(_(this.template).template({m:this.options.lens.options.model.toJSON()}));
+		      this.$el.html(_(this.template).template()); // nothing special here -- ({m:this.options.lens.options.model.toJSON()}));
 		      $(this.el).find('.main').append(this.options.lens.render());
 		      return this.el;
 		  }
@@ -30,6 +56,7 @@ define([
 		      var this_ = this;
 		      this.tbviews = [];
 		      this.bind('init_complete',function() { $(this_.el).find('.items').isotope(this_.ISOTOPE_OPTIONS); });
+		      this.bind('lens_resize', function() {  $(this_.el).find('.items').isotope('reLayout'); });
 		  },
 		  ISOTOPE_OPTIONS:{
 		      itemSelector : '.item',
@@ -41,14 +68,15 @@ define([
 			  $(this.items_dom).append(tv.render());
 			  $(this.items_dom).find(".lens").slideDown();
 			  this.tbviews.push(tv);
-			  itemview.collection = this;
+			  tv.collection_view = this;
+			  itemview.collection_view = this;
 		      }
 		  },		  
 		  render:function() {
-		      $(this.el).html(
+		      this.$el.html(
 			  _(this.template).template(this.options)
 		      );
-		      this.items_dom = $(this.el).find('.items')[0];
+		      this.items_dom = this.$el.find('.items')[0];
 		      this.tbviews.map(function(v) { $(this.items_dom).append(v.render()); });
 		      return this.el;
 		  },
@@ -94,21 +122,21 @@ define([
 		      this.trigger('click', this.options.model);
 		  },
 		  render:function() {
-		      $(this.el).html(
+		      this.$el.html(
 			  _(this.template).template({
 							uri: this.options.model.uri,
 							m : this.options.model.toJSON(),
 							ns: ns.expand
 						    })
 		      );
-		      $(this.el).data("view", this);
+		      this.$el.data("view", this);
 		      return this.el;
 		  },
 		  remove:function() {
-		      if (this.collection !== undefined) {
-			  this.collection.remove(this);
+		      if (this.collection_view !== undefined) {
+			  this.collection_view.remove(this);
 		      }
-		      $(this.el).html('');
+		      this.$el.html('');
 		  }
 	      }
 	  );
