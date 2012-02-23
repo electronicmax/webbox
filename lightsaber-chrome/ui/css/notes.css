@@ -114,17 +114,17 @@ div.toolbar .buttons {
 }
 #sheet_ui .controls {
     position:absolute;
-    height:50px;
-    left:0px; top:0px; right:0px;    
+    height:89px;
+    left:0px; top:11px; right:0px;    
 }
 #sheet_ui .sheet {
     position:relative;
     background-color:rgb(253,253,253);
     border:1px solid rgba(50,50,50,0.2);
     position:absolute;
-    height:96%;
-    margin-top:50px;
-    left:0px; bottom:0px; right:0px;    
+    height:90%;
+    top: 50px;
+    left:0px; right:5px;    
 }
 #sheet_ui {
     position:absolute;
