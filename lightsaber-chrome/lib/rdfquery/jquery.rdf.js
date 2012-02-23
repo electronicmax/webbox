@@ -1,1066 +1,4 @@
 /*
- * $ URIs @VERSION
- * 
- * Copyright (c) 2008,2009 Jeni Tennison
- * Licensed under the MIT (MIT-LICENSE.txt)
- *
- */
-/**
- * @fileOverview $ URIs
- * @author <a href="mailto:jeni@jenitennison.com">Jeni Tennison</a>
- * @copyright (c) 2008,2009 Jeni Tennison
- * @license MIT license (MIT-LICENSE.txt)
- * @version 1.0
- */
-/**
- * @class
- * @name jQuery
- * @exports $ as jQuery
- * @description rdfQuery is a <a href="http://jquery.com/">jQuery</a> plugin. The only fields and methods listed here are those that come as part of the rdfQuery library.
- */
-(function ($) {
-
-  var
-    mem = {},
-    uriRegex = /^(([a-z][\-a-z0-9+\.]*):)?(\/\/([^\/?#]+))?([^?#]*)?(\?([^#]*))?(#(.*))?$/i,
-    docURI,
-
-    parseURI = function (u) {
-      var m = u.match(uriRegex);
-      if (m === null) {
-        throw "Malformed URI: " + u;
-      }
-      return {
-        scheme: m[1] ? m[2].toLowerCase() : undefined,
-        authority: m[3] ? m[4] : undefined,
-        path: m[5] || '',
-        query: m[6] ? m[7] : undefined,
-        fragment: m[8] ? m[9] : undefined
-      };
-    },
-
-    removeDotSegments = function (u) {
-      var r = '', m = [];
-      if (/\./.test(u)) {
-        while (u !== undefined && u !== '') {
-          if (u === '.' || u === '..') {
-            u = '';
-          } else if (/^\.\.\//.test(u)) { // starts with ../
-            u = u.substring(3);
-          } else if (/^\.\//.test(u)) { // starts with ./
-            u = u.substring(2);
-          } else if (/^\/\.(\/|$)/.test(u)) { // starts with /./ or consists of /.
-            u = '/' + u.substring(3);
-          } else if (/^\/\.\.(\/|$)/.test(u)) { // starts with /../ or consists of /..
-            u = '/' + u.substring(4);
-            r = r.replace(/\/?[^\/]+$/, '');
-          } else {
-            m = u.match(/^(\/?[^\/]*)(\/.*)?$/);
-            u = m[2];
-            r = r + m[1];
-          }
-        }
-        return r;
-      } else {
-        return u;
-      }
-    },
-
-    merge = function (b, r) {
-      if (b.authority !== '' && (b.path === undefined || b.path === '')) {
-        return '/' + r;
-      } else {
-        return b.path.replace(/[^\/]+$/, '') + r;
-      }
-    };
-
-  /**
-   * Creates a new jQuery.uri object. This should be invoked as a method rather than constructed using new.
-   * @class Represents a URI
-   * @param {String} [relative='']
-   * @param {String|jQuery.uri} [base] Defaults to the base URI of the page
-   * @returns {jQuery.uri} The new jQuery.uri object.
-   * @example uri = jQuery.uri('/my/file.html');
-   */
-  $.uri = function (relative, base) {
-    var uri;
-    relative = relative || '';
-    if (mem[relative]) {
-      return mem[relative];
-    }
-    base = base || $.uri.base();
-    if (typeof base === 'string') {
-      base = $.uri.absolute(base);
-    }
-    uri = new $.uri.fn.init(relative, base);
-    if (mem[uri]) {
-      return mem[uri];
-    } else {
-      mem[uri] = uri;
-      return uri;
-    }
-  };
-
-  $.uri.fn = $.uri.prototype = {
-    /**
-     * The scheme used in the URI
-     * @type String
-     */
-    scheme: undefined,
-    /**
-     * The authority used in the URI
-     * @type String
-     */
-    authority: undefined,
-    /**
-     * The path used in the URI
-     * @type String
-     */
-    path: undefined,
-    /**
-     * The query part of the URI
-     * @type String
-     */
-    query: undefined,
-    /**
-     * The fragment part of the URI
-     * @type String
-     */
-    fragment: undefined,
-    
-    init: function (relative, base) {
-      var r = {};
-      base = base || {};
-      $.extend(this, parseURI(relative));
-      if (this.scheme === undefined) {
-        this.scheme = base.scheme;
-        if (this.authority !== undefined) {
-          this.path = removeDotSegments(this.path);
-        } else {
-          this.authority = base.authority;
-          if (this.path === '') {
-            this.path = base.path;
-            if (this.query === undefined) {
-              this.query = base.query;
-            }
-          } else {
-            if (!/^\//.test(this.path)) {
-              this.path = merge(base, this.path);
-            }
-            this.path = removeDotSegments(this.path);
-          }
-        }
-      }
-      if (this.scheme === undefined) {
-        throw "Malformed URI: URI is not an absolute URI and no base supplied: " + relative;
-      }
-      return this;
-    },
-  
-    /**
-     * Resolves a relative URI relative to this URI
-     * @param {String} relative
-     * @returns jQuery.uri
-     */
-    resolve: function (relative) {
-      return $.uri(relative, this);
-    },
-    
-    /**
-     * Creates a relative URI giving the path from this URI to the absolute URI passed as a parameter
-     * @param {String|jQuery.uri} absolute
-     * @returns String
-     */
-    relative: function (absolute) {
-      var aPath, bPath, i = 0, j, resultPath = [], result = '';
-      if (typeof absolute === 'string') {
-        absolute = $.uri(absolute, {});
-      }
-      if (absolute.scheme !== this.scheme || 
-          absolute.authority !== this.authority) {
-        return absolute.toString();
-      }
-      if (absolute.path !== this.path) {
-        aPath = absolute.path.split('/');
-        bPath = this.path.split('/');
-        if (aPath[1] !== bPath[1]) {
-          result = absolute.path;
-        } else {
-          while (aPath[i] === bPath[i]) {
-            i += 1;
-          }
-          j = i;
-          for (; i < bPath.length - 1; i += 1) {
-            resultPath.push('..');
-          }
-          for (; j < aPath.length; j += 1) {
-            resultPath.push(aPath[j]);
-          }
-          result = resultPath.join('/');
-        }
-        result = absolute.query === undefined ? result : result + '?' + absolute.query;
-        result = absolute.fragment === undefined ? result : result + '#' + absolute.fragment;
-        return result;
-      }
-      if (absolute.query !== undefined && absolute.query !== this.query) {
-        return '?' + absolute.query + (absolute.fragment === undefined ? '' : '#' + absolute.fragment);
-      }
-      if (absolute.fragment !== undefined && absolute.fragment !== this.fragment) {
-        return '#' + absolute.fragment;
-      }
-      return '';
-    },
-  
-    /**
-     * Returns the URI as an absolute string
-     * @returns String
-     */
-    toString: function () {
-      var result = '';
-      if (this._string) {
-        return this._string;
-      } else {
-        result = this.scheme === undefined ? result : (result + this.scheme + ':');
-        result = this.authority === undefined ? result : (result + '//' + this.authority);
-        result = result + this.path;
-        result = this.query === undefined ? result : (result + '?' + this.query);
-        result = this.fragment === undefined ? result : (result + '#' + this.fragment);
-        this._string = result;
-        return result;
-      }
-    }
-  
-  };
-
-  $.uri.fn.init.prototype = $.uri.fn;
-
-  /**
-   * Creates a {@link jQuery.uri} from a known-to-be-absolute URI
-   * @param {String}
-   * @returns {jQuery.uri}
-   */
-  $.uri.absolute = function (uri) {
-    return $.uri(uri, {});
-  };
-
-  /**
-   * Creates a {@link jQuery.uri} from a relative URI and an optional base URI
-   * @returns {jQuery.uri}
-   * @see jQuery.uri
-   */
-  $.uri.resolve = function (relative, base) {
-    return $.uri(relative, base);
-  };
-  
-  /**
-   * Creates a string giving the relative path from a base URI to an absolute URI
-   * @param {String} absolute
-   * @param {String} base
-   * @returns {String}
-   */
-  $.uri.relative = function (absolute, base) {
-    return $.uri(base, {}).relative(absolute);
-  };
-  
-  /**
-   * Returns the base URI of the page
-   * @returns {jQuery.uri}
-   */
-  $.uri.base = function () {
-    return $(document).base();
-  };
-  
-  /**
-   * Returns the base URI in scope for the first selected element
-   * @methodOf jQuery#
-   * @name jQuery#base
-   * @returns {jQuery.uri}
-   * @example baseURI = $('img').base();
-   */
-  $.fn.base = function () {
-    var base = $(this).parents().andSelf().find('base').attr('href'),
-      doc = $(this)[0].ownerDocument || document,
-      docURI = $.uri.absolute(doc.location === null ? document.location.href : doc.location.href);
-    return base === undefined ? docURI : $.uri(base, docURI);
-  };
-
-})(jQuery);
-/*
- * jQuery CURIE @VERSION
- * 
- * Copyright (c) 2008,2009 Jeni Tennison
- * Licensed under the MIT (MIT-LICENSE.txt)
- *
- * Depends:
- *  jquery.uri.js
- */
-/**
- * @fileOverview XML Namespace processing
- * @author <a href="mailto:jeni@jenitennison.com">Jeni Tennison</a>
- * @copyright (c) 2008,2009 Jeni Tennison
- * @license MIT license (MIT-LICENSE.txt)
- * @version 1.0
- * @requires jquery.uri.js
- */
-
-/*global jQuery */
-(function ($) {
-
-  var 
-    xmlnsRegex = /\sxmlns(?::([^ =]+))?\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
-
-/**
- * Returns the namespaces declared in the scope of the first selected element, or
- * adds a namespace declaration to all selected elements. Pass in no parameters
- * to return all namespaces bindings on the first selected element. If only 
- * the prefix parameter is specified, this method will return the namespace
- * URI that is bound to the specified prefix on the first element in the selection
- * If the prefix and uri parameters are both specified, this method will
- * add the binding of the specified prefix and namespace URI to all elements
- * in the selection.
- * @methodOf jQuery#
- * @name jQuery#xmlns
- * @param {String} [prefix] Restricts the namespaces returned to only the namespace with the specified namespace prefix.
- * @param {String|jQuery.uri} [uri] Adds a namespace declaration to the selected elements that maps the specified prefix to the specified namespace.
- * @param {Object} [inherited] A map of inherited namespace bindings.
- * @returns {Object|jQuery.uri|jQuery}
- * @example 
- * // Retrieve all of the namespace bindings on the HTML document element
- * var nsMap = $('html').xmlns();
- * @example
- * // Retrieve the namespace URI mapped to the 'dc' prefix on the HTML document element
- * var dcNamespace = $('html').xmlns('dc');
- * @example
- * // Create a namespace declaration that binds the 'dc' prefix to the URI 'http://purl.org/dc/elements/1.1/'
- * $('html').xmlns('dc', 'http://purl.org/dc/elements/1.1/');
- */
-  $.fn.xmlns = function (prefix, uri, inherited) {
-    var 
-      elem = this.eq(0),
-      ns = elem.data('xmlns'),
-      e = elem[0], a, p, i,
-      decl = prefix ? 'xmlns:' + prefix : 'xmlns',
-      value,
-      tag, found = false;
-    if (uri === undefined) {
-      if (prefix === undefined) { // get the in-scope declarations on the first element
-        if (ns === undefined) {
-          ns = {};
-          if (e.attributes && e.attributes.getNamedItemNS) {
-            for (i = 0; i < e.attributes.length; i += 1) {
-              a = e.attributes[i];
-              if (/^xmlns(:(.+))?$/.test(a.nodeName)) {
-                prefix = /^xmlns(:(.+))?$/.exec(a.nodeName)[2] || '';
-                value = a.nodeValue;
-                if (prefix === '' || value !== '') {
-                  ns[prefix] = $.uri(a.nodeValue);
-                  found = true;
-                }
-              }
-            }
-          } else {
-            tag = /<[^>]+>/.exec(e.outerHTML);
-            a = xmlnsRegex.exec(tag);
-            while (a !== null) {
-              prefix = a[1] || '';
-              value = a[2] || a[3];
-              if (prefix === '' || value !== '') {
-                ns[prefix] = $.uri(a[2] || a[3]);
-                found = true;
-              }
-              a = xmlnsRegex.exec(tag);
-            }
-            xmlnsRegex.lastIndex = 0;
-          }
-          inherited = inherited || (e.parentNode.nodeType === 1 ? elem.parent().xmlns() : {});
-          ns = found ? $.extend({}, inherited, ns) : inherited;
-          elem.data('xmlns', ns);
-        }
-        return ns;
-      } else if (typeof prefix === 'object') { // set the prefix mappings defined in the object
-        for (p in prefix) {
-          if (typeof prefix[p] === 'string') {
-            this.xmlns(p, prefix[p]);
-          }
-        }
-        this.find('*').andSelf().removeData('xmlns');
-        return this;
-      } else { // get the in-scope declaration associated with this prefix on the first element
-        if (ns === undefined) {
-          ns = elem.xmlns();
-        }
-        return ns[prefix];
-      }
-    } else { // set
-      this.find('*').andSelf().removeData('xmlns');
-      return this.attr(decl, uri);
-    }
-  };
-
-/**
- * Removes one or more XML namespace bindings from the selected elements.
- * @methodOf jQuery#
- * @name jQuery#removeXmlns
- * @param {String|Object|String[]} prefix The prefix(es) of the XML namespace bindings that are to be removed from the selected elements.
- * @returns {jQuery} The original jQuery object.
- * @example
- * // Remove the foaf namespace declaration from the body element:
- * $('body').removeXmlns('foaf');
- * @example
- * // Remove the foo and bar namespace declarations from all h2 elements
- * $('h2').removeXmlns(['foo', 'bar']);
- * @example
- * // Remove the foo and bar namespace declarations from all h2 elements
- * var namespaces = { foo : 'http://www.example.org/foo', bar : 'http://www.example.org/bar' };
- * $('h2').removeXmlns(namespaces);
- */
-  $.fn.removeXmlns = function (prefix) {
-    var decl, p, i;
-    if (typeof prefix === 'object') {
-      if (prefix.length === undefined) { // assume an object representing namespaces
-        for (p in prefix) {
-          if (typeof prefix[p] === 'string') {
-            this.removeXmlns(p);
-          }
-        }
-      } else { // it's an array
-        for (i = 0; i < prefix.length; i += 1) {
-          this.removeXmlns(prefix[i]);
-        }
-      }
-    } else {
-      decl = prefix ? 'xmlns:' + prefix : 'xmlns';
-      this.removeAttr(decl);
-    }
-    this.find('*').andSelf().removeData('xmlns');
-    return this;
-  };
-
-  $.fn.qname = function (name) {
-    var m, prefix, namespace;
-    if (name === undefined) {
-      if (this[0].outerHTML === undefined) {
-        name = this[0].nodeName.toLowerCase();
-      } else {
-        name = /<([^ >]+)/.exec(this[0].outerHTML)[1].toLowerCase();
-      }
-    }
-    if (name === '?xml:namespace') {
-      // there's a prefix on the name, but we can't get at it
-      throw "XMLinHTML: Unable to get the prefix to resolve the name of this element";
-    }
-    m = /^(([^:]+):)?([^:]+)$/.exec(name);
-    prefix = m[2] || '';
-    namespace = this.xmlns(prefix);
-    if (namespace === undefined && prefix !== '') {
-      throw "MalformedQName: The prefix " + prefix + " is not declared";
-    }
-    return {
-      namespace: namespace,
-      localPart: m[3],
-      prefix: prefix,
-      name: name
-    };
-  };
-
-})(jQuery);
-/*
- * jQuery CURIE @VERSION
- *
- * Copyright (c) 2008,2009 Jeni Tennison
- * Licensed under the MIT (MIT-LICENSE.txt)
- *
- * Depends:
- *  jquery.uri.js
- */
-/**
- * @fileOverview XML Schema datatype handling
- * @author <a href="mailto:jeni@jenitennison.com">Jeni Tennison</a>
- * @copyright (c) 2008,2009 Jeni Tennison
- * @license MIT license (MIT-LICENSE.txt)
- * @version 1.0
- * @requires jquery.uri.js
- */
-
-(function ($) {
-
-  var strip = function (value) {
-    return value.replace(/[ \t\n\r]+/, ' ').replace(/^ +/, '').replace(/ +$/, '');
-  };
-
-  /**
-   * Creates a new jQuery.typedValue object. This should be invoked as a method
-   * rather than constructed using new.
-   * @class Represents a value with an XML Schema datatype
-   * @param {String} value The string representation of the value
-   * @param {String} datatype The XML Schema datatype URI
-   * @returns {jQuery.typedValue}
-   * @example intValue = jQuery.typedValue('42', 'http://www.w3.org/2001/XMLSchema#integer');
-   */
-  $.typedValue = function (value, datatype) {
-    return $.typedValue.fn.init(value, datatype);
-  };
-
-  $.typedValue.fn = $.typedValue.prototype = {
-    /**
-     * The string representation of the value
-     * @memberOf jQuery.typedValue#
-     */
-    representation: undefined,
-    /**
-     * The value as an object. The type of the object will
-     * depend on the XML Schema datatype URI specified
-     * in the constructor. The following table lists the mappings
-     * currently supported:
-     * <table>
-     *   <tr>
-     *   <th>XML Schema Datatype</th>
-     *   <th>Value type</th>
-     *   </tr>
-     *   <tr>
-     *     <td>http://www.w3.org/2001/XMLSchema#string</td>
-     *     <td>string</td>
-     *   </tr>
-     *   <tr>
-     *     <td>http://www.w3.org/2001/XMLSchema#boolean</td>
-     *     <td>bool</td>
-     *   </tr>
-     *   <tr>
-     *     <td>http://www.w3.org/2001/XMLSchema#decimal</td>
-     *     <td>string</td>
-     *   </tr>
-     *   <tr>
-     *     <td>http://www.w3.org/2001/XMLSchema#integer</td>
-     *     <td>int</td>
-     *   </tr>
-     *   <tr>
-     *     <td>http://www.w3.org/2001/XMLSchema#int</td>
-     *     <td>int</td>
-     *   </tr>
-     *   <tr>
-     *     <td>http://www.w3.org/2001/XMLSchema#float</td>
-     *     <td>float</td>
-     *   </tr>
-     *   <tr>
-     *     <td>http://www.w3.org/2001/XMLSchema#double</td>
-     *     <td>float</td>
-     *   </tr>
-     *   <tr>
-     *     <td>http://www.w3.org/2001/XMLSchema#dateTime</td>
-     *     <td>string</td>
-     *   </tr>
-     *   <tr>
-     *     <td>http://www.w3.org/2001/XMLSchema#date</td>
-     *     <td>string</td>
-     *   </tr>
-     *   <tr>
-     *     <td>http://www.w3.org/2001/XMLSchema#gMonthDay</td>
-     *     <td>string</td>
-     *   </tr>
-     *   <tr>
-     *     <td>http://www.w3.org/2001/XMLSchema#anyURI</td>
-     *     <td>string</td>
-     *   </tr>
-     * </table>
-     * @memberOf jQuery.typedValue#
-     */
-    value: undefined,
-    /**
-     * The XML Schema datatype URI for the value's datatype
-     * @memberOf jQuery.typedValue#
-     */
-    datatype: undefined,
-
-    init: function (value, datatype) {
-      var d;
-      if ($.typedValue.valid(value, datatype)) {
-        d = $.typedValue.types[datatype];
-        this.representation = value;
-        this.datatype = datatype;
-        this.value = d.value(d.strip ? strip(value) : value);
-        return this;
-      } else {
-        throw {
-          name: 'InvalidValue',
-          message: value + ' is not a valid ' + datatype + ' value'
-        };
-      }
-    }
-  };
-
-  $.typedValue.fn.init.prototype = $.typedValue.fn;
-
-  /**
-   * An object that holds the datatypes supported by the script. The properties of this object are the URIs of the datatypes, and each datatype has four properties:
-   * <dl>
-   *   <dt>strip</dt>
-   *   <dd>A boolean value that indicates whether whitespace should be stripped from the value prior to testing against the regular expression or passing to the value function.</dd>
-   *   <dt>regex</dt>
-   *   <dd>A regular expression that valid values of the type must match.</dd>
-   *   <dt>validate</dt>
-   *   <dd>Optional. A function that performs further testing on the value.</dd>
-   *   <dt>value</dt>
-   *   <dd>A function that returns a Javascript object equivalent for the value.</dd>
-   * </dl>
-   * You can add to this object as necessary for your own datatypes, and {@link jQuery.typedValue} and {@link jQuery.typedValue.valid} will work with them.
-   * @see jQuery.typedValue
-   * @see jQuery.typedValue.valid
-   */
-  $.typedValue.types = {};
-
-  $.typedValue.types['http://www.w3.org/2001/XMLSchema#string'] = {
-    regex: /^.*$/,
-    strip: false,
-    /** @ignore */
-    value: function (v) {
-      return v;
-    }
-  };
-
-  $.typedValue.types['http://www.w3.org/2001/XMLSchema#boolean'] = {
-    regex: /^(?:true|false|1|0)$/,
-    strip: true,
-    /** @ignore */
-    value: function (v) {
-      return v === 'true' || v === '1';
-    }
-  };
-
-  $.typedValue.types['http://www.w3.org/2001/XMLSchema#decimal'] = {
-    regex: /^[\-\+]?(?:[0-9]+\.[0-9]*|\.[0-9]+|[0-9]+)$/,
-    strip: true,
-    /** @ignore */
-    value: function (v) {
-      return v;
-    }
-  };
-
-  $.typedValue.types['http://www.w3.org/2001/XMLSchema#integer'] = {
-    regex: /^[\-\+]?[0-9]+$/,
-    strip: true,
-    /** @ignore */
-    value: function (v) {
-      return parseInt(v, 10);
-    }
-  };
-
-  $.typedValue.types['http://www.w3.org/2001/XMLSchema#int'] = {
-    regex: /^[\-\+]?[0-9]+$/,
-    strip: true,
-    /** @ignore */
-    value: function (v) {
-      return parseInt(v, 10);
-    }
-  };
-
-  $.typedValue.types['http://www.w3.org/2001/XMLSchema#float'] = {
-    regex: /^(?:[\-\+]?(?:[0-9]+\.[0-9]*|\.[0-9]+|[0-9]+)(?:[eE][\-\+]?[0-9]+)?|[\-\+]?INF|NaN)$/,
-    strip: true,
-    /** @ignore */
-    value: function (v) {
-      if (v === '-INF') {
-        return -1 / 0;
-      } else if (v === 'INF' || v === '+INF') {
-        return 1 / 0;
-      } else {
-        return parseFloat(v);
-      }
-    }
-  };
-
-  $.typedValue.types['http://www.w3.org/2001/XMLSchema#double'] = {
-    regex: $.typedValue.types['http://www.w3.org/2001/XMLSchema#float'].regex,
-    strip: true,
-    value: $.typedValue.types['http://www.w3.org/2001/XMLSchema#float'].value
-  };
-
-  $.typedValue.types['http://www.w3.org/2001/XMLSchema#duration'] = {
-    regex: /^([\-\+])?P(?:([0-9]+)Y)?(?:([0-9]+)M)?(?:([0-9]+)D)?(?:T(?:([0-9]+)H)?(?:([0-9]+)M)?(?:([0-9]+(?:\.[0-9]+))?S)?)$/,
-    /** @ignore */
-    validate: function (v) {
-      var m = this.regex.exec(v);
-      return m[2] || m[3] || m[4] || m[5] || m[6] || m[7];
-    },
-    strip: true,
-    /** @ignore */
-    value: function (v) {
-      return v;
-    }
-  };
-
-  $.typedValue.types['http://www.w3.org/2001/XMLSchema#dateTime'] = {
-    regex: /^(-?[0-9]{4,})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):(([0-9]{2})(\.([0-9]+))?)((?:[\-\+]([0-9]{2}):([0-9]{2}))|Z)?$/,
-    /** @ignore */
-    validate: function (v) {
-      var
-        m = this.regex.exec(v),
-        year = parseInt(m[1], 10),
-        tz = m[10] === undefined || m[10] === 'Z' ? '+0000' : m[10].replace(/:/, ''),
-        date;
-      if (year === 0 ||
-          parseInt(tz, 10) < -1400 || parseInt(tz, 10) > 1400) {
-        return false;
-      }
-      try {
-        year = year < 100 ? Math.abs(year) + 1000 : year;
-        month = parseInt(m[2], 10);
-        day = parseInt(m[3], 10);
-        if (day > 31) {
-          return false;
-        } else if (day > 30 && !(month === 1 || month === 3 || month === 5 || month === 7 || month === 8 || month === 10 || month === 12)) {
-          return false;
-        } else if (month === 2) {
-          if (day > 29) {
-            return false;
-          } else if (day === 29 && (year % 4 !== 0 || (year % 100 === 0 && year % 400 !== 0))) {
-            return false;
-          }
-        }
-        date = '' + year + '/' + m[2] + '/' + m[3] + ' ' + m[4] + ':' + m[5] + ':' + m[7] + ' ' + tz;
-        date = new Date(date);
-        return true;
-      } catch (e) {
-        return false;
-      }
-    },
-    strip: true,
-    /** @ignore */
-    value: function (v) {
-      return v;
-    }
-  };
-
-  $.typedValue.types['http://www.w3.org/2001/XMLSchema#date'] = {
-    regex: /^(-?[0-9]{4,})-([0-9]{2})-([0-9]{2})((?:[\-\+]([0-9]{2}):([0-9]{2}))|Z)?$/,
-    /** @ignore */
-    validate: function (v) {
-      var
-        m = this.regex.exec(v),
-        year = parseInt(m[1], 10),
-        month = parseInt(m[2], 10),
-        day = parseInt(m[3], 10),
-        tz = m[10] === undefined || m[10] === 'Z' ? '+0000' : m[10].replace(/:/, '');
-      if (year === 0 ||
-          month > 12 ||
-          day > 31 ||
-          parseInt(tz, 10) < -1400 || parseInt(tz, 10) > 1400) {
-        return false;
-      } else {
-        return true;
-      }
-    },
-    strip: true,
-    /** @ignore */
-    value: function (v) {
-      return v;
-    }
-  };
-
-  $.typedValue.types['http://www.w3.org/2001/XMLSchema#gMonthDay'] = {
-    regex: /^--([0-9]{2})-([0-9]{2})((?:[\-\+]([0-9]{2}):([0-9]{2}))|Z)?$/,
-    /** @ignore */
-    validate: function (v) {
-      var
-        m = this.regex.exec(v),
-        month = parseInt(m[1], 10),
-        day = parseInt(m[2], 10),
-        tz = m[3] === undefined || m[3] === 'Z' ? '+0000' : m[3].replace(/:/, '');
-      if (month > 12 ||
-          day > 31 ||
-          parseInt(tz, 10) < -1400 || parseInt(tz, 10) > 1400) {
-        return false;
-      } else if (month === 2 && day > 29) {
-        return false;
-      } else if ((month === 4 || month === 6 || month === 9 || month === 11) && day > 30) {
-        return false;
-      } else {
-        return true;
-      }
-    },
-    strip: true,
-    /** @ignore */
-    value: function (v) {
-      return v;
-    }
-  };
-
-  $.typedValue.types['http://www.w3.org/2001/XMLSchema#anyURI'] = {
-    regex: /^.*$/,
-    strip: true,
-    /** @ignore */
-    value: function (v, options) {
-      var opts = $.extend({}, $.typedValue.defaults, options);
-      return $.uri.resolve(v, opts.base);
-    }
-  };
-
-  $.typedValue.defaults = {
-    base: $.uri.base(),
-    namespaces: {}
-  };
-
-  /**
-   * Checks whether a value is valid according to a given datatype. The datatype must be held in the {@link jQuery.typedValue.types} object.
-   * @param {String} value The value to validate.
-   * @param {String} datatype The URI for the datatype against which the value will be validated.
-   * @returns {boolean} True if the value is valid.
-   * @throws {String} Errors if the datatype has not been specified in the {@link jQuery.typedValue.types} object.
-   * @example validDate = $.typedValue.valid(date, 'http://www.w3.org/2001/XMLSchema#date');
-   */
-  $.typedValue.valid = function (value, datatype) {
-    var d = $.typedValue.types[datatype];
-    if (d === undefined) {
-      throw "InvalidDatatype: The datatype " + datatype + " can't be recognised";
-    } else {
-      value = d.strip ? strip(value) : value;
-      if (d.regex.test(value)) {
-        return d.validate === undefined ? true : d.validate(value);
-      } else {
-        return false;
-      }
-    }
-  };
-
-})(jQuery);
-/*
- * jQuery CURIE @VERSION
- *
- * Copyright (c) 2008,2009 Jeni Tennison
- * Licensed under the MIT (MIT-LICENSE.txt)
- *
- * Depends:
- *  jquery.uri.js
- *  jquery.xmlns.js
- */
-
-/**
- * @fileOverview jQuery CURIE handling
- * @author <a href="mailto:jeni@jenitennison.com">Jeni Tennison</a>
- * @copyright (c) 2008,2009 Jeni Tennison
- * @license MIT license (MIT-LICENSE.txt)
- * @version 1.0
- * @requires jquery.uri.js
- * @requires jquery.xmlns.js
- */
-(function ($) {
-
-   /**
-    * Creates a {@link jQuery.uri} object by parsing a CURIE.
-    * @methodOf jQuery
-    * @param {String} curie The CURIE to be parsed
-    * @param {String} uri The URI string to be converted to a CURIE.
-    * @param {Object} [options] CURIE parsing options
-    * @param {string} [options.reservedNamespace='http://www.w3.org/1999/xhtml/vocab#'] The namespace to apply to a CURIE that has no prefix and either starts with a colon or is in the list of reserved local names
-    * @param {string} [options.defaultNamespace]  The namespace to apply to a CURIE with no prefix which is not mapped to the reserved namespace by the rules given above.
-    * @param {Object} [options.namespaces] A map of namespace bindings used to map CURIE prefixes to URIs.
-    * @param {string[]} [options.reserved=['alternate', 'appendix', 'bookmark', 'cite', 'chapter', 'contents', 'copyright', 'first', 'glossary', 'help', 'icon', 'index', 'last', 'license', 'meta', 'next', 'p3pv1', 'prev', 'role', 'section', 'stylesheet', 'subsection', 'start', 'top', 'up']] A list of local names that will always be mapped to the URI specified by reservedNamespace.
-    * @param {string} [options.charcase='lower'] Specifies whether the curie's case is altered before it's interpreted. Acceptable values are:
-    * <dl>
-    * <dt>lower</dt><dd>Force the CURIE string to lower case.</dd>
-    * <dt>upper</dt><dd>Force the CURIE string to upper case.</dd>
-    * <dt>preserve</dt><dd>Preserve the original case of the CURIE. Note that this might not be possible if the CURIE has been taken from an HTML attribute value because of the case conversions performed automatically by browsers. For this reason, it's a good idea to avoid mixed-case CURIEs within RDFa.</dd>
-    * </dl>
-    * @returns {jQuery.uri} A new {@link jQuery.uri} object representing the full absolute URI specified by the CURIE.
-    */
-  $.curie = function (curie, options) {
-    var
-      opts = $.extend({}, $.curie.defaults, options || {}),
-      m = /^(([^:]*):)?(.+)$/.exec(curie),
-      prefix = m[2],
-      local = m[3],
-      ns = opts.namespaces[prefix];
-    if (/^:.+/.test(curie)) { // This is the case of a CURIE like ":test"
-      if (opts.reservedNamespace === undefined || opts.reservedNamespace === null) {
-        throw "Malformed CURIE: No prefix and no default namespace for unprefixed CURIE " + curie;
-      } else {
-        ns = opts.reservedNamespace;
-      }
-    } else if (prefix) {
-      if (ns === undefined) {
-        throw "Malformed CURIE: No namespace binding for " + prefix + " in CURIE " + curie;
-      }
-    } else {
-      if (opts.charcase === 'lower') {
-        curie = curie.toLowerCase();
-      } else if (opts.charcase === 'upper') {
-        curie = curie.toUpperCase();
-      }
-      if (opts.reserved.length && $.inArray(curie, opts.reserved) >= 0) {
-        ns = opts.reservedNamespace;
-        local = curie;
-      } else if (opts.defaultNamespace === undefined || opts.defaultNamespace === null) {
-        // the default namespace is provided by the application; it's not clear whether
-        // the default XML namespace should be used if there's a colon but no prefix
-        throw "Malformed CURIE: No prefix and no default namespace for unprefixed CURIE " + curie;
-      } else {
-        ns = opts.defaultNamespace;
-      }
-    }
-    return $.uri(ns + local);
-  };
-
-  $.curie.defaults = {
-    namespaces: {},
-    reserved: [],
-    reservedNamespace: undefined,
-    defaultNamespace: undefined,
-    charcase: 'preserve'
-  };
-
-   /**
-    * Creates a {@link jQuery.uri} object by parsing a safe CURIE string (a CURIE
-    * contained within square brackets). If the input safeCurie string does not
-    * start with '[' and end with ']', the entire string content will be interpreted
-    * as a URI string.
-    * @methodOf jQuery
-    * @param {String} safeCurie The safe CURIE string to be parsed.
-    * @param {Object} [options] CURIE parsing options
-    * @param {string} [options.reservedNamespace='http://www.w3.org/1999/xhtml/vocab#'] The namespace to apply to a CURIE that has no prefix and either starts with a colon or is in the list of reserved local names
-    * @param {string} [options.defaultNamespace]  The namespace to apply to a CURIE with no prefix which is not mapped to the reserved namespace by the rules given above.
-    * @param {Object} [options.namespaces] A map of namespace bindings used to map CURIE prefixes to URIs.
-    * @param {string[]} [options.reserved=['alternate', 'appendix', 'bookmark', 'cite', 'chapter', 'contents', 'copyright',
-      'first', 'glossary', 'help', 'icon', 'index', 'last', 'license', 'meta', 'next',
-      'p3pv1', 'prev', 'role', 'section', 'stylesheet', 'subsection', 'start', 'top', 'up']]
-                        A list of local names that will always be mapped to the URI specified by reservedNamespace.
-    * @param {string} [options.charcase='lower'] Specifies whether the curie's case is altered before it's interpreted. Acceptable values are:
-    * <dl>
-    * <dt>lower</dt><dd>Force the CURIE string to lower case.</dd>
-    * <dt>upper</dt><dd>Force the CURIE string to upper case.</dd>
-    * <dt>preserve</dt><dd>Preserve the original case of the CURIE. Note that this might not be possible if the CURIE has been taken from an HTML attribute value because of the case conversions performed automatically by browsers. For this reason, it's a good idea to avoid mixed-case CURIEs within RDFa.</dd>
-    * </dl>
-    * @returns {jQuery.uri} A new {@link jQuery.uri} object representing the full absolute URI specified by the CURIE.
-    */
-  $.safeCurie = function (safeCurie, options) {
-    var m = /^\[([^\]]+)\]$/.exec(safeCurie);
-    return m ? $.curie(m[1], options) : $.uri(safeCurie);
-  };
-
-   /**
-    * Creates a CURIE string from a URI string.
-    * @methodOf jQuery
-    * @param {String} uri The URI string to be converted to a CURIE.
-    * @param {Object} [options] CURIE parsing options
-    * @param {string} [options.reservedNamespace='http://www.w3.org/1999/xhtml/vocab#']
-    *        If the input URI starts with this value, the generated CURIE will
-    *        have no namespace prefix and will start with a colon character (:),
-    *        unless the local part of the CURIE is one of the reserved names specified
-    *        by the reservedNames option (see below), in which case the generated
-    *        CURIE will have no namespace prefix and will not start with a colon
-    *        character.
-    * @param {string} [options.defaultNamespace]  If the input URI starts with this value, the generated CURIE will have no namespace prefix and will not start with a colon.
-    * @param {Object} [options.namespaces] A map of namespace bindings used to map CURIE prefixes to URIs.
-    * @param {string[]} [options.reserved=['alternate', 'appendix', 'bookmark', 'cite', 'chapter', 'contents', 'copyright',
-      'first', 'glossary', 'help', 'icon', 'index', 'last', 'license', 'meta', 'next',
-      'p3pv1', 'prev', 'role', 'section', 'stylesheet', 'subsection', 'start', 'top', 'up']]
-                        A list of local names that will always be mapped to the URI specified by reservedNamespace.
-    * @param {string} [options.charcase='lower'] Specifies the case normalisation done to the CURIE. Acceptable values are:
-    * <dl>
-    * <dt>lower</dt><dd>Normalise the CURIE to lower case.</dd>
-    * <dt>upper</dt><dd>Normalise the CURIE to upper case.</dd>
-    * <dt>preserve</dt><dd>Preserve the original case of the CURIE. Note that this might not be possible if the CURIE has been taken from an HTML attribute value because of the case conversions performed automatically by browsers. For this reason, it's a good idea to avoid mixed-case CURIEs within RDFa.</dd>
-    * </dl>
-    * @returns {jQuery.uri} A new {@link jQuery.uri} object representing the full absolute URI specified by the CURIE.
-    */
-  $.createCurie = function (uri, options) {
-    var opts = $.extend({}, $.curie.defaults, options || {}),
-      ns = opts.namespaces,
-      curie;
-    uri = $.uri(uri).toString();
-    if (opts.reservedNamespace !== undefined && 
-        uri.substring(0, opts.reservedNamespace.toString().length) === opts.reservedNamespace.toString()) {
-      curie = uri.substring(opts.reservedNamespace.toString().length);
-      if ($.inArray(curie, opts.reserved) === -1) {
-        curie = ':' + curie;
-      }
-    } else {
-      $.each(ns, function (prefix, namespace) {
-        if (uri.substring(0, namespace.toString().length) === namespace.toString()) {
-          curie = prefix + ':' + uri.substring(namespace.toString().length);
-          return null;
-        }
-      });
-    }
-    if (curie === undefined) {
-      throw "No Namespace Binding: There's no appropriate namespace binding for generating a CURIE from " + uri;
-    } else {
-      return curie;
-    }
-  };
-
-   /**
-    * Creates a {@link jQuery.uri} object by parsing the specified
-    * CURIE string in the context of the namespaces defined by the
-    * jQuery selection.
-    * @methodOf jQuery#
-    * @name jQuery#curie
-    * @param {String} curie The CURIE string to be parsed
-    * @param {Object} options The CURIE parsing options.
-    *        See {@link jQuery.curie} for details of the supported options.
-    *        The namespace declarations declared on the current jQuery
-    *        selection (and inherited from any ancestor elements) will automatically
-    *        be included in the options.namespaces property.
-    * @returns {jQuery.uri}
-    * @see jQuery.curie
-    */
-  $.fn.curie = function (curie, options) {
-    var opts = $.extend({}, $.fn.curie.defaults, { namespaces: this.xmlns() }, options || {});
-    return $.curie(curie, opts);
-  };
-
-   /**
-    * Creates a {@link jQuery.uri} object by parsing the specified
-    * safe CURIE string in the context of the namespaces defined by
-    * the jQuery selection.
-    *
-    * @methodOf jQuery#
-    * @name jQuery#safeCurie
-    * @param {String} safeCurie The safe CURIE string to be parsed. See {@link jQuery.safeCurie} for details on how safe CURIE strings are processed.
-    * @param {Object} options   The CURIE parsing options.
-    *        See {@link jQuery.safeCurie} for details of the supported options.
-    *        The namespace declarations declared on the current jQuery
-    *        selection (and inherited from any ancestor elements) will automatically
-    *        be included in the options.namespaces property.
-    * @returns {jQuery.uri}
-    * @see jQuery.safeCurie
-    */
-  $.fn.safeCurie = function (safeCurie, options) {
-    var opts = $.extend({}, $.fn.curie.defaults, { namespaces: this.xmlns() }, options || {});
-    return $.safeCurie(safeCurie, opts);
-  };
-
-   /**
-    * Creates a CURIE string from a URI string using the namespace
-    * bindings in the context of the current jQuery selection.
-    *
-    * @methodOf jQuery#
-    * @name jQuery#createCurie
-    * @param {String|jQuery.uri} uri The URI string to be converted to a CURIE
-    * @param {Object} options the CURIE parsing options.
-    *        See {@link jQuery.createCurie} for details of the supported options.
-    *        The namespace declarations declared on the current jQuery
-    *        selection (and inherited from any ancestor elements) will automatically
-    *        be included in the options.namespaces property.
-    * @returns {String}
-    * @see jQuery.createCurie
-    */
-  $.fn.createCurie = function (uri, options) {
-    var opts = $.extend({}, $.fn.curie.defaults, { namespaces: this.xmlns() }, options || {});
-    return $.createCurie(uri, opts);
-  };
-
-  $.fn.curie.defaults = {
-    reserved: [
-      'alternate', 'appendix', 'bookmark', 'cite', 'chapter', 'contents', 'copyright',
-      'first', 'glossary', 'help', 'icon', 'index', 'last', 'license', 'meta', 'next',
-      'p3pv1', 'prev', 'role', 'section', 'stylesheet', 'subsection', 'start', 'top', 'up'
-    ],
-    reservedNamespace: 'http://www.w3.org/1999/xhtml/vocab#',
-    defaultNamespace: undefined,
-    charcase: 'lower'
-  };
-
-})(jQuery);
-/*
  * jQuery RDF @VERSION
  *
  * Copyright (c) 2008,2009 Jeni Tennison
@@ -1087,16 +25,17 @@
  * @ignore
  */
 (function ($) {
-
   var
     memResource = {},
     memBlank = {},
     memLiteral = {},
     memTriple = {},
     memPattern = {},
+    
     xsdNs = "http://www.w3.org/2001/XMLSchema#",
     rdfNs = "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     rdfsNs = "http://www.w3.org/2000/01/rdf-schema#",
+    
     uriRegex = /^<(([^>]|\\>)*)>$/,
     literalRegex = /^("""((\\"|[^"])*)"""|"((\\"|[^"])*)")(@([a-z]+(-[a-z0-9]+)*)|\^\^(.+))?$/,
     tripleRegex = /(("""((\\"|[^"])*)""")|("(\\"|[^"]|)*")|(<(\\>|[^>])*>)|\S)+/g,
@@ -1111,6 +50,9 @@
       databankSeed += 1;
       return 'data' + databankSeed.toString(16);
     },
+    databanks = {},
+
+    documentQueue = {},
 
     subject = function (subject, opts) {
       if (typeof subject === 'string') {
@@ -1179,8 +121,35 @@
       }
     },
 
-    findMatches = function (triples, pattern) {
-      return $.map(triples, function (triple) {
+    findMatches = function (databank, pattern) {
+      if (databank.union === undefined) {
+        if (pattern.subject.type !== undefined) {
+          if (databank.subjectIndex[pattern.subject] === undefined) {
+            return [];
+          }
+          return $.map(databank.subjectIndex[pattern.subject], function (triple) {
+            var bindings = pattern.exec(triple);
+            return bindings === null ? null : { bindings: bindings, triples: [triple] };
+          });
+        } else if (pattern.object.type === 'uri' || pattern.object.type === 'bnode') {
+          if (databank.objectIndex[pattern.object] === undefined) {
+            return [];
+          }
+          return $.map(databank.objectIndex[pattern.object], function (triple) {
+            var bindings = pattern.exec(triple);
+            return bindings === null ? null : { bindings: bindings, triples: [triple] };
+          });
+        } else if (pattern.property.type !== undefined) {
+          if (databank.propertyIndex[pattern.property] === undefined) {
+            return [];
+          }
+          return $.map(databank.propertyIndex[pattern.property], function (triple) {
+            var bindings = pattern.exec(triple);
+            return bindings === null ? null : { bindings: bindings, triples: [triple] };
+          });
+        }
+      }
+      return $.map(databank.triples(), function (triple) {
         var bindings = pattern.exec(triple);
         return bindings === null ? null : { bindings: bindings, triples: [triple] };
       });
@@ -1192,21 +161,22 @@
           // For newM to be compatible with existingM, all the bindings
           // in newM must either be the same as in existingM, or not
           // exist in existingM
-          var isCompatible = true;
-          $.each(newM.bindings, function (k, b) {
+          var k, b, isCompatible = true;
+          for (k in newM.bindings) {
+            b = newM.bindings[k];
             if (!(existingM.bindings[k] === undefined ||
                   existingM.bindings[k] === b)) {
               isCompatible = false;
-              return false;
+              break;
             }
-          });
+          }
           return isCompatible ? newM : null;
         });
         if (compatibleMs.length > 0) {
           return $.map(compatibleMs, function (compatibleM) {
             return {
               bindings: $.extend({}, existingM.bindings, compatibleM.bindings),
-              triples: $.unique(existingM.triples.concat(compatibleM.triples))
+              triples: unique(existingM.triples.concat(compatibleM.triples))
             };
           });
         } else {
@@ -1266,6 +236,58 @@
       }
     },
 
+    filterMatches = function (matches, variables) {
+      var i, bindings, triples, j, k, variable, value, nvariables = variables.length,
+        newbindings, match = {}, keyobject = {}, keys = {}, filtered = [];
+      for (i = 0; i < matches.length; i += 1) {
+        bindings = matches[i].bindings;
+        triples = matches[i].triples;
+        keyobject = keys;
+        for (j = 0; j < nvariables; j += 1) {
+          variable = variables[j];
+          value = bindings[variable];
+          if (j === nvariables - 1) {
+            if (keyobject[value] === undefined) {
+              match = { bindings: {}, triples: triples };
+              for (k = 0; k < nvariables; k += 1) {
+                match.bindings[variables[k]] = bindings[variables[k]];
+              }
+              keyobject[value] = match;
+              filtered.push(match);
+            } else {
+              match = keyobject[value];
+              match.triples = match.triples.concat(triples);
+            }
+          } else {
+            if (keyobject[value] === undefined) {
+              keyobject[value] = {};
+            }
+            keyobject = keyobject[value];
+          }
+        }
+      }
+      return filtered;
+    },
+
+    renameMatches = function (matches, old) {
+      var i, match, newMatch, keys = {}, renamed = [];
+      for (i = 0; i < matches.length; i += 1) {
+        match = matches[i];
+        if (keys[match.bindings[old]] === undefined) {
+          newMatch = {
+            bindings: { node: match.bindings[old] },
+            triples: match.triples
+          };
+          renamed.push(newMatch);
+          keys[match.bindings[old]] = newMatch;
+        } else {
+          newMatch = keys[match.bindings[old]];
+          newMatch.triples = newMatch.triples.concat(match.triples);
+        }
+      }
+      return renamed;
+    },
+
     leftActivate = function (query, matches) {
       var newMatches;
       if (query.union === undefined) {
@@ -1277,14 +299,21 @@
             newMatches = $.map(matches, function (match, i) {
               return query.filterExp.call(match.bindings, i, match.bindings, match.triples) ? match : null;
             });
-          } else {
+          } else if (query.filterExp !== undefined) {
             newMatches = mergeMatches(matches, query.alphaMemory, query.filterExp.optional);
+          } else {
+            newMatches = matches;
           }
         }
       } else {
         newMatches = $.map(query.union, function (q) {
           return q.matches;
         });
+      }
+      if (query.selections !== undefined) {
+        newMatches = filterMatches(newMatches, query.selections);
+      } else if (query.navigate !== undefined) {
+        newMatches = renameMatches(newMatches, query.navigate);
       }
       updateQuery(query, newMatches);
     },
@@ -1427,444 +456,74 @@
         });
       }
     },
-
-    createJson = function (triples) {
-      var e = {},
-        i, t, s, p;
-      for (i = 0; i < triples.length; i += 1) {
-        t = triples[i];
-        s = t.subject.value.toString();
-        p = t.property.value.toString();
-        if (e[s] === undefined) {
-          e[s] = {};
-        }
-        if (e[s][p] === undefined) {
-          e[s][p] = [];
-        }
-        e[s][p].push(t.object.dump());
-      }
-      return e;
-    },
-
-    parseJson = function (data) {
-      var s, subject, p, property, o, object, i, opts, triples = [];
-      for (s in data) {
-        subject = (s.substring(0, 2) === '_:') ? $.rdf.blank(s) : $.rdf.resource('<' + s + '>');
-        for (p in data[s]) {
-          property = $.rdf.resource('<' + p + '>');
-          for (i = 0; i < data[s][p].length; i += 1) {
-            o = data[s][p][i];
-            if (o.type === 'uri') {
-              object = $.rdf.resource('<' + o.value + '>');
-            } else if (o.type === 'bnode') {
-              object = $.rdf.blank(o.value);
-            } else {
-              // o.type === 'literal'
-              if (o.datatype !== undefined) {
-                object = $.rdf.literal(o.value, { datatype: o.datatype });
-              } else {
-                opts = {};
-                if (o.lang !== undefined) {
-                  opts.lang = o.lang;
-                }
-                object = $.rdf.literal('"' + o.value + '"', opts);
-              }
+    
+    group = function (bindings, variables, base) {
+      var variable = variables[0], grouped = {}, results = [], i, newbase;
+      base = base || {};
+      if (variables.length === 0) {
+        for (i = 0; i < bindings.length; i += 1) {
+          for (v in bindings[i]) {
+            if (base[v] === undefined) {
+              base[v] = [];
             }
-            triples.push($.rdf.triple(subject, property, object));
-          }
-        }
-      }
-      return triples;
-    },
-
-    addAttribute = function (parent, namespace, name, value) {
-      var doc = parent.ownerDocument,
-        a;
-      if (namespace !== undefined && namespace !== null) {
-        if (doc.createAttributeNS) {
-          a = doc.createAttributeNS(namespace, name);
-          a.nodeValue = value;
-          parent.attributes.setNamedItemNS(a);
-        } else {
-          a = doc.createNode(2, name, namespace);
-          a.nodeValue = value;
-          parent.attributes.setNamedItem(a);
-        }
-      } else {
-        a = doc.createAttribute(name);
-        a.nodeValue = value;
-        parent.attributes.setNamedItem(a);
-      }
-      return parent;
-    },
-
-    createXmlnsAtt = function (parent, namespace, prefix) {
-      if (prefix) {
-        addAttribute(parent, 'http://www.w3.org/2000/xmlns/', 'xmlns:' + prefix, namespace);
-      } else {
-        addAttribute(parent, undefined, 'xmlns', namespace);
-      }
-      return parent;
-    },
-
-    createDocument = function (namespace, name) {
-      var doc, xmlns = '', prefix, addAttribute = false;
-      if (namespace !== undefined && namespace !== null) {
-        if (/:/.test(name)) {
-          prefix = /([^:]+):/.exec(name)[1];
-        }
-        addAttribute = true;
-      }
-      if (document.implementation &&
-          document.implementation.createDocument) {
-        doc = document.implementation.createDocument(namespace, name, null);
-        if (addAttribute) {
-          createXmlnsAtt(doc.documentElement, namespace, prefix);
-        }
-        return doc;
-      } else {
-        doc = new ActiveXObject("Microsoft.XMLDOM");
-        doc.async = "false";
-        if (prefix === undefined) {
-          xmlns = ' xmlns="' + namespace + '"';
-        } else {
-          xmlns = ' xmlns:' + prefix + '="' + namespace + '"';
-        }
-        doc.loadXML('<' + name + xmlns + '/>');
-        return doc;
-      }
-    },
-
-    appendElement = function (parent, namespace, name) {
-      var doc = parent.ownerDocument,
-        e;
-      if (namespace !== undefined && namespace !== null) {
-        e = doc.createElementNS ? doc.createElementNS(namespace, name) : doc.createNode(1, name, namespace);
-      } else {
-        e = doc.createElement(name);
-      }
-      parent.appendChild(e);
-      return e;
-    },
-
-    appendText = function (parent, text) {
-      var doc = parent.ownerDocument,
-        t;
-      t = doc.createTextNode(text);
-      parent.appendChild(t);
-      return parent;
-    },
-
-    appendXML = function (parent, xml) {
-      var parser, doc, i, child;
-      try {
-        doc = new ActiveXObject('Microsoft.XMLDOM');
-        doc.async = "false";
-        doc.loadXML('<temp>' + xml + '</temp>');
-      } catch(e) {
-        parser = new DOMParser();
-        doc = parser.parseFromString('<temp>' + xml + '</temp>', 'text/xml');
-      }
-      for (i = 0; i < doc.documentElement.childNodes.length; i += 1) {
-        parent.appendChild(doc.documentElement.childNodes[i].cloneNode(true));
-      }
-      return parent;
-    },
-
-    createRdfXml = function (triples, options) {
-      var doc = createDocument(rdfNs, 'rdf:RDF'),
-        dump = createJson(triples),
-        namespaces = options.namespaces || {},
-        n, s, se, p, pe, i, v,
-        m, local, ns, prefix;
-      for (n in namespaces) {
-        createXmlnsAtt(doc.documentElement, namespaces[n], n);
-      }
-      for (s in dump) {
-        if (dump[s][$.rdf.type.value] !== undefined) {
-          m = /(.+[#\/])([^#\/]+)/.exec(dump[s][$.rdf.type.value][0].value);
-          ns = m[1];
-          local = m[2];
-          for (n in namespaces) {
-            if (namespaces[n] === ns) {
-              prefix = n;
-              break;
-            }
-          }
-          se = appendElement(doc.documentElement, ns, prefix + ':' + local);
-        } else {
-          se = appendElement(doc.documentElement, rdfNs, 'rdf:Description');
-        }
-        if (/^_:/.test(s)) {
-          addAttribute(se, rdfNs, 'rdf:nodeID', s.substring(2));
-        } else {
-          addAttribute(se, rdfNs, 'rdf:about', s);
-        }
-        for (p in dump[s]) {
-          if (p !== $.rdf.type.value.toString() || dump[s][p].length > 1) {
-            m = /(.+[#\/])([^#\/]+)/.exec(p);
-            ns = m[1];
-            local = m[2];
-            for (n in namespaces) {
-              if (namespaces[n] === ns) {
-                prefix = n;
-                break;
-              }
-            }
-            for (i = (p === $.rdf.type.value.toString() ? 1 : 0); i < dump[s][p].length; i += 1) {
-              v = dump[s][p][i];
-              pe = appendElement(se, ns, prefix + ':' + local);
-              if (v.type === 'uri') {
-                addAttribute(pe, rdfNs, 'rdf:resource', v.value);
-              } else if (v.type === 'literal') {
-                if (v.datatype !== undefined) {
-                  if (v.datatype === 'http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral') {
-                    addAttribute(pe, rdfNs, 'rdf:parseType', 'Literal');
-                    appendXML(pe, v.value);
-                  } else {
-                    addAttribute(pe, rdfNs, 'rdf:datatype', v.datatype);
-                    appendText(pe, v.value);
-                  }
-                } else if (v.lang !== undefined) {
-                  addAttribute(pe, 'http://www.w3.org/XML/1998/namespace', 'xml:lang', v.lang);
-                  appendText(pe, v.value);
-                } else {
-                  appendText(pe, v.value);
-                }
-              } else {
-                // blank node
-                addAttribute(pe, rdfNs, 'rdf:nodeID', v.value.substring(2));
-              }
+            if ($.isArray(base[v])) {
+              base[v].push(bindings[i][v]);
             }
           }
         }
+        return [base];
       }
-      return doc;
-    },
-
-    getDefaultNamespacePrefix = function(namespaceUri){
-      switch (namespaceUri) {
-        case 'http://www.w3.org/1999/02/22-rdf-syntax-ns':
-          return 'rdf';
-        case 'http://www.w3.org/XML/1998/namespace':
-          return 'xml';
-        case 'http://www.w3.org/2000/xmlns/':
-          return 'xmlns';
-        default:
-          throw ('No default prefix mapped for namespace ' + namespaceUri);
-      }
-    },
-
-    hasAttributeNS  = function(elem, namespace, name){
-      var basename;
-      if (elem.hasAttributeNS) {
-        return elem.hasAttributeNS(namespace, name);
-      } else {
-        try {
-          basename = /:/.test(name) ? /:(.+)$/.exec(name)[1] : name;
-          return elem.attributes.getQualifiedItem(basename, namespace) !== null;
-        } catch (e) {
-          return elem.getAttribute(getDefaultNamespacePrefix(namespace) + ':' + name) !== null;
+      // collect together the grouped results
+      for (i = 0; i < bindings.length; i += 1) {
+        key = bindings[i][variable];
+        if (grouped[key] === undefined) {
+          grouped[key] = [];
         }
+        grouped[key].push(bindings[i]);
       }
+      // call recursively on each group
+      variables = variables.splice(1, 1);
+      for (v in grouped) {
+        newbase = $.extend({}, base);
+        newbase[variable] = grouped[v][0][variable];
+        results = results.concat(group(grouped[v], variables, newbase));
+      }
+      return results;
+    },
+    
+    queue = function (databank, url, callbacks) {
+      if (documentQueue[databank.id] === undefined) {
+        documentQueue[databank.id] = {};
+      }
+      if (documentQueue[databank.id][url] === undefined) {
+        documentQueue[databank.id][url] = callbacks;
+        return false;
+      }
+      return true;
+    },
+    
+    dequeue = function (databank, url, result, args) {
+      var callbacks = documentQueue[databank.id][url];
+      if ($.isFunction(callbacks[result])) {
+        callbacks[result].call(databank, args);
+      }
+      documentQueue[databank.id][url] = undefined;
     },
 
-    getAttributeNS = function(elem, namespace, name){
-      var basename;
-      if (elem.getAttributeNS) {
-        return elem.getAttributeNS(namespace, name);
-      } else {
-        try {
-          basename = /:/.test(name) ? /:(.+)$/.exec(name)[1] : name;
-          return elem.attributes.getQualifiedItem(basename, namespace).nodeValue;
-        } catch (e) {
-          return elem.getAttribute(getDefaultNamespacePrefix(namespace) + ':' + name);
+    unique = function( b ) {
+      var a = [];
+      var l = b.length;
+      for(var i=0; i<l; i++) {
+        for(var j=i+1; j<l; j++) {
+          // If b[i] is found later in the array
+          if (b[i] === b[j])
+            j = ++i;
         }
+        a.push(b[i]);
       }
-    },
+      return a;
+     };
 
-    getLocalName = function(elem){
-      return elem.localName || elem.baseName;
-    },
-
-    parseRdfXmlSubject = function (elem, base) {
-      var s, subject;
-      if (hasAttributeNS(elem, rdfNs, 'about')) {
-        s = getAttributeNS(elem, rdfNs, 'about');
-        subject = $.rdf.resource('<' + s + '>', { base: base });
-      } else if (hasAttributeNS(elem, rdfNs, 'ID')) {
-        s = getAttributeNS(elem, rdfNs, 'ID');
-        subject = $.rdf.resource('<#' + s + '>', { base: base });
-      } else if (hasAttributeNS(elem, rdfNs, 'nodeID')) {
-        s = getAttributeNS(elem, rdfNs, 'nodeID');
-        subject = $.rdf.blank('_:' + s);
-      } else {
-        subject = $.rdf.blank('[]');
-      }
-      return subject;
-    },
-
-    parseRdfXmlDescription = function (elem, isDescription, base, lang) {
-      var subject, p, property, o, object, reified, lang, i, j, li = 1,
-        collection1, collection2, collectionItem, collectionItems = [],
-        parseType, serializer, literalOpts = {}, oTriples, triples = [];
-      lang = getAttributeNS(elem, 'http://www.w3.org/XML/1998/namespace', 'lang') || lang;
-      base = getAttributeNS(elem, 'http://www.w3.org/XML/1998/namespace', 'base') || base;
-      if (lang !== null && lang !== undefined && lang !== '') {
-        literalOpts = { lang: lang };
-      }
-      subject = parseRdfXmlSubject(elem, base);
-      if (isDescription && (elem.namespaceURI !== rdfNs || getLocalName(elem) !== 'Description')) {
-        property = $.rdf.type;
-        object = $.rdf.resource('<' + elem.namespaceURI + getLocalName(elem) + '>');
-        triples.push($.rdf.triple(subject, property, object));
-      }
-      for (i = 0; i < elem.attributes.length; i += 1) {
-        p = elem.attributes.item(i);
-        if (p.namespaceURI !== undefined &&
-            p.namespaceURI !== 'http://www.w3.org/2000/xmlns/' &&
-            p.namespaceURI !== 'http://www.w3.org/XML/1998/namespace' &&
-            p.prefix !== 'xmlns' &&
-            p.prefix !== 'xml') {
-          if (p.namespaceURI !== rdfNs) {
-            property = $.rdf.resource('<' + p.namespaceURI + getLocalName(p) + '>');
-            object = $.rdf.literal('"' + p.nodeValue + '"', literalOpts);
-            triples.push($.rdf.triple(subject, property, object));
-          } else if (getLocalName(p) === 'type') {
-            property = $.rdf.type;
-            object = $.rdf.resource('<' + p.nodeValue + '>', { base: base });
-            triples.push($.rdf.triple(subject, property, object));
-          }
-        }
-      }
-      for (i = 0; i < elem.childNodes.length; i += 1) {
-        p = elem.childNodes[i];
-        if (p.nodeType === 1) {
-          if (p.namespaceURI === rdfNs && getLocalName(p) === 'li') {
-            property = $.rdf.resource('<' + rdfNs + '_' + li + '>');
-            li += 1;
-          } else {
-            property = $.rdf.resource('<' + p.namespaceURI + getLocalName(p) + '>');
-          }
-          lang = getAttributeNS(p, 'http://www.w3.org/XML/1998/namespace', 'lang') || lang;
-          if (lang !== null && lang !== undefined && lang !== '') {
-            literalOpts = { lang: lang };
-          }
-          if (hasAttributeNS(p, rdfNs, 'resource')) {
-            o = getAttributeNS(p, rdfNs, 'resource');
-            object = $.rdf.resource('<' + o + '>', { base: base });
-          } else if (hasAttributeNS(p, rdfNs, 'nodeID')) {
-            o = getAttributeNS(p, rdfNs, 'nodeID');
-            object = $.rdf.blank('_:' + o);
-          } else if (hasAttributeNS(p, rdfNs, 'parseType')) {
-            parseType = getAttributeNS(p, rdfNs, 'parseType');
-            if (parseType === 'Literal') {
-              try {
-                serializer = new XMLSerializer();
-                o = serializer.serializeToString(p.getElementsByTagName('*')[0]);
-              } catch (e) {
-                o = "";
-                for (j = 0; j < p.childNodes.length; j += 1) {
-                  o += p.childNodes[j].xml;
-                }
-              }
-              object = $.rdf.literal(o, { datatype: rdfNs + 'XMLLiteral' });
-            } else if (parseType === 'Resource') {
-              oTriples = parseRdfXmlDescription(p, false, base, lang);
-              if (oTriples.length > 0) {
-                object = oTriples[oTriples.length - 1].subject;
-                triples = triples.concat(oTriples);
-              } else {
-                object = $.rdf.blank('[]');
-              }
-            } else if (parseType === 'Collection') {
-              if (p.getElementsByTagName('*').length > 0) {
-                for (j = 0; j < p.childNodes.length; j += 1) {
-                  o = p.childNodes[j];
-                  if (o.nodeType === 1) {
-                    collectionItems.push(o);
-                  }
-                }
-                collection1 = $.rdf.blank('[]');
-                object = collection1;
-                for (j = 0; j < collectionItems.length; j += 1) {
-                  o = collectionItems[j];
-                  oTriples = parseRdfXmlDescription(o, true, base, lang);
-                  if (oTriples.length > 0) {
-                    collectionItem = oTriples[oTriples.length - 1].subject;
-                    triples = triples.concat(oTriples);
-                  } else {
-                    collectionItem = parseRdfXmlSubject(o);
-                  }
-                  triples.push($.rdf.triple(collection1, $.rdf.first, collectionItem));
-                  if (j === collectionItems.length - 1) {
-                    triples.push($.rdf.triple(collection1, $.rdf.rest, $.rdf.nil));
-                  } else {
-                    collection2 = $.rdf.blank('[]');
-                    triples.push($.rdf.triple(collection1, $.rdf.rest, collection2));
-                    collection1 = collection2;
-                  }
-                }
-              } else {
-                object = $.rdf.nil;
-              }
-            }
-          } else if (hasAttributeNS(p, rdfNs, 'datatype')) {
-            o = p.childNodes[0] ? p.childNodes[0].nodeValue : '';  // EMAX modified this line here
-            object = $.rdf.literal(o, { datatype: getAttributeNS(p, rdfNs, 'datatype') });
-          } else if (p.getElementsByTagName('*').length > 0) {
-            for (j = 0; j < p.childNodes.length; j += 1) {
-              o = p.childNodes[j];
-              if (o.nodeType === 1) {
-                oTriples = parseRdfXmlDescription(o, true, base, lang);
-                if (oTriples.length > 0) {
-                  object = oTriples[oTriples.length - 1].subject;
-                  triples = triples.concat(oTriples);
-                } else {
-                  object = parseRdfXmlSubject(o);
-                }
-              }
-            }
-          } else if (p.childNodes.length > 0) {
-            o = p.childNodes[0].nodeValue;
-            object = $.rdf.literal('"' + o + '"', literalOpts);
-          } else {
-            oTriples = parseRdfXmlDescription(p, false, base, lang);
-            if (oTriples.length > 0) {
-              object = oTriples[oTriples.length - 1].subject;
-              triples = triples.concat(oTriples);
-            } else {
-              object = $.rdf.blank('[]');
-            }
-          }
-          triples.push($.rdf.triple(subject, property, object));
-          if (hasAttributeNS(p, rdfNs, 'ID')) {
-            reified = $.rdf.resource('<#' + getAttributeNS(p, rdfNs, 'ID') + '>', { base: base });
-            triples.push($.rdf.triple(reified, $.rdf.subject, subject));
-            triples.push($.rdf.triple(reified, $.rdf.property, property));
-            triples.push($.rdf.triple(reified, $.rdf.object, object));
-          }
-        }
-      }
-      return triples;
-    },
-
-    parseRdfXml = function (doc) {
-      var i, lang, d, triples = [];
-      if (doc.documentElement.namespaceURI === rdfNs && getLocalName(doc.documentElement) === 'RDF') {
-        lang = getAttributeNS(doc.documentElement, 'http://www.w3.org/XML/1998/namespace', 'lang');
-        base = getAttributeNS(doc.documentElement, 'http://www.w3.org/XML/1998/namespace', 'base') || $.uri.base();
-        for (i = 0; i < doc.documentElement.childNodes.length; i += 1) {
-          d = doc.documentElement.childNodes[i];
-          if (d.nodeType === 1) {
-            triples = triples.concat(parseRdfXmlDescription(d, true, base, lang));
-          }
-        }
-      } else {
-        triples = parseRdfXmlDescription(doc.documentElement, true);
-      }
-      return triples;
-    };
 
   $.typedValue.types['http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral'] = {
     regex: /^.*$/m,
@@ -1897,10 +556,10 @@
      * The version of rdfQuery.
      * @type String
      */
-    rdfquery: '0.9',
+    rdfquery: '1.1',
 
     init: function (options) {
-      var databanks;
+      var databanks, i;
       options = options || {};
       /* must specify either a parent or a union, otherwise it's the top */
       this.parent = options.parent;
@@ -1920,7 +579,7 @@
         databanks = $.map(this.union, function (query) {
           return query.databank;
         });
-        databanks = $.unique(databanks);
+        databanks = unique(databanks);
         if (databanks[1] !== undefined) {
           this.databank = $.rdf.databank(undefined, { union: databanks });
         } else {
@@ -1930,6 +589,8 @@
       this.children = [];
       this.partOf = [];
       this.filterExp = options.filter;
+      this.selections = options.distinct;
+      this.navigate = options.navigate;
       this.alphaMemory = [];
       this.matches = [];
       /**
@@ -1940,7 +601,15 @@
       if (this.filterExp !== undefined) {
         if (!$.isFunction(this.filterExp)) {
           registerQuery(this.databank, this);
-          this.alphaMemory = findMatches(this.databank.triples(), this.filterExp);
+          this.alphaMemory = findMatches(this.databank, this.filterExp);
+        }
+      } else if (options.nodes !== undefined) {
+        this.alphaMemory = [];
+        for (i = 0; i < options.nodes.length; i += 1) {
+          this.alphaMemory.push({
+            bindings: { node: options.nodes[i] },
+            triples: []
+          });
         }
       }
       leftActivate(this);
@@ -2086,6 +755,14 @@
      * @see jQuery.rdf.databank#load
      */
     load: function (data, options) {
+      var rdf = this,
+        options = options || {},
+        success = options.success;
+      if (success !== undefined) {
+        options.success = function () {
+          success.call(rdf);
+        }
+      }
       this.databank.load(data, options);
       return this;
     },
@@ -2244,6 +921,87 @@
       query = $.rdf({ parent: this, filter: func });
       this.children.push(query);
       return query;
+    },
+
+    /**
+     * Creates a new {@link jQuery.rdf} object containing one binding for each selected resource.
+     * @param {String|Object} node The node to be selected. If this is a string beginning with a question mark the resources are those identified by the bindings of that value in the currently selected bindings. Otherwise, only the named resource is selected as the node.
+     * @returns {jQuery.rdf} A new {@link jQuery.rdf} object.
+     * @see jQuery.rdf#find
+     * @see jQuery.rdf#back
+     * @example
+     * // returns an rdfQuery object with a pointer to <http://example.com/aReallyGreatBook>
+     * var rdf = $('html').rdf()
+     *   .node('<http://example.com/aReallyGreatBook>');
+     */
+    node: function (resource) {
+      var variable, query;
+      if (resource.toString().substring(0, 1) === '?') {
+        variable = resource.toString().substring(1);
+        query = $.rdf({ parent: this, navigate: variable });
+      } else {
+        if (typeof resource === 'string') {
+          resource = object(resource, { namespaces: this.prefix(), base: this.base() });
+        }
+        query = $.rdf({ parent: this, nodes: [resource] });
+      }
+      this.children.push(query);
+      return query;
+    },
+    
+    /**
+     * Navigates from the resource identified by the 'node' binding to another node through the property passed as the argument.
+     * @param {String|Object} property The property whose value will be the new node.
+     * @returns {jQuery.rdf} A new {@link jQuery.rdf} object whose {@link jQuery.rdf#parent} is this {@link jQuery.rdf}.
+     * @see jQuery.rdf#back
+     * @see jQuery.rdf#node
+     * @example
+     * var creators = $('html').rdf()
+     *   .node('<>')
+     *   .find('dc:creator');
+     */
+    find: function (property) {
+      return this.where('?node ' + property + ' ?object', { navigate: 'object' });
+    },
+    
+    /**
+     * Navigates from the resource identified by the 'node' binding to another node through the property passed as the argument, like {jQuery.rdf#find}, but backwards.
+     * @param {String|Object} property The property whose value will be the new node.
+     * @returns {jQuery.rdf} A new {@link jQuery.rdf} object whose {@link jQuery.rdf#parent} is this {@link jQuery.rdf}.
+     * @see jQuery.rdf#find
+     * @see jQuery.rdf#node
+     * @example
+     * var people = $('html').rdf()
+     *   .node('foaf:Person')
+     *   .back('rdf:type');
+     */
+    back: function (property) {
+      return this.where('?subject ' + property + ' ?node', { navigate: 'subject' });
+    },
+
+    /**
+     * Groups the bindings held by this {@link jQuery.rdf} object based on the values of the variables passed as the parameter.
+     * @param {String[]} [bindings] The variables to group by. The returned objects will contain all their current properties, but those aside from the specified variables will be arrays listing the relevant values.
+     * @returns {jQuery} A jQuery object containing objects representing the grouped bindings.
+     * @example
+     * // returns one object per person and groups all the names and all the emails together in arrays
+     * var grouped = rdf
+     *   .where('?person foaf:name ?name')
+     *   .where('?person foaf:email ?email')
+     *   .group('person');
+     * @example
+     * // returns one object per surname/firstname pair, with the person property being an array in the resulting objects
+     * var grouped = rdf
+     *   .where('?person foaf:first_name ?forename')
+     *   .where('?person foaf:givenname ?surname')
+     *   .group(['surname', 'forename']);
+     */
+    group: function (bindings) {
+      var grouped = {}, results = [], i, key, v;
+      if (!$.isArray(bindings)) {
+        bindings = [bindings];
+      }
+      return $(group(this, bindings));
     },
 
     /**
@@ -2472,6 +1230,7 @@
   $.rdf.fn.init.prototype = $.rdf.fn;
 
   $.rdf.gleaners = [];
+  $.rdf.parsers = {};
 
   /**
    * Dumps the triples passed as the first argument into a format that can be shown to the user or sent to a server.
@@ -2488,39 +1247,37 @@
    *     <td><code>application/rdf+xml</code></td>
    *     <td>An DOMDocument node holding XML in <a href="http://www.w3.org/TR/rdf-syntax-grammar/">RDF/XML syntax</a></td>
    *   </tr>
+   *   <tr>
+   *     <td><code>text/turtle</code></td>
+   *     <td>A String holding a representation of the RDF in <a href="http://www.w3.org/TeamSubmission/turtle/">Turtle syntax</a></td>
+   *   </tr>
    * </table>
    * @param {Object} [options.namespaces={}] A set of namespace bindings used when mapping resource URIs to CURIEs or QNames (particularly in a RDF/XML serialisation).
    * @param {boolean} [options.serialize=false] If true, rather than creating an Object, the function will return a string which is ready to display or send to a server.
+   * @param {boolean} [options.indent=false] If true, the serialised (RDF/XML) output has indentation added to it to make it more readable.
    * @returns {Object|String} The alternative representation of the triples.
    */
   $.rdf.dump = function (triples, options) {
     var opts = $.extend({}, $.rdf.dump.defaults, options || {}),
       format = opts.format,
       serialize = opts.serialize,
-      dump;
-    if (format === 'application/json') {
-      dump = createJson(triples, opts);
-      return serialize ? $.toJSON(dump) : dump;
-    } else if (format === 'application/rdf+xml') {
-      dump = createRdfXml(triples, opts);
-      if (serialize) {
-        if (dump.xml) {
-          return dump.xml.replace(/\s+$/,'');
-        } else {
-          serializer = new XMLSerializer();
-          return serializer.serializeToString(dump);
-        }
-      } else {
-        return dump;
+      dump, parser, parsers;
+    parser = $.rdf.parsers[format];
+    if (parser === undefined) {
+      parsers = [];
+      for (p in $.rdf.parsers) {
+        parsers.push(p);
       }
-    } else {
-      throw "Unrecognised dump format: " + format + ". Expected application/json or application/rdf+xml.";
+      throw "Unrecognised dump format: " + format + ". Expected one of " + parsers.join(", ");
     }
+    dump = parser.dump(triples, opts);
+    return serialize ? parser.serialize(dump) : dump;
   };
 
   $.rdf.dump.defaults = {
     format: 'application/json',
     serialize: false,
+    indent: false,
     namespaces: {}
   }
 
@@ -2528,17 +1285,24 @@
    * Gleans RDF triples from the nodes held by the {@link jQuery} object, puts them into a {@link jQuery.rdf.databank} and returns a {@link jQuery.rdf} object that allows you to query and otherwise manipulate them. The mechanism for gleaning RDF triples from the web page depends on the rdfQuery modules that have been included. The core version of rdfQuery doesn't support any gleaners; other versions support a RDFa gleaner, and there are some modules available for common microformats.
    * @methodOf jQuery#
    * @name jQuery#rdf
+   * @param {Function} [callback] A callback function that is called every time a triple is gleaned from the page. Within the function, <code>this</code> is set to the triple that has been located. The function can take up to two parameters:
+   * <dl>
+   *   <dt>node</dt><dd>The node on which the triple has been found; should be the same as <code>this.source</code>.</dd>
+   *   <dt>triple</dt><dd>The triple that's been found; the same as <code>this</code>.</dd>
+   * </dl>
+   * The callback should return the triple or triples that should be added to the databank. This enables you to filter, extend or modify the contents of the databank itself, should you wish to.
    * @returns {jQuery.rdf} An empty query over the triples stored within the page.
    * @example $('#content').rdf().databank.dump();
    */
-  $.fn.rdf = function () {
-    var triples = [];
+  $.fn.rdf = function (callback) {
+    var triples = [],
+      callback = callback || function () { return this; };
     if ($(this)[0] && $(this)[0].nodeType === 9) {
-      return $(this).children('*').rdf();
+      return $(this).children('*').rdf(callback);
     } else if ($(this).length > 0) {
       triples = $(this).map(function (i, elem) {
         return $.map($.rdf.gleaners, function (gleaner) {
-          return gleaner.call($(elem));
+          return gleaner.call($(elem), { callback: callback });
         });
       });
       return $.rdf({ triples: triples, namespaces: $(this).xmlns() });
@@ -2577,7 +1341,6 @@
 
   });
 
-
   /**
    * <p>Creates a new jQuery.rdf.databank object. This should be invoked as a method rather than constructed using new; indeed you will not usually want to generate these objects directly, but manipulate them through a {@link jQuery.rdf} object.</p>
    * @class Represents a triplestore, holding a bunch of {@link jQuery.rdf.triple}s.
@@ -2598,10 +1361,13 @@
       triples = triples || [];
       options = options || {};
       this.id = databankID();
+      databanks[this.id] = this;
       if (options.union === undefined) {
         this.queries = {};
-        this.tripleStore = {};
-        this.objectStore = {};
+        this.tripleStore = [];
+        this.subjectIndex = {};
+        this.propertyIndex = {};
+        this.objectIndex = {};
         this.baseURI = options.base || $.uri.base();
         this.namespaces = $.extend({}, options.namespaces || {});
         for (i = 0; i < triples.length; i += 1) {
@@ -2678,16 +1444,19 @@
      * @param {Object} [options]
      * @param {Object} [options.namespaces] An object representing a set of namespace bindings used to interpret CURIEs within the triple. Defaults to the namespace bindings defined on the {@link jQuery.rdf.databank}.
      * @param {String|jQuery.uri} [options.base] The base URI used to interpret any relative URIs used within the triple. Defaults to the base URI defined on the {@link jQuery.rdf.databank}.
+     * @param {Integer} [options.depth] The number of links to traverse to gather more information about the subject, property and object of the triple.
      * @returns {jQuery.rdf.databank} This {@link jQuery.rdf.databank} object.
      * @see jQuery.rdf#add
      */
     add: function (triple, options) {
       var base = (options && options.base) || this.base(),
         namespaces = $.extend({}, this.prefix(), (options && options.namespaces) || {}),
+        depth = (options && options.depth) || $.rdf.databank.defaults.depth,
+        proxy = (options && options.proxy) || $.rdf.databank.defaults.proxy,
         databank;
       if (triple === this) {
         return this;
-      } else if (triple.tripleStore !== undefined) {
+      } else if (triple.subjectIndex !== undefined) {
         // merging two databanks
         if (this.union === undefined) {
           databank = $.rdf.databank(undefined, { union: [this, triple] });
@@ -2701,16 +1470,30 @@
           triple = $.rdf.triple(triple, { namespaces: namespaces, base: base, source: triple });
         }
         if (this.union === undefined) {
-          if (this.tripleStore[triple.subject] === undefined) {
-            this.tripleStore[triple.subject] = [];
+          if (this.subjectIndex[triple.subject] === undefined) {
+            this.subjectIndex[triple.subject] = [];
+            if (depth > 0 && triple.subject.type === 'uri') {
+              this.load(triple.subject.value, { depth: depth - 1, proxy: proxy });
+            }
           }
-          if ($.inArray(triple, this.tripleStore[triple.subject]) === -1) {
-            this.tripleStore[triple.subject].push(triple);
+          if (this.propertyIndex[triple.property] === undefined) {
+            this.propertyIndex[triple.property] = [];
+            if (depth > 0) {
+              this.load(triple.property.value, { depth: depth - 1, proxy: proxy });
+            }
+          }
+          if ($.inArray(triple, this.subjectIndex[triple.subject]) === -1) {
+            this.tripleStore.push(triple);
+            this.subjectIndex[triple.subject].push(triple);
+            this.propertyIndex[triple.property].push(triple);
             if (triple.object.type === 'uri' || triple.object.type === 'bnode') {
-              if (this.objectStore[triple.object] === undefined) {
-                this.objectStore[triple.object] = [];
+              if (this.objectIndex[triple.object] === undefined) {
+                this.objectIndex[triple.object] = [];
+                if (depth > 0 && triple.object.type === 'uri') {
+                  this.load(triple.object.value, { depth: depth - 1, proxy: proxy });
+                }
               }
-              this.objectStore[triple.object].push(triple);
+              this.objectIndex[triple.object].push(triple);
             }
             addToDatabankQueries(this, triple);
           }
@@ -2735,17 +1518,22 @@
     remove: function (triple, options) {
       var base = (options && options.base) || this.base(),
         namespaces = $.extend({}, this.prefix(), (options && options.namespaces) || {}),
-        striples, otriples,
+        striples, ptriples, otriples,
         databank;
       if (typeof triple === 'string') {
         triple = $.rdf.triple(triple, { namespaces: namespaces, base: base, source: triple });
       }
-      striples = this.tripleStore[triple.subject];
+      this.tripleStore.splice($.inArray(triple, this.tripleStore), 1);
+      striples = this.subjectIndex[triple.subject];
       if (striples !== undefined) {
         striples.splice($.inArray(triple, striples), 1);
       }
+      ptriples = this.propertyIndex[triple.property];
+      if (ptriples !== undefined) {
+        ptriples.splice($.inArray(triple, ptriples), 1);
+      }
       if (triple.object.type === 'uri' || triple.object.type === 'bnode') {
-        otriples = this.objectStore[triple.object];
+        otriples = this.objectIndex[triple.object];
         if (otriples !== undefined) {
           otriples.splice($.inArray(triple, otriples), 1);
         }
@@ -2766,9 +1554,9 @@
      * var removed = old.except(new);
      */
     except: function (data) {
-      var store = data.tripleStore,
+      var store = data.subjectIndex,
         diff = [];
-      $.each(this.tripleStore, function (s, ts) {
+      $.each(this.subjectIndex, function (s, ts) {
         var ots = store[s];
         if (ots === undefined) {
           diff = diff.concat(ts);
@@ -2788,16 +1576,14 @@
      * @returns {jQuery} A {@link jQuery} object containing {@link jQuery.rdf.triple} objects.
      */
     triples: function () {
-      var triples = [];
+      var s, triples = [];
       if (this.union === undefined) {
-        $.each(this.tripleStore, function (s, t) {
-          triples = triples.concat(t);
-        });
+        triples = this.tripleStore;
       } else {
         $.each(this.union, function (i, databank) {
           triples = triples.concat(databank.triples().get());
         });
-        triples = $.unique(triples);
+        triples = unique(triples);
       }
       return $(triples);
     },
@@ -2825,18 +1611,18 @@
           if (r.value === undefined) {
             r = $.rdf.resource(r);
           }
-          if (this.tripleStore[r] !== undefined) {
-            for (i = 0; i < this.tripleStore[r].length; i += 1) {
-              t = this.tripleStore[r][i];
+          if (this.subjectIndex[r] !== undefined) {
+            for (i = 0; i < this.subjectIndex[r].length; i += 1) {
+              t = this.subjectIndex[r][i];
               triples.push(t);
               if (t.object.type === 'bnode') {
                 resources.push(t.object);
               }
             }
           }
-          if (this.objectStore[r] !== undefined) {
-            for (i = 0; i < this.objectStore[r].length; i += 1) {
-              t = this.objectStore[r][i];
+          if (this.objectIndex[r] !== undefined) {
+            for (i = 0; i < this.objectIndex[r].length; i += 1) {
+              t = this.objectIndex[r][i];
               triples.push(t);
               if (t.subject.type === 'bnode') {
                 resources.push(t.subject);
@@ -2846,7 +1632,7 @@
           rhash[r] = true;
         }
       }
-      return $.unique(triples);
+      return unique(triples);
     },
 
     /**
@@ -2862,21 +1648,69 @@
 
     /**
      * Loads some data into the databank.
-     * @param {Node|Object} data If the data is a node, it's interpreted to be an <a href="http://www.w3.org/TR/rdf-syntax-grammar/">RDF/XML syntax</a> document and will be parsed as such. Otherwise, it's taken to be a <a href="http://n2.talis.com/wiki/RDF_JSON_Specification">RDF/JSON</a> object. The data cannot be a string; it must be parsed before it is passed to this function.
+     * @param {Node|Object|String} data If the data is a string and starts with 'http://' then it's taken to be a URI and data is loaded from that URI via the proxy specified in the options. If it doesn't start with 'http://' then it's taken to be a serialized version of some format capable of representing RDF, parsed and interpreted. If the data is a node, it's interpreted to be an <a href="http://www.w3.org/TR/rdf-syntax-grammar/">RDF/XML syntax</a> document and will be parsed as such. Otherwise, it's taken to be a <a href="http://n2.talis.com/wiki/RDF_JSON_Specification">RDF/JSON</a> object.
+     * @param {Object} opts Options governing the loading of the data.
+     * @param {String} [opts.format] The mime type of the format the data is in, particularly useful if you're supplying the data as a string. If unspecified, the data will be sniffed to see if it might be HTML, RDF/XML, RDF/JSON or Turtle.
+     * @param {boolean} [opts.async=true] When loading data from a URI, this determines whether it will be done synchronously or asynchronously.
+     * @param {Function} [opts.success] When loading data from a URI, a function that will be called after the data is successfully loaded.
+     * @param {Function} [opts.error] When loading data from a URI, a function that will be called if there's an error when accessing the URI.
+     * @param {String} [opts.proxy='http://www.jenitennison.com/rdfquery/proxy.php'] The URI for a server-side proxy through which the data can be accessed. This does not have to be hosted on the same server as this Javascript, the HTML page or the remote data. The proxy must accept id, url and depth parameters and respond with some Javascript that will invoke the {@link jQuery.rdf.databank.load} function. <a href="http://code.google.com/p/rdfquery/source/browse/#svn/trunk/proxies">Example proxies</a> that do the right thing are available. If you are intending to use this facility a lot, please do not use the default proxy.
+     * @param {integer} [opts.depth=0] Triggers recursive loading of located resources, to the depth specified. This is useful for automatically populating a databank with linked data.
      * @returns {jQuery.rdf.databank} The {@link jQuery.rdf.databank} itself.
      * @see jQuery.rdf#load
      */
-    load: function (data) {
-      var i, triples;
-      if (data.ownerDocument !== undefined) {
-        triples = parseRdfXml(data);
+    load: function (data, opts) {
+      var i, triples, url, script, parser, docElem,
+        format = (opts && opts.format),
+        async = (opts && opts.async) || $.rdf.databank.defaults.async,
+        success = (opts && opts.success) || $.rdf.databank.defaults.success,
+        error = (opts && opts.error) || $.rdf.databank.defaults.error,
+        proxy = (opts && opts.proxy) || $.rdf.databank.defaults.proxy,
+        depth = (opts && opts.depth) || $.rdf.databank.defaults.depth;
+      url = (typeof data === 'string' && data.substring(1, 7) === 'http://') ? $.uri(data) : data;
+      if (url.scheme) {
+        if (!queue(this, url, { success: success, error: error })) {
+          script = '<script type="text/javascript" src="' + proxy + '?id=' + this.id + '&amp;depth=' + depth + '&amp;url=' + encodeURIComponent(url.resolve('').toString()) + '"></script>';
+          if (async) {
+            setTimeout("$('head').append('" + script + "')", 0);
+          } else {
+            $('head').append(script);
+          }
+        }
+        return this;
       } else {
-        triples = parseJson(data);
+        if (format === undefined) {
+          if (typeof data === 'string') {
+            if (data.substring(0, 1) === '{') {
+              format = 'application/json';
+            } else if (data.substring(0, 14) === '<!DOCTYPE html' || data.substring(0, 5) === '<html') {
+              format = 'application/xhtml+xml';
+            } else if (data.substring(0, 5) === '<?xml' || data.substring(0, 8) === '<rdf:RDF') {
+              format = 'application/rdf+xml';
+            } else {
+              format = 'text/turtle';
+            }
+          } else if (data.documentElement || data.ownerDocument) {
+            docElem = data.documentElement ? data.documentElement : data.ownerDocument.documentElement;
+            if (docElem.nodeName === 'html') {
+              format = 'application/xhtml+xml';
+            } else {
+              format = 'application/rdf+xml';
+            }
+          } else {
+            format = 'application/json';
+          }
+        }
+        parser = $.rdf.parsers[format];
+        if (typeof data === 'string') {
+          data = parser.parse(data);
+        }
+        triples = parser.triples(data);
+        for (i = 0; i < triples.length; i += 1) {
+          this.add(triples[i], opts);
+        }
+        return this;
       }
-      for (i = 0; i < triples.length; i += 1) {
-        this.add(triples[i]);
-      }
-      return this;
     },
 
     /**
@@ -2889,6 +1723,22 @@
   };
 
   $.rdf.databank.fn.init.prototype = $.rdf.databank.fn;
+  
+  $.rdf.databank.defaults = {
+    parse: false,
+    async: true,
+    success: null,
+    error: null,
+    depth: 0,
+    proxy: 'http://www.jenitennison.com/rdfquery/proxy.php'
+  };
+  
+  $.rdf.databank.load = function (id, url, doc, opts) {
+    if (doc !== undefined) {
+      databanks[id].load(doc, opts);
+    }
+    dequeue(databanks[id], url, (doc === undefined) ? 'error' : 'success', opts);
+  };
 
   /**
    * <p>Creates a new jQuery.rdf.pattern object. This should be invoked as a method rather than constructed using new; indeed you will not usually want to generate these objects directly, since they are automatically created from strings where necessary, such as by {@link jQuery.rdf#where}.</p>
@@ -3515,12 +2365,16 @@
       var
         m, datatype,
         opts = $.extend({}, $.rdf.literal.defaults, options);
-      if (opts.lang !== undefined && opts.datatype !== undefined) {
+      datatype = $.safeCurie(opts.datatype, { namespaces: opts.namespaces });
+      if (opts.lang !== undefined && opts.datatype !== undefined && datatype.toString() !== (rdfNs + 'XMLLiteral')) {
         throw "Malformed Literal: Cannot define both a language and a datatype for a literal (" + value + ")";
       }
       if (opts.datatype !== undefined) {
         datatype = $.safeCurie(opts.datatype, { namespaces: opts.namespaces });
         $.extend(this, $.typedValue(value.toString(), datatype));
+        if (datatype.toString() === rdfNs + 'XMLLiteral') {
+          this.lang = opts.lang;
+        }
       } else if (opts.lang !== undefined) {
         this.value = value.toString();
         this.lang = opts.lang;
@@ -3540,7 +2394,7 @@
       } else {
         m = literalRegex.exec(value);
         if (m !== null) {
-          this.value = (m[2] || m[4]).replace(/\\"/g, '"');
+          this.value = (m[2] || m[4]).replace(/\\"/g, '"').replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\r/g, '\r');
           if (m[9]) {
             datatype = $.rdf.resource(m[9], opts);
             $.extend(this, $.typedValue(this.value, datatype.value));

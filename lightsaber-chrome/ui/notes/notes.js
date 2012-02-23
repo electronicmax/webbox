@@ -84,7 +84,7 @@ define([
 			  // set a filter
 			  this.set_filter(function(m) {
 					      // textual filter
-					      var contents = m.get(ns.expand('webbox:contents'));
+					      var contents = m.get('webbox:contents');
 					      return contents !== undefined && contents.indexOf(v) >= 0;
 					  });			  
 		      } else {
@@ -246,8 +246,8 @@ define([
                                  var update_plot = function() {
                                      // try to parse out the first line
                                      console.log(" PARSING OUT ", m.get(ns.expand('webbox:contents')));
-                                     var valstext = m.get(ns.expand('webbox:contents'));
-                                     valstext = valstext.value ? valstext.value : valstext;
+                                     var valstext = m.get('webbox:contents');
+                                     // valstext = valstext.value ? valstext.value : valstext;
                                      var vals = parse_values(valstext);
                                      var chart = undefined;
                                      console.log(" resulting vals ", vals);

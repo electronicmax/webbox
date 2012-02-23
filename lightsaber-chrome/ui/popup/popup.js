@@ -22,7 +22,7 @@ define(
 		    m.set2('webbox:from','mc schraefel');
                     var l = new pl.Lens({model:m});
 		    var d = l.render();
-		    $(d).addClass('selected');		    
+		    // $(d).addClass('selected');		    
                     // m.set2('rdfs:label','Wifi password for Robot Den');
                     // m.set2('rdfs:typename','Information Scrap');
                     // m.set2('webbox:received','13:22 yesterday');
