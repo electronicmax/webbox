@@ -81,13 +81,13 @@ define(
 	    var a = make_person('Lisbeth', 'Salander', '');
 	    a.save();	    
 	    var model = m.get_resource(ns.me + "scrap-"+((new Date()).valueOf()));
-	    model.set2('rdf:type', wkb.resource(ns.expand('webbox:Scrap')));
-	    model.set2('webbox:url',wkb.string('http://web.mit.edu'));
-	    model.set2('webbox:contents', wkb.string("After all we're all alike"));
-	    model.set2('rdfs:label', wkb.string("After all we're all alike"));
+	    model.set2('rdf:type', wkb.get_resource('webbox:Scrap'));
+	    model.set2('webbox:url','http://web.mit.edu');
+	    model.set2('webbox:contents', "After all we're all alike");
+	    model.set2('rdfs:label', "After all we're all alike");
 	    model.set2('sioc:addressed_to', a);
 	    model.set2('dc:created',wkb.dateTime(new Date()));			
-	    model.set2('webbox:src_page_title',wkb.string('Hackers Manifesto ' + (new Date()).toString()));
+	    model.set2('webbox:src_page_title','Hackers Manifesto ' + (new Date()).toString());
 	    model.save();
 	    // now let them save	    
 	};

@@ -38,12 +38,12 @@ define(
 			try {
 			    var model = m.get_resource(ns.me + "bookmark-"+((new Date()).valueOf()));
 			    model.set2('rdf:type',wkb.resource(ns.expand('webbox:Bookmark')));
-			    model.set2('webbox:url',wkb.string(context.pageUrl));
-			    model.set2('dc:created',wkb.dateTime(new Date()));
+			    model.set2('webbox:url',context.pageUrl);
+			    model.set2('dc:created',new Date());
 			    getTitle().then(
 				function(title) {
-				    model.set2('dc:title',wkb.string(title));
-				    model.set2('rdfs:label',wkb.string(title));
+				    model.set2('dc:title',title);
+				    model.set2('rdfs:label',title);
 				    model.save();			    			    
 				});			    
 			} catch (x) {  console.error(x); }
@@ -57,14 +57,14 @@ define(
 		    onclick:function(context) {
 			try {
 			    var model = m.get_resource(ns.me + "scrap-"+((new Date()).valueOf()));
-			    model.set2('rdf:type', wkb.resource(ns.expand('webbox:Scrap')));
-			    model.set2('webbox:url',wkb.string(context.pageUrl));
-			    model.set2('webbox:contents', wkb.string(context.selectionText));
-			    model.set2('rdfs:label', wkb.string(context.selectionText));
-			    model.set2('dc:created',wkb.dateTime(new Date()));			
+			    model.set2('rdf:type', wkb.get_resource('webbox:Scrap'));
+			    model.set2('webbox:url',context.pageUrl);
+			    model.set2('webbox:contents', context.selectionText.toString());
+			    model.set2('rdfs:label', context.selectionText.toString());
+			    model.set2('dc:created',new Date());			
 			    getTitle().then(
 				function(title) {
-				    model.set2('webbox:src_page_title',wkb.string(title));
+				    model.set2('webbox:src_page_title',title);
 				    model.save();			    			    
 				});				    
 			} catch (x) { console.error(x); }

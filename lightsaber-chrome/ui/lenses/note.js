@@ -19,8 +19,7 @@ define(
 		    _cb_edit:function(evt) {
 		        var contents = $(evt.currentTarget).getPreText(); // .text().trim();
 		        var m = this.options.model;
-                        console.log("new contents ", contents.trim());
-		        m.set2('webbox:contents', wkb.xmlliteral(contents.trim()));
+		        m.set2('webbox:contents', contents);
 		        m.save();
 		        console.log("saving ... ", m.uri, contents);
 		    },

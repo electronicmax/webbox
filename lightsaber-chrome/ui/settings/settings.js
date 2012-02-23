@@ -54,22 +54,24 @@ define(['/webbox/util.js','/webbox/webbox-kb.js', '/webbox/webbox-config.js'],
 				  this_.set_fetching_visible(false);
 				  try {
 				      kb.load(doc, {});
+				      console.log("Got document" , doc);
 				      $.rdf({databank:kb}).where('<'+url+'> foaf:primaryTopic ?me').
 					  where('?me webbox:address ?webbox .').each(
 					      // where('?me ?p ?o .').each(
 					      function() {
+						  console.log(" ----------------------- ", wend);
 						  var wend = this.webbox.value.toString();
 						  $("#webbox_url").val(wend);
 						  this_.trigger("_webbox_url_changed", wend);
 					      });
-
 				  } catch (x) {
 				      this_.set_error("Could not parse " + url + " - are you sure this is a foaf file?");
 				  }				      
 			     }).
 			  error( 
-			      function() {
-				  console.log("fetch_webid fail callback");
+			      function(x) {
+				  
+				  console.log("fetch_webid fail callback", x);
 				  delete this_._fetching;
 				  this_.set_fetching_visible(false);
 				  this_.set_error("Could not fetch foaf from " + url);

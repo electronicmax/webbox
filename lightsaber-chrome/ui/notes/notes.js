@@ -162,8 +162,7 @@ define([
                                       console.log('ui offset x:', ui.offset.left, ' y:', ui.offset.top);
                                       
                                       console.log('el position x:', $(this_.el).position().left, ' y:', $(this_.el).position().top);
-                                      console.log('el offset x:', $(this_.el).offset().left, ' y:', $(this_.el).offset().top);                                      
-
+                                      console.log('el offset x:', $(this_.el).offset().left, ' y:', $(this_.el).offset().top);      
                                       this_._add_model_to_sheet($(ui.draggable).data('view').options.model,
                                                                 {
                                                                     left : ui.position.left - $(this_.el).offset().left,
@@ -177,10 +176,15 @@ define([
                   _add_model_to_sheet:function(m, position) {
                       // make a new lens
                       if (this.views[m.uri] !== undefined) { return; }
+		      console.log("Adding model to sheet ", m.get("webbox:contents"));
                       var nl = new notelens.Lens({model:m});
+		      nl.bind('kill', function() {
+				  this_.$el.remove(nl.el);
+				  delete this_.views[m.uri];
+			      });		      
                       nl.setPosition(position);
                       this.views[m.uri] = nl;
-                      $(this.el).append(nl.render());
+                      this.$el.append(nl.render());
                       $(nl.el).draggable({
                                              handle:'.handle',
                                              stop:function(evt,ui) {
@@ -219,37 +223,12 @@ define([
                              drop:function(el,ui) {
                                  var m = $(ui.draggable).data('view').options.model;
                                  var v = $(ui.draggable).data('view');
-                                 var parse_values = function(s) {
-                                     return s.split('\n').map(function(line) {
-                                                           console.log("line ", line, line.split(':').length, line.split(',') >= 2, line.indexOf(':') < line.indexOf(','));
-                                                           if (line.split(':').length == 2 && line.split(',').length >= 2 && line.indexOf(':') < line.indexOf(',')) {
-                                                               console.log("foooo ", line);
-                                                               var series = line.substring(0,line.indexOf(':'));
-                                                               var datas = line.substring(line.indexOf(':')+1).split(',').
-                                                                   map(function(x) { return parseFloat(x.trim()); }).
-                                                                   filter(function(x) { return !isNaN(x); });
-                                                               datas = _.zip(util.intRange(0,datas.length), datas);
-                                                               console.log('CHART options', {
-                                                                               name: series,
-                                                                               data: datas,
-                                                                               bars:{ show:true }
-                                                                           });
-                                                               return {
-                                                                   name: series,
-                                                                   data: datas,
-                                                                   bars:{ show:true }
-                                                               };  
-                                                           }
-                                                           return undefined;
-                                                       }).filter(function(y) { return y !== undefined; });
-                                 };
                                  var update_plot = function() {
                                      // try to parse out the first line
-                                     console.log(" PARSING OUT ", m.get(ns.expand('webbox:contents')));
+                                     console.log(" PARSING OUT ", m.get('webbox:contents'));
                                      var valstext = m.get('webbox:contents');
-                                     // valstext = valstext.value ? valstext.value : valstext;
+                                     valstext = valstext.value ? valstext.value : valstext;
                                      var vals = parse_values(valstext);
-                                     var chart = undefined;
                                      console.log(" resulting vals ", vals);
                                      if ($(v.el).find('.extras').find('.plot').length > 0) {
                                          $(v.el).find('.extras').find('.plot').remove();
@@ -348,6 +327,31 @@ define([
 	  nv.render();
 	  // by default we're the whole set
 
+	  // pidgin parser
+          var parse_values = function(s) {
+              return s.split('\n').map(
+		  function(line) {
+                      if (line.split(':').length == 2 && line.split(',').length >= 2 && line.indexOf(':') < line.indexOf(',')) {
+                          var series = line.substring(0,line.indexOf(':'));
+                          var datas = line.substring(line.indexOf(':')+1).split(',').
+                              map(function(x) { return parseFloat(x.trim()); }).
+                              filter(function(x) { return !isNaN(x); });
+                          datas = _.zip(util.intRange(0,datas.length), datas);
+                          console.log('CHART options', {
+                                          name: series,
+                                          data: datas,
+                                          bars:{ show:true }
+                                      });
+                          return {
+                              name: series,
+                              data: datas,
+                              bars:{ show:true }
+                          };  
+                      }
+                      return undefined;
+                  }).filter(function(y) { return y !== undefined; });
+          };	  
+	  
 	  window.nv = nv;
 	  window.models = models;
 	  window.ns = ns;
