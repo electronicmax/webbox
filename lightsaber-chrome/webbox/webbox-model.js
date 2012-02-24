@@ -92,6 +92,8 @@ define(
 		return typeof(v) == 'object' && v instanceof Backbone.Collection;
 	    },	    
 	    get_resource:get_resource,
-	    disable_caching:function() { ENABLE_CACHING = false; }
+	    disable_caching:function() { ENABLE_CACHING = false; },
+	    set_cache_version:function(f) { _kb_fingerprint = f; return f; },
+	    get_cache_version:function(f) { return _kb_fingerprint; }
 	};
     });

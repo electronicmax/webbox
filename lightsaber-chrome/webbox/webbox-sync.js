@@ -10,12 +10,36 @@ define(
 	// updates the sync() method so that by default serializes
 	// models to rdf
 	// backbone-patch
-	var config = config.config;
+	config = config.config;
 	var oldSync = Backbone.sync;
 
-	var refresh_cache = function(xHR) {
-	    var etag = xhr.getResponseHeader('ETag');
-	    var prev_etag = xhr.getResponseHeader('X-ETag-Previous');	    
+	var parse_etag = function(et) {  return et.slice(3,et.length-1); };
+	var refresh_cache = function(xhr) {
+	    var etag = parse_etag(xhr.getResponseHeader('ETag'));
+	    var prev_etag = parse_etag(xhr.getResponseHeader('X-ETag-Previous'));
+	    var d = new $.Deferred();
+	    console.log(" getting updates -- tag is ", etag, " prev is ", prev_etag);
+	    if (prev_etag == models.get_cache_version()) {
+		models.set_cache_version(etag);
+		return d.resolve(etag);
+	    }
+	    var query = { since: models.get_cache_version() };
+	    $.ajax({ type:"GET", url:config.GET_REPO_UPDATES, data:{query:query}}).then(
+		function(doc) {
+		    kb.load(doc, {});
+		    $.rdf({databank:kb}).where('<'+uri+'> ?p ?o').each(
+			function() {
+			    var prop = this.p.value.toString();
+			    // do we really want to do this? 
+			    if (prop.indexOf(ns.me) == 0) { prop = prop.slice(ns.me.length); }
+			    // TODO: handle SEQs
+			    var val = this.o.value;
+			    set_val(obj, prop, !util.is_resource(val) ? val : models.get_resource(val.toString()));
+			});
+		    model.set(obj);
+		    _d.resolve(model,doc,textStatus,jqXHR); 		    
+		});
+	    return d.promise();	    
 	};
 
 	var get_update = function(model) {
@@ -165,7 +189,7 @@ define(
 		var ds = []; // deferreds
 		_(serialized).keys().map(
 		    function(uri) {
-			var _d = _put_update(uri,serialized[uri]).pipe(refresh_cache); 
+			var _d = _put_update(uri,serialized[uri]).pipe(function(data,text_resp,xhr) { return refresh_cache(xhr); }); 
 			ds.push(_d);
 			_d.error(function(err) {
 				     console.error("error with putting ", uri, " :: ", err, err.statusCode().status, err.statusCode().statusText);
@@ -175,7 +199,7 @@ define(
 		$.when.apply($,ds).then(total.resolve);		
 		return total.promise();
 	    } else if (method == 'read') {
-		return get_update(model).pipe(function(model,resp,doc,xhr) { return refresh_cache(model,xhr); });
+		return get_update(model).pipe(function(model,resp,doc,xhr) { return refresh_cache(xhr); });
 	    }
 	    // try { console.endGroup(); } catch (x) {   }
 	};	
