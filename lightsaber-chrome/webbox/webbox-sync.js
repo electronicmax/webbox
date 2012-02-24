@@ -13,8 +13,9 @@ define(
 	var config = config.config;
 	var oldSync = Backbone.sync;
 
-	var refresh_cache = function() {
-	    	    
+	var refresh_cache = function(xHR) {
+	    var etag = xhr.getResponseHeader('ETag');
+	    var prev_etag = xhr.getResponseHeader('X-ETag-Previous');	    
 	};
 
 	var get_update = function(model) {
@@ -26,9 +27,8 @@ define(
 	    var fetch_model = arguments.callee;
 	    var set_val = function(o,p,v) {
 		if (o[p] === undefined) { o[p] = v; return; }
-		if (o[p] !== undefined && $.isArray(o[p])) { return o[p].push(v); }
+		if (o[p] !== undefined && $.isArray(o[p])) { o[p].push(v); return; }
 		o[p] = [o[p], v];
-		return undefined;
 	    };	    
 	    get.then(function(doc,textStatus,jqXHR){
 			 kb.load(doc, {});
@@ -43,12 +43,11 @@ define(
 				 set_val(obj, prop, !util.is_resource(val) ? val : models.get_resource(val.toString()));
 			     });
 			 model.set(obj);
-			 _d.resolve(model); // , get_etag_from_xhr());  
+			 _d.resolve(model,doc,textStatus,jqXHR); 
 		     }).error(_d.fail);
 	    return _d;
-	};
+	};	
 
-	
 	var to_property = function(key) {
 	    if (key.indexOf('http') == 0) {
 		return $.rdf.resource("<"+key+">");
@@ -166,7 +165,7 @@ define(
 		var ds = []; // deferreds
 		_(serialized).keys().map(
 		    function(uri) {
-			var _d = _put_update(uri,serialized[uri]); 
+			var _d = _put_update(uri,serialized[uri]).pipe(refresh_cache); 
 			ds.push(_d);
 			_d.error(function(err) {
 				     console.error("error with putting ", uri, " :: ", err, err.statusCode().status, err.statusCode().statusText);
@@ -176,7 +175,7 @@ define(
 		$.when.apply($,ds).then(total.resolve);		
 		return total.promise();
 	    } else if (method == 'read') {
-		return get_update(model).pipe(function(m) { return refresh_cache(); });
+		return get_update(model).pipe(function(model,resp,doc,xhr) { return refresh_cache(model,xhr); });
 	    }
 	    // try { console.endGroup(); } catch (x) {   }
 	};	
