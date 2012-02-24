@@ -1,4 +1,8 @@
 // assumes require, $, $.rdf are defined
+/**
+ * this module is the core connector to webbox:
+ *
+ */
 define(
     ['/webbox/webbox-ns.js', '/webbox/webbox-model.js', '/webbox/util.js', '/webbox/webbox-config.js', '/webbox/webbox-kb.js'],    
     function(ns, models, util, config, wkb) {
@@ -8,6 +12,43 @@ define(
 	// backbone-patch
 	var config = config.config;
 	var oldSync = Backbone.sync;
+
+	var refresh_cache = function() {
+	    	    
+	};
+
+	var get_update = function(model) {
+	    var uri = model.url();
+	    var query = _("CONSTRUCT { ?s ?p ?o } WHERE { GRAPH \<<%= uri %>\> { ?s ?p ?o. } } LIMIT 100000").template({uri:uri});
+	    var get = $.ajax({ type:"GET", url:config.SPARQL_URL, data:{query:query}});
+	    var kb = wkb.make_kb();
+	    var _d = new $.Deferred();
+	    var fetch_model = arguments.callee;
+	    var set_val = function(o,p,v) {
+		if (o[p] === undefined) { o[p] = v; return; }
+		if (o[p] !== undefined && $.isArray(o[p])) { return o[p].push(v); }
+		o[p] = [o[p], v];
+		return undefined;
+	    };	    
+	    get.then(function(doc,textStatus,jqXHR){
+			 kb.load(doc, {});
+			 var obj = {};
+			 $.rdf({databank:kb}).where('<'+uri+'> ?p ?o').each(
+			     function() {
+				 var prop = this.p.value.toString();
+				 // do we really want to do this? 
+				 if (prop.indexOf(ns.me) == 0) { prop = prop.slice(ns.me.length); }
+				 // TODO: handle SEQs
+				 var val = this.o.value;
+				 set_val(obj, prop, !util.is_resource(val) ? val : models.get_resource(val.toString()));
+			     });
+			 model.set(obj);
+			 _d.resolve(model); // , get_etag_from_xhr());  
+		     }).error(_d.fail);
+	    return _d;
+	};
+
+	
 	var to_property = function(key) {
 	    if (key.indexOf('http') == 0) {
 		return $.rdf.resource("<"+key+">");
@@ -102,47 +143,17 @@ define(
 	    }
 	    serialized_models[uri] = this_kb.dump({format:'application/rdf+xml', serialize: true});
 	    return deep ? serialized_models : serialized_models[uri];
-	};	
-	var put_update = function(uri, serialized_body) {
+	};
+
+	var _put_update = function(uri, serialized_body) {
+	    // 
 	    var put_uri = config.PUT_URL + (config.mode_4store == 'false' ? "?graph=" + encodeURIComponent(uri) : uri);
 	    if (config.DEBUG_SERIALIZATION) { console.log(" >>> putting to ", put_uri); }
 	    return $.ajax({ type:"PUT",
 			    url: put_uri,
-			    data:serialized_body, datatype:"text", headers:{ "Content-Type" : "application/rdf+xml" }});
-	};
-	
-	var get_update = function(model) {
-	    var uri = model.url();
-	    var query = _("CONSTRUCT { ?s ?p ?o } WHERE { GRAPH \<<%= uri %>\> { ?s ?p ?o. } } LIMIT 100000").template({uri:uri});
-	    var get = $.ajax({ type:"GET", url:config.SPARQL_URL, data:{query:query}});
-	    var kb = wkb.make_kb();
-	    var _d = new $.Deferred();
-	    var fetch_model = arguments.callee;
-	    var set_val = function(o,p,v) {
-		if (o[p] === undefined) { o[p] = v; return; }
-		if (o[p] !== undefined && $.isArray(o[p])) {
-		    return o[p].push(v);
-		}
-		o[p] = [o[p], v];
-	    };
-	    get.then(function(doc){
-			 kb.load(doc, {});
-			 var obj = {};
-			 var recursive_fetch_dfds = [];
-			 $.rdf({databank:kb}).where('<'+uri+'> ?p ?o').each(
-			     function() {
-				 var prop = this.p.value.toString();
-				 // do we really want to do this? 
-				 if (prop.indexOf(ns.me) == 0) { prop = prop.slice(ns.me.length); }
-				 // TODO: handle SEQs
-				 var val = this.o.value;
-				 set_val(obj, prop, !util.is_resource(val) ? val : models.get_resource(val.toString()));
-			     });
-			 model.set(obj);
-			 $.when.apply($,recursive_fetch_dfds).then(function() { _d.resolve(model);  });
-		     }).error(_d.fail);
-	    return _d;
-	};
+			    data:serialized_body, datatype:"text",
+			    headers:{ "Content-Type" : "application/rdf+xml" }});
+	};	
 	Backbone.sync = function(method, model, options){
 	    // try { console.group('sync ' +  model.url());  } catch (x) {    }
 	    // log("method - ", method, " model ", model, model.url(), " - options: " , options);
@@ -155,7 +166,7 @@ define(
 		var ds = []; // deferreds
 		_(serialized).keys().map(
 		    function(uri) {
-			var _d = put_update(uri,serialized[uri]); 
+			var _d = _put_update(uri,serialized[uri]); 
 			ds.push(_d);
 			_d.error(function(err) {
 				     console.error("error with putting ", uri, " :: ", err, err.statusCode().status, err.statusCode().statusText);
@@ -165,7 +176,7 @@ define(
 		$.when.apply($,ds).then(total.resolve);		
 		return total.promise();
 	    } else if (method == 'read') {
-		return get_update(model);
+		return get_update(model).pipe(function(m) { return refresh_cache(); });
 	    }
 	    // try { console.endGroup(); } catch (x) {   }
 	};	

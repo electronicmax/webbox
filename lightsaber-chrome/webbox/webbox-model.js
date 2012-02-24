@@ -3,6 +3,8 @@ define(
     function(ns, wkb) {
 	var ENABLE_CACHING = false;
 	var _model_cache = {};
+	var _kb_fingerprint = undefined;
+	
 	var Model = Backbone.Model.extend(
 	    {
 		initialize:function(attrs, uri) {
