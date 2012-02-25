@@ -13,7 +13,11 @@ define(
 	config = config.config;
 	var oldSync = Backbone.sync;
 
-	var parse_etag = function(et) {  return et.slice(3,et.length-1); };
+	var parse_etag = function(et) {
+	    // etags look like w/"fingerprint" so we really just want fingerprint
+	    return et.slice(3,et.length-1);
+	};
+
 	var refresh_cache = function(xhr) {
 	    var etag = parse_etag(xhr.getResponseHeader('ETag'));
 	    var prev_etag = parse_etag(xhr.getResponseHeader('X-ETag-Previous'));
@@ -23,30 +27,40 @@ define(
 		models.set_cache_version(etag);
 		return d.resolve(etag);
 	    }
-	    var query = { since: models.get_cache_version() };
-	    $.ajax({ type:"GET", url:config.GET_REPO_UPDATES, data:{query:query}}).then(
-		function(doc) {
-		    kb.load(doc, {});
-		    $.rdf({databank:kb}).where('<'+uri+'> ?p ?o').each(
-			function() {
-			    var prop = this.p.value.toString();
-			    // do we really want to do this? 
-			    if (prop.indexOf(ns.me) == 0) { prop = prop.slice(ns.me.length); }
-			    // TODO: handle SEQs
-			    var val = this.o.value;
-			    set_val(obj, prop, !util.is_resource(val) ? val : models.get_resource(val.toString()));
-			});
-		    model.set(obj);
-		    _d.resolve(model,doc,textStatus,jqXHR); 		    
-		});
+	    $.ajax({ type:"GET", url:config.GET_REPO_UPDATES, data:{ since: models.get_cache_version() }})
+		.then(function(doc) {
+			  kb.load(doc, {});
+			  var subjects = _.uniq($.rdf({databank:kb}).where('?s ?p ?o').map(function() { return this.s.value.toString(); }));
+			  var models = subjects.map(function(s_uri) {
+					   var m = models.get_resource(s_uri);
+					   update_model_with_raw_rdf_document(m,doc);
+					   return m;
+				       });
+			  d.resolve(models,doc,textStatus,jqXHR);
+		      });
 	    return d.promise();	    
+	};
+
+	var update_model_with_raw_rdf_document = function(model,doc) {
+    	    var kb = wkb.make_kb();
+    	    kb.load(doc, {});
+	    var obj = {};
+	    $.rdf({databank:kb}).where('<'+model.uri+'> ?p ?o').each(
+		function() {
+		    var prop = this.p.value.toString();
+		    // do we really want to do this? 
+		    if (prop.indexOf(ns.me) == 0) { prop = prop.slice(ns.me.length); }
+		    // TODO: handle SEQs
+		    var val = this.o.value;
+		    set_val(obj, prop, !util.is_resource(val) ? val : models.get_resource(val.toString()));
+		});
+	    model.set(obj);
 	};
 
 	var get_update = function(model) {
 	    var uri = model.url();
 	    var query = _("CONSTRUCT { ?s ?p ?o } WHERE { GRAPH \<<%= uri %>\> { ?s ?p ?o. } } LIMIT 100000").template({uri:uri});
 	    var get = $.ajax({ type:"GET", url:config.SPARQL_URL, data:{query:query}});
-	    var kb = wkb.make_kb();
 	    var _d = new $.Deferred();
 	    var fetch_model = arguments.callee;
 	    var set_val = function(o,p,v) {
@@ -55,18 +69,7 @@ define(
 		o[p] = [o[p], v];
 	    };	    
 	    get.then(function(doc,textStatus,jqXHR){
-			 kb.load(doc, {});
-			 var obj = {};
-			 $.rdf({databank:kb}).where('<'+uri+'> ?p ?o').each(
-			     function() {
-				 var prop = this.p.value.toString();
-				 // do we really want to do this? 
-				 if (prop.indexOf(ns.me) == 0) { prop = prop.slice(ns.me.length); }
-				 // TODO: handle SEQs
-				 var val = this.o.value;
-				 set_val(obj, prop, !util.is_resource(val) ? val : models.get_resource(val.toString()));
-			     });
-			 model.set(obj);
+			 update_model_with_raw_rdf_document(model, doc);
 			 _d.resolve(model,doc,textStatus,jqXHR); 
 		     }).error(_d.fail);
 	    return _d;
