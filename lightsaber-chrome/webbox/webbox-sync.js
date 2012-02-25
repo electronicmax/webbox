@@ -28,8 +28,10 @@ define(
 		return d.resolve(etag);
 	    }
 	    $.ajax({ type:"GET", url:config.GET_REPO_UPDATES, data:{ since: models.get_cache_version() }})
-		.then(function(doc) {
-			  kb.load(doc, {});
+		.then(function(data) {
+			  var kb = wkb.make_kb();
+			  console.log("doc is ", data);
+			  kb.load(data, {});
 			  var subjects = _.uniq($.rdf({databank:kb}).where('?s ?p ?o').map(function() { return this.s.value.toString(); }));
 			  var models = subjects.map(function(s_uri) {
 					   var m = models.get_resource(s_uri);
@@ -192,9 +194,8 @@ define(
 		var ds = []; // deferreds
 		_(serialized).keys().map(
 		    function(uri) {
-			var _d = _put_update(uri,serialized[uri]).pipe(function(data,text_resp,xhr) { return refresh_cache(xhr); }); 
-			ds.push(_d);
-			_d.error(function(err) {
+			var _d = _put_update(uri,serialized[uri]).pipe(function(data,text_resp,xhr) { return refresh_cache(xhr); }); 		      ds.push(_d);
+			_d.fail(function(err) {
 				     console.error("error with putting ", uri, " :: ", err, err.statusCode().status, err.statusCode().statusText);
 				     total.fail();
 				 });
