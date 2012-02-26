@@ -119,7 +119,7 @@ define(['/webbox/util.js','/webbox/webbox-kb.js', '/webbox/webbox-config.js'],
 			  storage['PUT_URL'] = storage['webbox_url'] + '/data/'; // webbox_url+"/data/"
 		      } else {
 			  // todo : dan
-			  storage['SPARQL_URL'] = storage['webbox_url'] + 'webbox/sparql/';
+			  storage['SPARQL_URL'] = storage['webbox_url'] + 'webbox/';
 			  storage['GET_REPO_UPDATES'] = storage['webbox_url'] + 'update';			  
 			  storage['PUT_URL'] = storage['webbox_url'] + 'webbox/'; // storage['webbox_url'] + '/?graph=';
 		      }

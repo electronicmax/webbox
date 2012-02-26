@@ -85,6 +85,10 @@ define(
 	};	
 	return {
 	    Model:Model,
+	    _get_cache:function() {
+		// debug only
+		return _model_cache;
+	    },
 	    is_model:function(v) {
 		return typeof(v) == 'object' && v instanceof Model;
 	    },

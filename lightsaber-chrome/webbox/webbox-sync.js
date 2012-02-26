@@ -28,9 +28,9 @@ define(
 		return d.resolve(etag);
 	    }
 	    $.ajax({ type:"GET", url:config.GET_REPO_UPDATES, data:{ since: models.get_cache_version() }})
-		.then(function(data) {
+		.then(function(data, textStatus, jqXHR) {
+			  console.log("update data > ", data);
 			  var kb = wkb.make_kb();
-			  console.log("doc is ", data);
 			  kb.load(data, {});
 			  var subjects = _.uniq($.rdf({databank:kb}).where('?s ?p ?o').map(function() { return this.s.value.toString(); }));
 			  var models = subjects.map(function(s_uri) {
@@ -38,7 +38,7 @@ define(
 					   update_model_with_raw_rdf_document(m,doc);
 					   return m;
 				       });
-			  d.resolve(models,doc,textStatus,jqXHR);
+			  d.resolve(models,data,textStatus,jqXHR);
 		      });
 	    return d.promise();	    
 	};
@@ -47,6 +47,11 @@ define(
     	    var kb = wkb.make_kb();
     	    kb.load(doc, {});
 	    var obj = {};
+	    var set_val = function(o,p,v) {
+		if (o[p] === undefined) { o[p] = v; return; }
+		if (o[p] !== undefined && $.isArray(o[p])) { o[p].push(v); return; }
+		o[p] = [o[p], v];
+	    };	    
 	    $.rdf({databank:kb}).where('<'+model.uri+'> ?p ?o').each(
 		function() {
 		    var prop = this.p.value.toString();
@@ -65,11 +70,6 @@ define(
 	    var get = $.ajax({ type:"GET", url:config.SPARQL_URL, data:{query:query}});
 	    var _d = new $.Deferred();
 	    var fetch_model = arguments.callee;
-	    var set_val = function(o,p,v) {
-		if (o[p] === undefined) { o[p] = v; return; }
-		if (o[p] !== undefined && $.isArray(o[p])) { o[p].push(v); return; }
-		o[p] = [o[p], v];
-	    };	    
 	    get.then(function(doc,textStatus,jqXHR){
 			 update_model_with_raw_rdf_document(model, doc);
 			 _d.resolve(model,doc,textStatus,jqXHR); 
