@@ -21,24 +21,30 @@ define(
 	var refresh_cache = function(xhr) {
 	    var etag = parse_etag(xhr.getResponseHeader('ETag'));
 	    var prev_etag = parse_etag(xhr.getResponseHeader('X-ETag-Previous'));
+	    var cache_etag = models.get_cache_version();
 	    var d = new $.Deferred();
-	    console.log(" getting updates -- tag is ", etag, " prev is ", prev_etag);
+	    
 	    if (prev_etag == models.get_cache_version()) {
+		// we don't need to update since i
 		models.set_cache_version(etag);
+		console.log('fast forward cache update --- ', prev_etag, ' -> ', etag);
 		return d.resolve(etag);
 	    }
-	    $.ajax({ type:"GET", url:config.GET_REPO_UPDATES, data:{ since: models.get_cache_version() }})
+	    console.log(" getting updates -- tag is ", etag, " prev is ", prev_etag, 'cache version is ', cache_etag);
+	    models.set_cache_version(etag);			  	    	    
+	    $.ajax({ type:"GET", url:config.GET_REPO_UPDATES, data:{ since: cache_etag }})
 		.then(function(data, textStatus, jqXHR) {
 			  console.log("update data > ", data);
+			  
 			  var kb = wkb.make_kb();
 			  kb.load(data, {});
 			  var subjects = _.uniq($.rdf({databank:kb}).where('?s ?p ?o').map(function() { return this.s.value.toString(); }));
-			  var models = subjects.map(function(s_uri) {
+			  var updated_models = subjects.map(function(s_uri) {
 					   var m = models.get_resource(s_uri);
 					   update_model_with_raw_rdf_document(m,doc);
 					   return m;
 				       });
-			  d.resolve(models,data,textStatus,jqXHR);
+			  d.resolve(updated_models,data,textStatus,jqXHR);
 		      });
 	    return d.promise();	    
 	};
