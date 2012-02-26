@@ -24,16 +24,17 @@ define(
 	    var cache_etag = models.get_cache_version();
 	    var d = new $.Deferred();
 	    
-	    if (prev_etag == models.get_cache_version()) {
+	    if ([etag,prev_etag].indexOf(models.get_cache_version()) >= 0) {
 		// we don't need to update since i
-		models.set_cache_version(etag);
-		console.log('fast forward cache update --- ', prev_etag, ' -> ', etag);
+		// models.set_cache_version(etag);
+		// console.log('fast forward cache update --- ', prev_etag, ' -> ', etag);
 		return d.resolve(etag);
 	    }
 	    console.log(" getting updates -- tag is ", etag, " prev is ", prev_etag, 'cache version is ', cache_etag);
 	    models.set_cache_version(etag);			  	    	    
 	    $.ajax({ type:"GET", url:config.GET_REPO_UPDATES, data:{ since: cache_etag }})
 		.then(function(data, textStatus, jqXHR) {
+			  if (!data) { console.error(' warning -- no data returned on cache update ');  return;   }
 			  console.log("update data > ", data);
 			  
 			  var kb = wkb.make_kb();

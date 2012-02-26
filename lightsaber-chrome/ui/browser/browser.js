@@ -87,17 +87,19 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 			  function(tc) {
 			      
 			      // load 'em
-			      window.TC = typeclass;
+			      //    window.TC = typeclass;
+			      /*
 			      console.log('typeclass ', typeclass.uri, ' ',
 					  _(typeclass.attributes).keys().join(':'),
 					  typeclass.get('webbox:browser_lens'), typeclass.get('browser_lens'));
+			       */
 			      require(typeclass.get('webbox:browser_lens') ? [typeclass.get('webbox:browser_lens')] : [],
 				      function(lensc) {
 					  if (!lensc) {
 					      console.error("Warning could not load ", typeclass.get('webbox:browser_lens'));
 					      return d.resolve({ Lens:default_lens.DefaultCompactLens });
 					  }
-					  console.log('resolving with ', typeclass.get('webbox:browser_lens'), lensc);
+					  // console.log('resolving with ', typeclass.get('webbox:browser_lens'), lensc);
 					  d.resolve(lensc);
 				      });								 
 			  });
