@@ -39,7 +39,8 @@ define(
 		.then(function(data, textStatus, jqXHR) {
 			  if (!data) { console.error(' warning -- no data returned on cache update ');  return;   }
 			  var kb = wkb.make_kb();
-			  kb.load(data, {});
+			  kb.load(data, {format:'text/turtle'});
+                          console.log(' data ', data);
 			  var subjects = _.uniq($.rdf({databank:kb}).where('?s ?p ?o').map(function() {	return this.s.value.toString(); }));
 			  var updated_models = subjects.map(function(s_uri) {
 					   var m = models.get_resource(s_uri);

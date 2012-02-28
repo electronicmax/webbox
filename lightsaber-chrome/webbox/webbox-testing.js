@@ -116,6 +116,42 @@ define(
 	    p.save();
 	    return p;    
 	};
+
+	var make_random_person_with_webbox_address = function(addr) {
+	    var first = "Danielistair"+util.guid().slice(0,5);
+	    var last = "Smithi"+util.guid().slice(0,5);
+	    var uri = ns.expand('enakting_test:'+[first, last, util.guid()].join('_'));
+	    var props = {};
+	    props[ns.expand('foaf:givenName')] = first;
+	    props[ns.expand('foaf:lastName')] = last;
+	    props[ns.expand('rdf:type')] = ns.expand('foaf:Person');
+	    props[ns.expand('webbox:address')] = addr;
+	    props[ns.expand('rdfs:label')] = first + " " + last + util.guid().slice(0,3);
+	    var pp = new m.Model(props,uri);
+	    pp.save();
+	    console.log(uri);
+	    return pp;
+	};
+
+
+	var make_person_with_webid = function(webid) {
+	    var first = "Danielistair"+util.guid().slice(0,5);
+	    var last = "Smithi"+util.guid().slice(0,5);
+	    var uri = webid;
+	    var props = {};
+	    props[ns.expand('foaf:givenName')] = first; 
+	    props[ns.expand('foaf:lastName')] = last;		
+	    props[ns.expand('rdf:type')] = ns.expand('foaf:Person');
+	    props[ns.expand('webbox:address')] = addr;
+	    props[ns.expand('foaf:page')] = 'http://hip.cat/peeps/' + util.guid();		
+	    props[ns.expand('rdfs:label')] = first + " " + last + util.guid().slice(0,3);
+	    var pp = new m.Model(props,uri);
+	    pp.save();
+	    console.log(uri);
+	    return pp;
+	};
+        
+        
 	
 	return {
 	    run: function() {
@@ -132,6 +168,8 @@ define(
 	    make_places:make_places,
 	    make_sharing:make_sharing,
 	    make_random_person:make_random_person,
+	    make_random_person_with_webbox_address:make_random_person_with_webbox_address,
+	    make_person_with_webid:make_person_with_webid,            
 	    modify_random_person:modify_random_person
 	};	
     });
