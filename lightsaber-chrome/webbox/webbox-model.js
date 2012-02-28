@@ -1,6 +1,6 @@
 define(
-    ['/webbox/webbox-ns.js', '/webbox/webbox-kb.js'],
-    function(ns, wkb) {
+    ['require', '/webbox/webbox-ns.js', '/webbox/webbox-kb.js'],
+    function(require, ns, wkb) {
 	var ENABLE_CACHING = false;
 	var _model_cache = {};
 	var _kb_fingerprint = undefined;
@@ -98,6 +98,11 @@ define(
 	    get_resource:get_resource,
 	    disable_caching:function() { ENABLE_CACHING = false; },
 	    set_cache_version:function(f) { _kb_fingerprint = f; return f; },
-	    get_cache_version:function(f) { return _kb_fingerprint; }
+	    get_cache_version:function(f) { return _kb_fingerprint; },
+	    refresh_cache:function() {
+		var d = new $.Deferred();
+		require(['/webbox/webbox-sync.js'], function(sync) { sync.refresh().then(d.resolve); });
+		return d;
+	    }
 	};
     });

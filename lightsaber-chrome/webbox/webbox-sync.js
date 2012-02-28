@@ -23,7 +23,7 @@ define(
 	    var prev_etag = parse_etag(xhr.getResponseHeader('X-ETag-Previous'));
 	    var cache_etag = models.get_cache_version();
 	    var d = new $.Deferred();
-	    
+	    console.log("etags ", etag, prev_etag);
 	    if ([etag,prev_etag].indexOf(models.get_cache_version()) >= 0) {
 		// we don't need to update since i
 		// models.set_cache_version(etag);
@@ -213,5 +213,11 @@ define(
 		return get_update(model).pipe(function(model,resp,doc,xhr) { return refresh_cache(xhr); });
 	    }
 	    // try { console.endGroup(); } catch (x) {   }
+	};
+	return {
+	    refresh:function() {
+		// manually tickle le cache
+		return wkb.ping().pipe(function(d,s,xhr) { console.log(" yoo ", d, s, xhr); return refresh_cache(xhr); }).promise();
+	    } 
 	};	
     });

@@ -32,7 +32,7 @@ define(
 	    props[ns.expand('foaf:givenName')] = first;
 	    props[ns.expand('foaf:lastName')] = last;		
 	    props[ns.expand('rdf:type')] = ns.expand('foaf:Person');
-	    props[ns.expand('webbox:address')] = m.get_resource(config.config.webbox_url);
+	    // let's not blow up the world right now >> props[ns.expand('webbox:address')] = m.get_resource(config.config.webbox_url);
 	    props[ns.expand('foaf:mbox')] = util.guid() + "@mbox.hip.cat"; 
 	    props[ns.expand('foaf:page')] = 'http://hip.cat/peeps/' + util.guid();		
 	    props[ns.expand('rdfs:label')] = first + " " + last;

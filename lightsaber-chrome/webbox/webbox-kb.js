@@ -1,6 +1,6 @@
 
-define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js','/webbox/util.js'],
-       function(ns, configbox, util) {
+define(['/lib/require.js','/webbox/webbox-ns.js', '/webbox/webbox-config.js','/webbox/util.js'],
+       function(require, ns, config, util) {
 
 	   var ModelSeq = Backbone.Collection.extend({ seq:true });
 	   var make_seq = function(arr) {
@@ -8,13 +8,15 @@ define(['/webbox/webbox-ns.js', '/webbox/webbox-config.js','/webbox/util.js'],
 	       if (arr !== undefined) { s.reset(arr); }
 	       return s;
 	   };
+
+	   config = config.config;	   
 	   
 	   var is_model = function(v) { return typeof(v) == 'object' && v instanceof Model; };
-	   var config = configbox.config;
 	   var make_kb = function() {
 	       return $.rdf.databank([], { base: ns.me, namespaces:ns.ns });
 	   };
 	   var ping = function(url) {
+	       if (url === undefined) {  url = config.SPARQL_URL;  }
 	       var this_ = this;
 	       var query = "SELECT ?s ?p ?o WHERE { ?s ?p ?o . } LIMIT 1";
 	       if (this.get !== undefined) {
