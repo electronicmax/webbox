@@ -25,26 +25,25 @@ define(
 	    var d = new $.Deferred();
 	    console.log("etags ", etag, prev_etag, "cache version -- ", models.get_cache_version());
 	    
-	    if ([etag,prev_etag].indexOf(models.get_cache_version()) >= 0) {
+	    if (etag == models.get_cache_version()) {
 		console.log('fast forward cache update --- ', prev_etag, ' -> ', etag);
 		models.set_cache_version(etag);
 		return d.resolve(etag);
 	    }
 	    
 	    console.log(" getting updates -- tag is ", etag, " prev is ", prev_etag, 'cache version is ', cache_etag);
-	    models.set_cache_version(etag);			  	    	    
+	    models.set_cache_version(etag);
+	    
+	    // this gets returned turtle-style:
 	    $.ajax({ type:"GET", url:config.GET_REPO_UPDATES, data:{ since: cache_etag }})
 		.then(function(data, textStatus, jqXHR) {
 			  if (!data) { console.error(' warning -- no data returned on cache update ');  return;   }
 			  var kb = wkb.make_kb();
 			  kb.load(data, {});
-			  var subjects = _.uniq($.rdf({databank:kb}).where('?s ?p ?o').
-						map(function() {
-							return this.s.value.toString();
-						    }));
+			  var subjects = _.uniq($.rdf({databank:kb}).where('?s ?p ?o').map(function() {	return this.s.value.toString(); }));
 			  var updated_models = subjects.map(function(s_uri) {
 					   var m = models.get_resource(s_uri);
-					   update_model_with_raw_rdf_document(m,data);
+					   update_model_with_raw_rdf_document(m,data,'text/turtle');
 					   return m;
 				       });
 			  d.resolve(updated_models,data,textStatus,jqXHR);
@@ -52,10 +51,9 @@ define(
 	    return d.promise();	    
 	};
 
-	var update_model_with_raw_rdf_document = function(model,doc) {
-	    console.log(' updating model ', model.uri);
+	var update_model_with_raw_rdf_document = function(model,doc,format) {
     	    var kb = wkb.make_kb();
-    	    kb.load(doc, {});
+    	    kb.load(doc, {format:format});
 	    var obj = {};
 	    var set_val = function(o,p,v) {
 		if (o[p] === undefined) { o[p] = v; return; }
@@ -81,10 +79,7 @@ define(
 	    var get = $.ajax({ type:"GET", url:config.SPARQL_URL, data:{query:query}});
 	    var _d = new $.Deferred();
 	    var fetch_model = arguments.callee;
-	    get.then(function(doc,textStatus,jqXHR){
-			 update_model_with_raw_rdf_document(model, doc);
-			 _d.resolve(model,doc,textStatus,jqXHR); 
-		     }).error(_d.fail);
+	    get.then(function(doc,textStatus,jqXHR){ update_model_with_raw_rdf_document(model, doc); _d.resolve(model,doc,textStatus,jqXHR);  }).error(_d.fail);
 	    return _d;
 	};	
 
