@@ -79,8 +79,11 @@ define(
 	    if (uri === undefined) { throw new Error("get_resource: URI undefined"); }
 	    uri = ns.expand(uri);
 	    if (_model_cache[uri] === undefined) {
+		//
+		console.log('getting <new> resource ', uri);		
 		_model_cache[uri] = new Model({},uri);
 	    }
+	    console.log('getting <existing> resource ', uri);			    
 	    return _model_cache[uri];
 	};	
 	return {

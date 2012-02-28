@@ -35,11 +35,12 @@ define(
 	    $.ajax({ type:"GET", url:config.GET_REPO_UPDATES, data:{ since: cache_etag }})
 		.then(function(data, textStatus, jqXHR) {
 			  if (!data) { console.error(' warning -- no data returned on cache update ');  return;   }
-			  console.log("update data > ", data);
-			  
 			  var kb = wkb.make_kb();
 			  kb.load(data, {});
-			  var subjects = _.uniq($.rdf({databank:kb}).where('?s ?p ?o').map(function() { return this.s.value.toString(); }));
+			  var subjects = _.uniq($.rdf({databank:kb}).where('?s ?p ?o').
+						map(function() {
+							return this.s.value.toString();
+						    }));
 			  var updated_models = subjects.map(function(s_uri) {
 					   var m = models.get_resource(s_uri);
 					   update_model_with_raw_rdf_document(m,doc);
@@ -51,6 +52,7 @@ define(
 	};
 
 	var update_model_with_raw_rdf_document = function(model,doc) {
+	    console.log(' updating model ', model.uri);
     	    var kb = wkb.make_kb();
     	    kb.load(doc, {});
 	    var obj = {};
@@ -61,6 +63,7 @@ define(
 	    };	    
 	    $.rdf({databank:kb}).where('<'+model.uri+'> ?p ?o').each(
 		function() {
+		    console.log('got ', model.uri, this.p.value.toString(), this.o.value.toString());
 		    var prop = this.p.value.toString();
 		    // do we really want to do this? 
 		    if (prop.indexOf(ns.me) == 0) { prop = prop.slice(ns.me.length); }
