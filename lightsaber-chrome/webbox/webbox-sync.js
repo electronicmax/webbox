@@ -23,13 +23,14 @@ define(
 	    var prev_etag = parse_etag(xhr.getResponseHeader('X-ETag-Previous'));
 	    var cache_etag = models.get_cache_version();
 	    var d = new $.Deferred();
-	    console.log("etags ", etag, prev_etag);
+	    console.log("etags ", etag, prev_etag, "cache version -- ", models.get_cache_version());
+	    
 	    if ([etag,prev_etag].indexOf(models.get_cache_version()) >= 0) {
-		// we don't need to update since i
-		// models.set_cache_version(etag);
-		// console.log('fast forward cache update --- ', prev_etag, ' -> ', etag);
+		console.log('fast forward cache update --- ', prev_etag, ' -> ', etag);
+		models.set_cache_version(etag);
 		return d.resolve(etag);
 	    }
+	    
 	    console.log(" getting updates -- tag is ", etag, " prev is ", prev_etag, 'cache version is ', cache_etag);
 	    models.set_cache_version(etag);			  	    	    
 	    $.ajax({ type:"GET", url:config.GET_REPO_UPDATES, data:{ since: cache_etag }})
@@ -43,7 +44,7 @@ define(
 						    }));
 			  var updated_models = subjects.map(function(s_uri) {
 					   var m = models.get_resource(s_uri);
-					   update_model_with_raw_rdf_document(m,doc);
+					   update_model_with_raw_rdf_document(m,data);
 					   return m;
 				       });
 			  d.resolve(updated_models,data,textStatus,jqXHR);

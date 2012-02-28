@@ -91,6 +91,31 @@ define(
 	    model.save();
 	    // now let them save	    
 	};
+
+	var make_random_person = function() {
+	    var first = "Fred"+util.guid().slice(0,5);
+	    var last = "Smith"+util.guid().slice(0,5);
+	    var uri = ns.expand('enakting_test:'+[first, last, util.guid()].join('_'));
+	    var props = {};
+	    props[ns.expand('foaf:givenName')] = "Last name"; 
+	    props[ns.expand('foaf:lastName')] = "First name";		
+	    props[ns.expand('rdf:type')] = ns.expand('foaf:Person');
+	    // let's not blow up the world right now >> props[ns.expand('webbox:address')] = m.get_resource(config.config.webbox_url);
+	    props[ns.expand('foaf:mbox')] = util.guid() + "@mbox.hip.cat"; 
+	    props[ns.expand('foaf:page')] = 'http://hip.cat/peeps/' + util.guid();		
+	    props[ns.expand('rdfs:label')] = first + " " + last + util.guid().slice(0,3);
+	    var pp = new m.Model(props,uri);
+	    pp.save();
+	    console.log(uri);
+	    return pp;
+	};
+
+	var modify_random_person = function(p) {
+	    var newl = p.get(ns.expand('foaf:givenName')) + " " + p.get(ns.expand('foaf:lastName')) + util.guid().slice(0,3);
+	    p.set2('rdfs:label', newl);
+	    p.save();
+	    return p;    
+	};
 	
 	return {
 	    run: function() {
@@ -105,7 +130,9 @@ define(
 	    get_graphs:wkb.get_graphs,
 	    make_people:make_people,
 	    make_places:make_places,
-	    make_sharing:make_sharing
+	    make_sharing:make_sharing,
+	    make_random_person:make_random_person,
+	    modify_random_person:modify_random_person
 	};	
     });
 
@@ -119,7 +146,7 @@ define(
 		bkmk.set2("rdfs:label", name);
 		bkmk.set2("webbox:href", url);
 		return bkmk;
-	    };
+	    };;
 
 	    var mk_bkmks = function(kv, typeuri, typelabel) {
 		var typeclass = m.get_resource( ns.expand(typeuri));
