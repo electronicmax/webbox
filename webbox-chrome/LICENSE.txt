@@ -1,6 +1,9 @@
 
 WebBox for Chrome
-(c) 2011-2012 University of Southampton, Max Van Kleek
+
+(c) 2011-2012 University of Southampton, Max Van Kleek, Daniel
+A. Smith, mc schraefel, Oshani Seneviratne, Alex Bertails, Nigel
+Shadbolt, Wendy Hall, Tim Berners-Lee
 
 This software is licensed under GPL v.3.
 
