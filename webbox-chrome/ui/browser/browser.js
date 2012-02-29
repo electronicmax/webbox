@@ -17,11 +17,15 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 		      this.trigger('load_start');
 		      this._populate().then(function() {
 						this_.apply_post_render();
-						console.log('done --- '); this_.trigger('load_end');
+						console.log('done --- ');
+                                                this_.trigger('load_end');
 					    });
 		  },
 		  apply_post_render:function() {
-		      _(this.collections).values().map(function(c) { c.trigger('init_complete'); });
+		      _(this.collections).values().map(
+                          function(c) {
+                              c.trigger('init_complete');
+                          });
 		  },
 		  _populate:function() {
 		      // todo: rename "_update"
@@ -45,6 +49,7 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 						      items[m.uri] = l;
 						      l_D.resolve(l);
 						  });
+                                              // chains -- 
 					      this_._get_collection_for_item(m).then(
 						  function(c) {
 						      l_D.then(function(lens) {
@@ -63,8 +68,7 @@ define(['/webbox/webbox-model.js','/webbox/webbox-ns.js','/webbox/webbox-kb.js',
 			  function(intruder_uri) {
 			      items[intruder_uri].remove();
 			      delete items[intruder_uri];
-			  });
-				 
+			  });				 
 		      $.when.apply($,all_dfds).then(function() { console.log("DONE !"); D.resolve();  });
 		      return D.promise();
 		  },

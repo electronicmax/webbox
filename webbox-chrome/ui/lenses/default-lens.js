@@ -71,8 +71,15 @@ define([
 		  initialize:function() {
 		      var this_ = this;
 		      this.tbviews = [];
-		      this.bind('init_complete',function() { $(this_.el).find('.items').isotope(this_.ISOTOPE_OPTIONS); });
-		      this.bind('resize', function() {  $(this_.el).find('.items').isotope('reLayout'); });
+		      this.bind('init_complete',function() {
+                                    this_.isotope = true;
+                                    $(this_.el).find('.items').isotope(this_.ISOTOPE_OPTIONS);
+                                });
+		      this.bind('resize', function() {
+                                    if (this_.isotope) {
+                                        $(this_.el).find('.items').isotope('reLayout');
+                                    }
+                                });
 		  },
 		  ISOTOPE_OPTIONS:{
 		      itemSelector : '.item',
@@ -115,11 +122,12 @@ define([
 		      "click" : "_cb_click"  
 		  },
 		  className:"itemview lens",
-		  initialize:function() {},
-		  update:function(m) {
-                      // adds a connection to the model to re-render what has changed
+		  initialize:function() {
+                      this.attach_model_listeners(this.options.model);
+                  },
+                  attach_model_listeners:function(m) {
                       var this_ = this;
-                      if (this._change_callback !== undefined && this.options.model) {
+                      if (this._change_callback !== undefined && this.options.model !== undefined) {
                           this.options.model.off("change", this._change_callback);
                           delete this._change_callback;
                       }
@@ -127,8 +135,11 @@ define([
                           this_.render();
                           this_.trigger('resize');
                       };
-		      this.options.model = m;
                       m.bind('change',this._change_callback);
+                  },
+		  update:function(m) {
+                      this.attach_model_listeners(m);
+		      this.options.model = m;
 		      this.render();
 		      this.trigger('resize');
 		  },
@@ -173,5 +184,5 @@ define([
 	      CollectionView:CollectionView,
 	      DefaultCompactLens:DefaultLens.extend({ template:compact_lens_template })
 	  };
-      })
+      });
 

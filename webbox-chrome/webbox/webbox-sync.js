@@ -23,15 +23,15 @@ define(
 	    var prev_etag = parse_etag(xhr.getResponseHeader('X-ETag-Previous'));
 	    var cache_etag = models.get_cache_version();
 	    var d = new $.Deferred();
-	    console.log("etags ", etag, prev_etag, "cache version -- ", models.get_cache_version());
+	    // console.log("etags ", etag, prev_etag, "cache version -- ", models.get_cache_version());
 	    
 	    if (etag == models.get_cache_version()) {
-		console.log('fast forward cache update --- ', prev_etag, ' -> ', etag);
+		// console.log('fast forward cache update --- ', prev_etag, ' -> ', etag);
 		models.set_cache_version(etag);
 		return d.resolve(etag);
 	    }
 	    
-	    console.log(" getting updates -- tag is ", etag, " prev is ", prev_etag, 'cache version is ', cache_etag);
+	    // console.log(" getting updates -- tag is ", etag, " prev is ", prev_etag, 'cache version is ', cache_etag);
 	    models.set_cache_version(etag);
 	    
 	    // this gets returned turtle-style:
@@ -40,7 +40,7 @@ define(
 			  if (!data) { console.error(' warning -- no data returned on cache update ');  return;   }
 			  var kb = wkb.make_kb();
 			  kb.load(data, {format:'text/turtle'});
-                          console.log(' data ', data);
+                          // console.log(' data ', data);
 			  var subjects = _.uniq($.rdf({databank:kb}).where('?s ?p ?o').map(function() {	return this.s.value.toString(); }));
 			  var updated_models = subjects.map(function(s_uri) {
 					   var m = models.get_resource(s_uri);
@@ -63,7 +63,7 @@ define(
 	    };	    
 	    $.rdf({databank:kb}).where('<'+model.uri+'> ?p ?o').each(
 		function() {
-		    console.log('got ', model.uri, this.p.value.toString(), this.o.value.toString());
+		    // console.log('got ', model.uri, this.p.value.toString(), this.o.value.toString());
 		    var prop = this.p.value.toString();
 		    // do we really want to do this? 
 		    if (prop.indexOf(ns.me) == 0) { prop = prop.slice(ns.me.length); }
