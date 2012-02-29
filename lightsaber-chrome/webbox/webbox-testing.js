@@ -132,8 +132,7 @@ define(
 	    console.log(uri);
 	    return pp;
 	};
-
-
+        
 	var make_person_with_webid = function(webid) {
 	    var first = "Danielistair"+util.guid().slice(0,5);
 	    var last = "Smithi"+util.guid().slice(0,5);
@@ -149,9 +148,7 @@ define(
 	    pp.save();
 	    console.log(uri);
 	    return pp;
-	};
-        
-        
+	};        
 	
 	return {
 	    run: function() {

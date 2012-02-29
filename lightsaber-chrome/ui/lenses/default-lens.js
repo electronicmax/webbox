@@ -19,6 +19,9 @@ define([
 		      'click .edit': "_cb_edit_clicked",
 		      'click .share': "_cb_share_clicked"
 		  },
+		  initialize:function() {
+                      
+		  },                  
 		  _cb_edit_clicked:function(evt) {
 		      // resize semantics - we bubble up resize events when we cause an explicit
 		      // change in size -- but otherwise the lens does
@@ -35,7 +38,7 @@ define([
 		      e.bind('close', function() {
 				 this_.$el.find('.buttons').removeClass('suppress');
 				 this_.trigger('resize');
-			     });		    
+			     });
 		  },
 		  _cb_share_clicked:function(evt) {
 		     // console.log("clicked on ", model);
@@ -54,8 +57,6 @@ define([
 				this_.trigger('resize');
 			    });		    		      
 		  },		  
-		  initialize:function() {
-		  },
 		  render:function() {
 		      this.$el.html(_(this.template).template()); // nothing special here -- ({m:this.options.lens.options.model.toJSON()}));
 		      $(this.el).find('.main').append(this.options.lens.render());
@@ -116,7 +117,18 @@ define([
 		  className:"itemview lens",
 		  initialize:function() {},
 		  update:function(m) {
+                      // adds a connection to the model to re-render what has changed
+                      var this_ = this;
+                      if (this._change_callback !== undefined && this.options.model) {
+                          this.options.model.off("change", this._change_callback);
+                          delete this._change_callback;
+                      }
+                      this._change_callback = function() {
+                          this_.render();
+                          this_.trigger('resize');
+                      };
 		      this.options.model = m;
+                      m.bind('change',this._change_callback);
 		      this.render();
 		      this.trigger('resize');
 		  },
