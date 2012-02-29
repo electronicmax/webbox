@@ -97,7 +97,8 @@ define(
 	var to_literal_or_resource = function(v) {
 	    if ( v instanceof $.rdf.resource ) { return v; }
 	    if ( v instanceof $.rdf.literal ) { return v; }
-	    if ( v instanceof $.rdf.blank ) { return v; }	    
+	    if ( v instanceof $.rdf.blank ) { return v; }
+	    if ( v instanceof Date) { return wkb.dateTime(v); }
 	    if ( typeof(v) == 'number' ) { return $.rdf.literal(v); }
 	    if ( typeof(v) == 'string' ) { /* todo: check ? */
 		return $.rdf.literal(v, { datatype:ns.expand("xsd:string") });  // ns.ns.xsd+"string" });
