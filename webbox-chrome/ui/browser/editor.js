@@ -49,6 +49,8 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
                    },
 		   _cb_save:function() {
                        this._disable();
+                       if (this.saved) { console.error(' DEBUG :: already saved, ignoring superfluous event '); return; }
+                       this.saved = true;
 		       var this_ = this;
 		       var new_vals =
                            $(this.el).find('.editor_row').map(
