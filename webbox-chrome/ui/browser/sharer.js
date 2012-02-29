@@ -6,11 +6,17 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 	       {
 		   template:template,		   
 		   events:{
-		       'click .ok' : "_cb_save",
+		       'click .save' : "_cb_save",
 		       'click .close' : "_cb_close"
 		   },
 		   initialize:function() {},
 		   show:function() { return this.render(); },
+                   _enable:function() {
+                       this.delegateEvents();
+                   },
+                   _disable:function() {
+                       this.undelegateEvents();
+                   },                   
 		   render:function() {
 		       var main_el = this.$el;
 		       main_el.html(_(this.template).template({m:this.options.model,ns:ns}));
@@ -44,6 +50,7 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 		       return this.el;		       
 		   },
 		   _cb_save:function() {
+                       this._disable();
 		       try {
 			   var values = $(this.el).find('select').val() || [];
 			   var model = this.options.model;
@@ -53,7 +60,8 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 						      });
 			   model.set2('sioc:addressed_to', resources); 
 			   model.save();
-			   this.trigger('resize');			   
+                           console.log("ASSERTING SHARING ", model);
+                           this._cb_close();
 		       } catch (x) {  console.error('ERROR trying to save updated sharing state ', x);  }
 		   },		       
 		   _cb_close:function() {
@@ -63,23 +71,3 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 		   }
 	       })};
        });
-
-		       /*
-		       var this_ = this;
-		       // populate people who are already being shared with
-		       var sharees = $(main_el).find('.peeps');
-		       if (this.options.model.get(ns.expand("sioc:addressed_to"))) {
-			   this.options.model.get(ns.expand("sioc:addressed_to")).map(
-			       function(p) {
-				   p.fetch().then(
-				       function() {	
-					   this_.options.browser._get_lens_for_item(m).then(
-					       function(lens) {
-						   var l = new lens.Lens({model:m});
-						   sharees.append(l.render());
-					       });			       
-				       });
-			       });
-		       }
-			*/
-

@@ -53,7 +53,7 @@ define([
 		     this.$el.find('.buttons').addClass('suppress');		      
 		     e.bind('resize', function() { this_.trigger('resize'); });
 		     e.bind('close', function() {
-				this_.$el.find('.buttons').remoeClass('suppress');
+				this_.$el.find('.buttons').removeClass('suppress');
 				this_.trigger('resize');
 			    });		    		      
 		  },		  

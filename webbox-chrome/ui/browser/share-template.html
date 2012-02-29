@@ -1,6 +1,8 @@
 <div class="editor">
   <div>Sharing for <%= m.get(ns.expand('rdfs:label')) ? m.get(ns.expand('rdfs:label')) + ' (' + m.uri + ')' : m.uri %>:</div>
-  <select data-placeholder="select a person to add" multiple class="person_selector"></select>
-  <button class="save">save</button>
-  <button class="close">close</button>  
+  <select data-placeholder="select a person to add" multiple
+  class="person_selector"></select>
+  <p>
+  <button class="save">save sharing settings</button> <button class="close">cancel sharing change</button>
+  </p>
 </div>
