@@ -41,22 +41,38 @@ define(['/webbox/webbox-model.js', '/webbox/webbox-ns.js','/webbox/webbox-kb.js'
 		       // if ((new Date(v)).toString() !== 'Invalid Date') {  return new Date(v);  }
 		       return v;
 		   },
+                   _enable:function() {
+                       this.delegateEvents();
+                   },
+                   _disable:function() {
+                       this.undelegateEvents();
+                   },
 		   _cb_save:function() {
+                       this._disable();
 		       var this_ = this;
-		       var new_vals =  $(this.el).find('.editor_row').map(
+		       var new_vals =
+                           $(this.el).find('.editor_row').map(
 			       function() {
 				   var k = $(this).find(".key").val().trim();
 				   var v = $(this).find(".val").val().trim();
 				   // var prop = ns.expand(k,true);
 				   return {p:k,v:v};
-			       }).filter(function() {
-				       return this.p && this.p.length > 0;
-				   }).get();
-		       this_.options.model.clear();
-		       new_vals.map(function(x) { this_.options.model.set2(ns.expand(x.p,true), this_.guess_type(x.v));  });
-		       console.log("resulting model >> ", this.options.model.toJSON());
-		       this._cb_close();
-		       return this.options.model.save();
+			       }).filter(function() {  return this.p && this.p.length > 0;       }).get();                       
+                       if (new_vals) {
+                           console.log("new vals >> ", new_vals);
+                           // rows may have been removed, so we want to clear                           
+		           this_.options.model.clear();
+                           new_vals.map(function(x) {
+                                            this_.options.model.set2(ns.expand(x.p,true), this_.guess_type(x.v));
+                                        });
+		           console.log("resulting model >> ", this.options.model.toJSON());
+		           this._cb_close();
+		           return this.options.model.save();
+                       } else {
+                           console.log(" NO VALS WHAT IS GOING ON ");
+                           console.error(" NO VALS what is going on ");
+                       }
+                       return this.options.model.save();
 		   },
 		   _cb_new_row:function() {
 		       var t = _(row_templ).template({key:'',val:''});
