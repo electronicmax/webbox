@@ -1,5 +1,6 @@
 
-WebBox for Chrome
+
+WebBox Client Librariess and Applications
 
 (c) 2011-2012 Max Van Kleek
 
