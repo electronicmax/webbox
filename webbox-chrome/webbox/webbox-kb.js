@@ -15,7 +15,8 @@ define(['/lib/require.js','/webbox/webbox-ns.js', '/webbox/webbox-config.js','/w
 	   var make_kb = function() {
 	       return $.rdf.databank([], { base: ns.me, namespaces:ns.ns });
 	   };
-	   var ping = function(url) {
+	   var ping = function(url, fourstore) {
+               console.log('ping at url ', url);
 	       if (url === undefined) {  url = config.SPARQL_URL;  }
 	       var this_ = this;
 	       var query = "SELECT ?s ?p ?o WHERE { ?s ?p ?o . } LIMIT 1";
@@ -23,7 +24,8 @@ define(['/lib/require.js','/webbox/webbox-ns.js', '/webbox/webbox-config.js','/w
 		   this.get.abort();
 		   delete this.get;
 	       }
-	       this.get = $.ajax({ type:"GET", url:( url !== undefined ? url + "/sparql/" : config.SPARQL_URL ), data:{query:query}});
+               // only works for webboxes : 
+	       this.get = $.ajax({ type:"GET", url:( url !== undefined ? url + (fourstore ? "/sparql" : "/webbox") : config.SPARQL_URL ), data:{query:query}});
 	       var D = new $.Deferred();
 	       this.get.success(function() { delete this_.get; D.resolve.apply(D,arguments); }).error(D.reject);
 	       return D.promise();

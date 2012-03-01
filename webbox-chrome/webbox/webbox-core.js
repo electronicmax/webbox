@@ -7,10 +7,8 @@ define(
         '/webbox/webbox-testing.js',
         '/webbox/webbox-kb.js',
         '/webbox/webbox-ns.js',
-        '/js/window-watcher.js',
-        '/webbox/webbox-basic.js'
     ],
-    function(m,sync,util,configbox,tests,wkb,ns,ww,basic) {
+    function(m,sync,util,configbox,tests,wkb,ns) {
 	console.log("Core extnding window .. ");
 	_(window).extend({
 			     m : m,
@@ -19,7 +17,6 @@ define(
 			     wkb : wkb,
 			     ns : ns,
 			     tests:tests,
-			     basic: basic,
 			     config:configbox.config,
 			     test_webbox : function() {
 				  tests.run(); 

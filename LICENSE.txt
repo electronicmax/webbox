@@ -2,7 +2,7 @@
 
 WebBox Client Librariess and Applications
 
-(c) 2011-2012 Max Van Kleek
+(c) 2011-2012 University of Southampton, Max Van Kleek, Daniel Alexander Smith
 
 This software is licensed under GPL v.3.
 
