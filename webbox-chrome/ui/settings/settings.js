@@ -118,10 +118,10 @@ define(['/webbox/util.js','/webbox/webbox-kb.js', '/webbox/webbox-config.js'],
 			  storage['SPARQL_URL'] = storage['webbox_url'] + '/sparql/';
 			  storage['PUT_URL'] = storage['webbox_url'] + '/data/'; // webbox_url+"/data/"
 		      } else {
-			  // todo : dan
-			  storage['SPARQL_URL'] = storage['webbox_url'] + '/webbox/';
+			  // these are relative to the path of the webbox, usually ending in /webbox
+			  storage['SPARQL_URL'] = storage['webbox_url'] ;
 			  storage['GET_REPO_UPDATES'] = storage['webbox_url'] + '/update';			  
-			  storage['PUT_URL'] = storage['webbox_url'] + '/webbox/'; // storage['webbox_url'] + '/?graph=';
+			  storage['PUT_URL'] = storage['webbox_url'] + '/'; // storage['webbox_url'] + '/?graph=';
 		      }
 		      console.log("Set SPARQL: ", storage['SPARQL_URL'] + " //  PUT: " + storage['PUT_URL']); 
 		      return o;

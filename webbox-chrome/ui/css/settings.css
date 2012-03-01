@@ -1,9 +1,15 @@
 /* settings specific css */
+@font-face {
+	font-family: 'District Thin';
+        src: url('/ui/fonts/DistTh___.ttf');
+}
+body {
+    font-family: 'District Thin';    
+}
 #main {
- min-height:500px;   
+   min-height:500px;   
 }
 .title {
-    font-family: 'Orbitron', sans-serif;
     color:rgba(0,150,200,0.1);
     position:absolute;
     bottom:-50px;
