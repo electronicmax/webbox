@@ -1,13 +1,14 @@
-WebBox Client, Tutorials and Applications
+WebBox : A decentralized Web architecture for the Future!
 =============================================
 
-This repository currently holds client libraries and 
-sample WebBox applications that come bundles with
-the client distribution.
+This repository currently holds client libraries and sample WebBox
+applications that come bundled with WebBox for Chrome. 
 
-The WebBox server repository is currently:
+Visit the WebBox wiki for information : 
 
-https://github.com/danielsmith-eu/webbox
+https://github.com/electronicmax/webbox/wiki
 
-until it becomes merged with this repository at a later date.
+For questions or comments, join/post to the Webbox Developer Google Group:
+
+http://groups.google.com/group/webbox-dev
 
