@@ -15,6 +15,7 @@ a {
     color:black;
     font-weight:bold;
 }
+.hide { display:none; }
 button {
     background-color: whiteSmoke;
     background-image: -webkit-linear-gradient(top,#f5f5f5,#f1f1f1);

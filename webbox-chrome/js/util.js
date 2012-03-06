@@ -36,13 +36,10 @@ define([],
 		    }
 		}catch(e) {}
 	    };
-
 	    window.error = function() {
 		console.log(arguments);
 		try{ console.error.apply(console,arguments);	}catch(e) {}
 	    };
-	    
-
 	    function getElementXPath(elt)
 	    {
 		var path = "";
