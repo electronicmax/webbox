@@ -1,0 +1,66 @@
+<!DOCTYPE html> 
+<html>
+	<head>
+	  <link rel="stylesheet" type="text/css" href="/web/ui/css/common.css"/>
+	  <link rel="stylesheet" type="text/css" href="/web/ui/css/settings.css"/>
+	  <link rel="stylesheet" type="text/css" href="/web/lib/iphone-checkboxes/style.css"/>
+	  <script type="text/javascript" src="/web/lib/jquery.min.js"></script>
+          <script type="text/javascript" src="/web/lib/underscore-min.js"></script>
+          <script type="text/javascript" src="/web/lib/backbone-min.js"></script>
+	  <script type="text/javascript" src="/web/lib/less.js"></script>
+	  <script type="text/javascript" src="/web/lib/iphone-checkboxes/iphone-style-checkboxes.js"></script>
+	  <script type="text/javascript" src="/web/lib/rdfquery/jquery.uri.js"></script>
+	  <script type="text/javascript" src="/web/lib/rdfquery/jquery.xmlns.js"></script>
+	  <script type="text/javascript" src="/web/lib/rdfquery/jquery.curie.js"></script>      
+	  <script type="text/javascript" src="/web/lib/rdfquery/jquery.datatype.js"></script>
+	  <script type="text/javascript" src="/web/lib/rdfquery/jquery.rdf.js"></script>
+	  <script type="text/javascript" src="/web/lib/rdfquery/jquery.rdfa.js"></script>
+	  <script type="text/javascript" src="/web/lib/rdfquery/jquery.rdf.xml.js"></script>
+	  <script type="text/javascript" src="/web/lib/rdfquery/jquery.rdf.json.js"></script>  
+	   
+	  <script type="text/javascript" src="/web/lib/require.js" data-main="/settings/settings.js"></script>
+	</head>
+	<body>
+
+	  <div id="main">
+	    <h1>webbox configuration</h1>
+	  <div class="title">webbox</div>
+	  <div class="settings">
+	    <h2> You and Your Webbox </h2>
+	    <div class="setting hide">
+	      <div class="key">Your Webid :</div><div class="val"><input id="webid" type="text" placeholder="http://your.domain.com/fred.flinstone"></input>
+		<div class="undertext"> &gt; <a href="http://www.w3.org/wiki/Foaf+ssl">don't have a webid?</a></div>
+		<div id="fetching" style="display:none"><div class="loader"></div> Fetching FOAF file ... </div>
+		<div id="error" style="display:none"></div>		
+	      </div>	      
+	    </div>
+	    <div class="setting">
+	      <div class="key">Your Webbox:</div><div class="val"><input id="webbox_url" type="text" placeholder="http://your.domain.com:8000/"></input>
+		<div id="webbox_alive" style="display:none"> <div class="green_dot"></div> Server is alive and breathing! </div>
+		<div id="webbox_dead" style="display:none"> <div class="red_dot"></div> Cannot connect to the server :( </div>
+	      </div>
+	    </div>
+	    <h2 class="hide"> Protocol / Endpoint type </h2>
+	    <div class="setting hide">
+	      <div class="key"><label for="weblogging">4store mode:</label></div>
+	      <div class="val"><input type="checkbox" id="mode_4store"/></div>
+	    </div>	      	    	      
+	    <h2 class="hide"> Modules (Experimental) </h2>
+	    <div class="setting hide">
+	      <div class="key"><label for="weblogging">Web logging?</label></div>
+	      <div class="val"><input type="checkbox" id="weblogging"/></div>
+	    </div>
+	    <div class="setting hide">
+	      <div class="key"><label for="weblogging">Page bookmarking?</label></div>
+	      <div class="val"><input type="checkbox" id="page_bookmarking"/></div>
+	    </div>
+	  </div>            
+	  <div class="buttons">
+	    <button class="save">save settings</button>
+	  </div>
+	  <div class="status">
+	    <div class="saving"><div class="loader"></div> Saving settings ... </div>
+	  </div>	  
+	  <script type="text/template"></script>
+	</body>
+</html>

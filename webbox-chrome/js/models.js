@@ -1,5 +1,5 @@
 require(
-    ['/webbox/webbox-ns.js','/webbox/webbox-model.js'],
+    ['/web/webbox/webbox-ns.js','/web/webbox/webbox-model.js'],
     function(ns,webbox) {
 	var AnnotationModel = webbox.Model.extend(
 	    {

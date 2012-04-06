@@ -1,0 +1,43 @@
+<!DOCTYPE html> 
+<html>
+	<head>
+	  <link rel="stylesheet" type="text/css" href="/web/ui/css/notes.css">
+          <link rel="stylesheet" type="text/css" href="/web/lib/jquery-ui/css/ui-lightness/jquery-ui-1.8.16.custom.css">
+	  <link rel="stylesheet" type="text/css" href="/web/lib/chosen/chosen.css">	  
+	  <script type="text/javascript" src="/web/lib/jquery.min.js"></script>
+	  <script type="text/javascript" src="/web/lib/jquery-ui/js/jquery-ui-1.8.16.custom.min.js"></script>
+          <script type="text/javascript" src="/web/lib/flot/jquery.flot.js"></script>
+          <script type="text/javascript" src="/web/lib/underscore-min.js"></script>
+          <script type="text/javascript" src="/web/lib/backbone-min.js"></script>
+
+	  <script type="text/javascript" src="/web/lib/rdfquery/jquery.uri.js"></script>
+	  <script type="text/javascript" src="/web/lib/rdfquery/jquery.xmlns.js"></script>
+	  <script type="text/javascript" src="/web/lib/rdfquery/jquery.curie.js"></script>      
+	  <script type="text/javascript" src="/web/lib/rdfquery/jquery.datatype.js"></script>
+	  <script type="text/javascript" src="/web/lib/rdfquery/jquery.rdf.js"></script>
+	  <script type="text/javascript" src="/web/lib/rdfquery/jquery.rdfa.js"></script>
+	  <script type="text/javascript" src="/web/lib/rdfquery/jquery.rdf.xml.js"></script>
+	  <script type="text/javascript" src="/web/lib/rdfquery/jquery.rdf.turtle.js"></script>
+	  <script type="text/javascript" src="/web/lib/rdfquery/jquery.rdf.json.js"></script>  
+	  
+	  <script type="text/javascript" src="/web/lib/json.js"></script>
+	  <script type="text/javascript" src="/web/lib/chosen/chosen.jquery.min.js"></script>	  
+	  <script type="text/javascript" src="/web/lib/require.js" data-main="/web/ui/notes/notes.js"></script>
+	</head>
+	<body>
+          <div id="main_lhs">
+	    <div contentEditable="true" class="input" tabindex='1'></div>
+	    <div id="notes"></div>
+          </div>
+          <div id="main_rhs">
+            <div id="sheet_ui">
+              <div class="controls">
+                <button class="new">new</button>
+                <button class="plotify">add plot</button>                                
+                <select class="sheet_selector"></select>
+              </div>
+              <div class="sheets"></div>              
+            </div>
+          </div>
+	</body>
+</html>

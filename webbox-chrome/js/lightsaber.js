@@ -1,5 +1,5 @@
 define(
-    ["/js/models.js", "/webbox/webbox-core.js", "/webbox/webbox-ns.js"],
+    ["/js/models.js", "/web/webbox/webbox-core.js", "/web/webbox/webbox-ns.js"],
     function(models, webbox, ns) {
 	// ns = prefix - ns mappings
 	var Lightsaber = Backbone.Model.extend(

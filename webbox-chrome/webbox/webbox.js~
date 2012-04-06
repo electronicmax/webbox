@@ -1,6 +1,0 @@
-// assumes require, $, $.rdf are defined
-require(
-    ['webbox-sync', 'webbox-ns'],    
-    function(websync, ns) {
-	// 
-    });

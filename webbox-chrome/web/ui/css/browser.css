@@ -1,0 +1,82 @@
+@import url(/web/ui/css/common.css);
+@import url(/web/ui/css/lenses.css);
+@import url(/web/ui/css/editor.css);
+body {
+    background-color:rgb(255,255,255); /*(190,210,210);*/
+}
+#title {
+    position:absolute;
+    font-family: 'Orbitron', sans-serif;
+    color:rgba(0,150,200,0.1);
+    bottom:-50px;
+    right:-10px;
+    font-size:180px;
+    z-index:-1000;
+    font-weight:10;
+}
+#main {
+  width:100%;
+  text-align:center;
+}     
+#count {
+   font-size:12pt;
+   position:absolute;
+   top:0px;
+   right:0px;
+   text-align:right;
+}
+.collection {
+    /*** border: 1px solid rgba(0, 0, 0, 0.2); */    
+    position:relative;
+    text-align:left;
+    margin: 10px 40px;
+    padding: 20px 10px;
+}
+.collection .collection_name {
+    font-size: 18pt;
+    font-weight: bold;
+    position: absolute;
+    left: 18px;
+    top: 12px;
+}
+.item {
+    position:relative;
+    max-width:230px;
+}    
+.itemview {
+    padding: 0 8px;
+    margin: 8px;
+}
+.collection .items {
+    margin:30px 0px 0px 5px;
+    /*max-width:600px;*/
+}
+.roundabout-holder {
+    width:90%;
+    padding: 0;
+    height: 650px;
+    list-style: none;
+}
+.toolbar {
+    height:100%;
+}
+
+div.toolbar .buttons {
+    bottom:0px;
+    height:99%;
+    position:absolute;
+    right:18px;
+    margin-top:50%;
+    top:-16px;
+    width:16px;
+    opacity:0.0;
+}
+div.toolbar:hover .buttons {
+    -webkit-transition: opacity 0.8s;    
+    opacity:0.9; 
+}
+div.toolbar .buttons img {
+    vertical-align:middle;
+    padding:1px 2px;
+}
+

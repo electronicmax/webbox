@@ -1,11 +1,11 @@
 define(
     [
-        '/webbox/webbox-core.js',
-        '/webbox/webbox-config.js',
-        '/webbox/webbox-model.js',
-        '/webbox/webbox-ns.js',
-        '/webbox/webbox-kb.js',
-        '/webbox/webbox-basic.js',
+        '/web/webbox/webbox-core.js',
+        '/web/webbox/webbox-config.js',
+        '/web/webbox/webbox-model.js',
+        '/web/webbox/webbox-ns.js',
+        '/web/webbox/webbox-kb.js',
+        '/web/webbox/webbox-basic.js',
         '/js/window-watcher.js'
     ],
     function(core, configbox, m, ns, kb, basic, windowwatcher) {
