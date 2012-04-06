@@ -54,7 +54,7 @@ define(
 		    chrome.windows.create({'url': '/web/ui/browser.html', 'type': 'normal'}, function(window) {});
 		},		
 		open_settings:function() {
-		    chrome.windows.create({'url': '/settings.html', 'type': 'normal'}, function(window) {});
+		    chrome.windows.create({'url': '/web/settings.html', 'type': 'normal'}, function(window) {});
 		},
 		open_inbox:function() {
 		    chrome.windows.create({'url': '/web/ui/inbox.html', 'type': 'normal'}, function(window) {});
